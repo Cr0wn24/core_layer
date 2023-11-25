@@ -142,7 +142,7 @@ typedef struct OS_Library
 	void *handle;
 } OS_Library;
 
-internal void OS_Init(MemoryArena permanent_arena);
+internal void OS_Init();
 internal void OS_DestroyWindow(OS_Window *window);
 
 #endif

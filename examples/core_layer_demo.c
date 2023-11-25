@@ -1,3 +1,5 @@
+// This needs to be set where the core layer is relative to the build folder. See "renderer.h".
+// It is needed to properly initialize resources at run time
 #define CORE_PATH "../"
 
 #include "core_layer/base/base_inc.h"
@@ -21,14 +23,14 @@ UITest()
 	UI_NextRelativePos2(300, 300);
 	UI_NextBackgroundColor(ui_state->theme.window_color);
 	UI_Box *box2 = UI_BoxMake(UI_BoxFlag_DrawBackground |
-							  UI_BoxFlag_DrawBorder |
-							  UI_BoxFlag_DrawDropShadow |
-							  UI_BoxFlag_FixedX |
-							  UI_BoxFlag_FixedY |
-							  UI_BoxFlag_AnimateWidth |
-							  UI_BoxFlag_AnimateHeight |
-							  UI_BoxFlag_Clip,
-							  Str8Lit("My box2"));
+														UI_BoxFlag_DrawBorder |
+														UI_BoxFlag_DrawDropShadow |
+														UI_BoxFlag_FixedX |
+														UI_BoxFlag_FixedY |
+														UI_BoxFlag_AnimateWidth |
+														UI_BoxFlag_AnimateHeight |
+														UI_BoxFlag_Clip,
+														Str8Lit("My box2"));
 	UI_Size tree_spacing = UI_Em(0.3f);
 
 	local_persist Vec4F32 color_test = {1.0f, 1.0f, 1.0f, 1.0f};
@@ -208,7 +210,7 @@ EntryPoint(String8List args)
 	MemoryArena permanent_arena;
 	ArenaInit(&permanent_arena, OS_AllocMem(MEGABYTES(128)), MEGABYTES(128));
 
-	CoreInit();
+	OS_Init();
 
 	OS_Window *window = OS_CreateWindow(Str8Lit("Test"), 0, 0, 800, 800, true);
 
@@ -235,7 +237,7 @@ EntryPoint(String8List args)
 			}
 
 			loaded_bitmaps[i].data = stbi_load((const char *)path.str,
-											   &loaded_bitmaps[i].dim.width, &loaded_bitmaps[i].dim.height, &channels, 0);
+																				 &loaded_bitmaps[i].dim.width, &loaded_bitmaps[i].dim.height, &channels, 0);
 		}
 		ReleaseScratch(scratch);
 
@@ -264,8 +266,8 @@ EntryPoint(String8List args)
 		OS_EventList *event_list = OS_GatherEventsFromWindow(scratch.arena);
 
 		for (OS_EventNode *node = event_list->first;
-			 node != 0;
-			 node = node->next)
+				 node != 0;
+				 node = node->next)
 		{
 			switch (node->event.type)
 			{
@@ -285,7 +287,7 @@ EntryPoint(String8List args)
 		}
 
 		R_Begin(scratch.arena);
-#if 1
+
 		R_PushText(V2(1700, 50), 20, &font, Str8Lit("Hello, world!"), V4(1.0f, 1.0f, 1.0f, 1.0f));
 		R_PushRect(V2(1200 - 50, 50), V2(1200 + 450, 50 + 65), .color = V4(0.5, 0, 0, 1), .corner_radius = V4(10, 10, 10, 10), .edge_softness = 1);
 		R_PushRect(V2(1200 - 50, 50), V2(1200 + 450, 50 + 65), .color = V4(1, 1, 1, 1), .corner_radius = V4(10, 10, 10, 10), .edge_softness = 1, .border_thickness = 1);
@@ -298,7 +300,7 @@ EntryPoint(String8List args)
 
 		R_PushRect(V2(50, 500), V2(500, 1000), .color = V4(0, 0, 0, 1), .corner_radius = corner_radius, .edge_softness = 1);
 		R_PushRect(V2(50, 500), V2(500, 1000), .color = V4(1, 0, 0, 1), .corner_radius = corner_radius, .edge_softness = 1, .border_thickness = 0.5f);
-#endif
+
 		UI_Begin(UI_DefaultTheme(), event_list, dt);
 
 		UITest();

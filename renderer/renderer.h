@@ -1,6 +1,14 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#ifndef CORE_PATH
+#define CORE_PATH "../code/core_layer/"
+#endif
+
+#define RESOURCE_PATH Glue(CORE_PATH, "res/") 
+
+#define CORE_RESOURCE(str) Str8Lit(Glue(RESOURCE_PATH, str))
+
 typedef enum R_IconIndex
 {
 	R_IconIndex_Check = 183,
@@ -204,13 +212,5 @@ typedef struct R_Font
 } R_Font;
 
 #define R_PushRect(min, max, ...) R_PushRect_(min, max, (R_RectParams){.texture = r_state->white_texture, .color = V4(1.0f, 1.0f, 1.0f, 1.0f), __VA_ARGS__})
-
-#ifndef CORE_PATH
-#define CORE_PATH "../code/core_layer/"
-#endif
-
-#define RESOURCE_PATH Glue(CORE_PATH, "res/") 
-
-#define CORE_RESOURCE(str) Str8Lit(Glue(RESOURCE_PATH, str))
 
 #endif

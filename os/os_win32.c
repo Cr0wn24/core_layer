@@ -7,33 +7,19 @@ global OS_State os_state;
 
 internal void *OS_AllocMem(size_t size);
 
-MemoryArena core_memory_arena = {0};
-internal void CoreInit()
+internal void CoreShutdown(OS_Window *window)
+{
+	OS_DestroyWindow(window);
+}
+
+internal void OS_Init()
 {
 	srand((U32)time(0));
 
 	ArenaInit(scratch_arena_ + 0, OS_AllocMem(GIGABYTES(1)), GIGABYTES(1));
 	ArenaInit(scratch_arena_ + 1, OS_AllocMem(GIGABYTES(1)), GIGABYTES(1));
 
-	size_t core_memory_storage_size = MEGABYTES(512);
-	void *core_memory = OS_AllocMem(core_memory_storage_size);
-
-	ArenaInit(&core_memory_arena, core_memory, core_memory_storage_size);
-
-	MemoryArena os_permanent_arena;
-	ArenaInit(&os_permanent_arena, PushSizeNoZero(&core_memory_arena, 1024 * 1024), 1024 * 1024);
-
-	OS_Init(os_permanent_arena);
-}
-
-internal void CoreShutdown(OS_Window *window)
-{
-	OS_DestroyWindow(window);
-}
-
-internal void OS_Init(MemoryArena permanent_arena)
-{
-	os_state.permanent_arena = permanent_arena;
+	ArenaInit(&os_state.permanent_arena, OS_AllocMem(MEGABYTES(64)), MEGABYTES(64));
 
 	QueryPerformanceCounter(&os_state.start_counter);
 
