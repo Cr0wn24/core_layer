@@ -167,7 +167,7 @@ internal String8List Str8Split(MemoryArena *arena, String8 string, char separato
 	{
 		char ch = *current;
 		if (ch == separator ||
-			ch == '\0')
+				ch == '\0')
 		{
 			String8Node *node = PushStruct(arena, String8Node);
 			node->string = PushStr8Size(arena, start, current - start);
