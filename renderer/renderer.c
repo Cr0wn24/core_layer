@@ -61,37 +61,37 @@ R_PushRect_(Vec2F32 min, Vec2F32 max, R_RectParams params)
 	R_Texture texture = params.texture;
 
 	B32 rect_match = false;
-	if (batch_node)
+	if(batch_node)
 	{
 		rect_match = R_RectF32Match(batch_node->batch->clip_rect, r_state->clip_rect_stack.first->rect);
 
-		if (batch_node->batch->inst_count == 4096)
+		if(batch_node->batch->inst_count == 4096)
 		{
 			batch_node = 0;
 		}
-		else if (batch_node->batch->inst_kind == Batch2DInstKind_Line)
+		else if(batch_node->batch->inst_kind == Batch2DInstKind_Line)
 		{
 			batch_node = 0;
 		}
 	}
 
-	if (!batch_node ||
-			(!R_HandleMatch(texture.handle, batch_node->batch->tex.handle) &&
-			 !R_HandleMatch(texture.handle, r_state->white_texture.handle)) ||
-			!rect_match)
+	if(!batch_node ||
+		 (!R_HandleMatch(texture.handle, batch_node->batch->tex.handle) &&
+			!R_HandleMatch(texture.handle, r_state->white_texture.handle)) ||
+		 !rect_match)
 	{
 		// NOTE(hampus): If the previus batch just contained a white texture,
 		// we'll just replace it with our texture instead
 		B32 previous_was_white_texture = false;
-		if (batch_node)
+		if(batch_node)
 		{
-			if (R_HandleMatch(batch_node->batch->tex.handle, r_state->white_texture.handle) && rect_match)
+			if(R_HandleMatch(batch_node->batch->tex.handle, r_state->white_texture.handle) && rect_match)
 			{
 				previous_was_white_texture = true;
 			}
 		}
 
-		if (!previous_was_white_texture)
+		if(!previous_was_white_texture)
 		{
 			batch_node = PushStruct(r_state->arena, Batch2DNode);
 			batch_node->batch = PushStruct(r_state->arena, Batch2D);
@@ -131,15 +131,15 @@ R_PushLine(Vec2F32 p0, Vec2F32 p1, F32 thickness, Vec4F32 color)
 	Batch2DNode *batch_node = render_data->batch_list->last;
 
 	B32 rect_match = true;
-	if (batch_node)
+	if(batch_node)
 	{
-		if (batch_node->batch->inst_kind == Batch2DInstKind_Rect)
+		if(batch_node->batch->inst_kind == Batch2DInstKind_Rect)
 		{
 			batch_node = 0;
 		}
-		else if (batch_node->batch->inst_kind == Batch2DInstKind_Line)
+		else if(batch_node->batch->inst_kind == Batch2DInstKind_Line)
 		{
-			if (batch_node->batch->inst_count == 4096)
+			if(batch_node->batch->inst_count == 4096)
 			{
 				batch_node = 0;
 			}
@@ -155,7 +155,7 @@ R_PushLine(Vec2F32 p0, Vec2F32 p1, F32 thickness, Vec4F32 color)
 		}
 	}
 
-	if (!batch_node || !rect_match)
+	if(!batch_node || !rect_match)
 	{
 		batch_node = PushStruct(r_state->arena, Batch2DNode);
 		batch_node->batch = PushStruct(r_state->arena, Batch2D);
@@ -227,7 +227,7 @@ R_PushText(Vec2F32 pos, S32 height, R_Font *font, String8 text, Vec4F32 color)
 {
 	F32 scale = (F32)height / (F32)font->height;
 
-	for (U64 i = 0; i < text.size; ++i)
+	for(U64 i = 0; i < text.size; ++i)
 	{
 		R_Glyph *glyph = font->glyphs + text.str[i];
 		R_PushGlyph(pos, height, font, glyph, color);
@@ -256,7 +256,7 @@ R_PackBitmapsIntoTextureAtlas(MemoryArena *arena, S32 atlas_width, S32 atlas_hei
 	// where the bitmaps we got in are in the sorted array
 	// so that we can give the textures back in the order
 	// the bitmaps came in
-	for (S32 i = 0; i < bitmap_count; ++i)
+	for(S32 i = 0; i < bitmap_count; ++i)
 	{
 		indices[i] = i;
 	}
@@ -264,36 +264,36 @@ R_PackBitmapsIntoTextureAtlas(MemoryArena *arena, S32 atlas_width, S32 atlas_hei
 #if 0
 
 	// NOTE(hampus): Sort the entries by height
-	for (S32 i = 0; i < bitmap_count - 1; ++i)
+	for(S32 i = 0; i < bitmap_count - 1; ++i)
 	{
-		for (S32 j = 0; j < bitmap_count - 1 - i; ++j)
+		for(S32 j = 0; j < bitmap_count - 1 - i; ++j)
 		{
-			if (bitmaps[j].dim.height < bitmaps[j + 1].dim.height)
+			if(bitmaps[j].dim.height < bitmaps[j + 1].dim.height)
 			{
 				Swap(bitmaps[j], bitmaps[j + 1], R_LoadedBitmap);
 				Swap(indices[j], indices[j + 1], S32);
 			}
 		}
-}
+	}
 #endif
 	// NOTE(hampus): Atlas-packing
 
 	S32 current_x = padding;
 	S32 current_y = padding;
 	S32 row_height = 0;
-	for (S32 i = 0; i < bitmap_count; ++i)
+	for(S32 i = 0; i < bitmap_count; ++i)
 	{
 		R_LoadedBitmap *entry = bitmaps + i;
 		R_Texture *texture = result.textures + indices[i];
 
 		texture->dim = entry->dim;
 
-		if (entry->dim.height > row_height)
+		if(entry->dim.height > row_height)
 		{
 			row_height = entry->dim.height;
 		}
 
-		if ((current_x + entry->dim.width) > result.dim.width)
+		if((current_x + entry->dim.width) > result.dim.width)
 		{
 			current_x = padding;
 			current_y += row_height + padding;
@@ -303,11 +303,11 @@ R_PackBitmapsIntoTextureAtlas(MemoryArena *arena, S32 atlas_width, S32 atlas_hei
 		// NOTE(hampus): Copy bitmap into atlas
 		U8 *src = entry->data;
 		U8 *dst = (U8 *)data + (current_x + current_y * result.dim.width) * 4;
-		for (S32 y = 0; y < entry->dim.height; ++y)
+		for(S32 y = 0; y < entry->dim.height; ++y)
 		{
 			U32 *src_row = (U32 *)src;
 			U32 *dst_row = (U32 *)dst;
-			for (S32 x = 0; x < entry->dim.width; ++x)
+			for(S32 x = 0; x < entry->dim.width; ++x)
 			{
 				*dst_row++ = *src_row++;
 			}
@@ -331,7 +331,7 @@ R_PackBitmapsIntoTextureAtlas(MemoryArena *arena, S32 atlas_width, S32 atlas_hei
 
 	// NOTE(hampus): Give the atlas' texture handle
 	// to all the textures
-	for (S32 i = 0; i < bitmap_count; ++i)
+	for(S32 i = 0; i < bitmap_count; ++i)
 	{
 		R_Texture *texture = result.textures + i;
 		texture->handle = result.texture.handle;
@@ -350,14 +350,14 @@ R_LoadFont(MemoryArena *arena, R_Font *font, String8 font_path, String8 icon_pat
 	R_LoadedBitmap loaded_bitmap_glyphs[128 + 256];
 
 	FT_Library ft;
-	if (FT_Init_FreeType(&ft))
+	if(FT_Init_FreeType(&ft))
 	{
 		printf("Failed to initialize freetype!\n");
 		return;
 	}
 
 	FT_Face face;
-	if (FT_New_Face(ft, (const char *)font_path.str, 0, &face))
+	if(FT_New_Face(ft, (const char *)font_path.str, 0, &face))
 	{
 		printf("Failed to load face!\n");
 		return;
@@ -369,9 +369,9 @@ R_LoadFont(MemoryArena *arena, R_Font *font, String8 font_path, String8 icon_pat
 	font->max_ascent = ((S32)(face->ascender * (face->size->metrics.y_scale / 65536.0f))) >> 6;
 	font->max_descent = ((S32)Abs((F32)face->descender * ((F32)face->size->metrics.y_scale / 65536.0f))) >> 6;
 
-	for (U32 glyph_index = 0;
-			 glyph_index < 128;
-			 ++glyph_index)
+	for(U32 glyph_index = 0;
+			glyph_index < 128;
+			++glyph_index)
 	{
 		FT_Load_Char(face, glyph_index, FT_LOAD_RENDER | FT_LOAD_TARGET_LCD);
 		// FT_Load_Glyph(face, (FT_UInt)(glyph_index), FT_LOAD_RENDER | FT_LOAD_TARGET_LCD);
@@ -394,12 +394,12 @@ R_LoadFont(MemoryArena *arena, R_Font *font, String8 font_path, String8 icon_pat
 		U8 *src = glyph_bitmap->data;
 		U8 *dst = new_teture_data;
 
-		for (S32 y = 0; y < glyph_bitmap->dim.height; ++y)
+		for(S32 y = 0; y < glyph_bitmap->dim.height; ++y)
 		{
 			U8 *dst_row = dst;
 			U8 *src_row = src;
 			U8 *test2 = (U8 *)src_row;
-			for (S32 x = 0; x < glyph_bitmap->dim.width; ++x)
+			for(S32 x = 0; x < glyph_bitmap->dim.width; ++x)
 			{
 				U8 r = *test2++;
 				U8 g = *test2++;
@@ -424,14 +424,14 @@ R_LoadFont(MemoryArena *arena, R_Font *font, String8 font_path, String8 icon_pat
 		glyph->size = V2S(width, height);
 		glyph->bearing = V2S(face->glyph->bitmap_left, face->glyph->bitmap_top);
 		glyph->advance = face->glyph->advance.x >> 6;
-		if (glyph->size.y > font->max_height)
+		if(glyph->size.y > font->max_height)
 		{
 			font->max_height = (F32)glyph->size.y;
 		}
 	}
 
 	FT_Face icon_face;
-	if (FT_New_Face(ft, (const char *)icon_path.str, 0, &icon_face))
+	if(FT_New_Face(ft, (const char *)icon_path.str, 0, &icon_face))
 	{
 		printf("Failed to load face!\n");
 		return;
@@ -439,9 +439,9 @@ R_LoadFont(MemoryArena *arena, R_Font *font, String8 font_path, String8 icon_pat
 
 	FT_Set_Pixel_Sizes(icon_face, 0, size - 5);
 
-	for (U32 glyph_index = 0;
-			 glyph_index < 256;
-			 ++glyph_index)
+	for(U32 glyph_index = 0;
+			glyph_index < 256;
+			++glyph_index)
 	{
 		FT_Load_Glyph(icon_face, (FT_UInt)(glyph_index), FT_LOAD_RENDER | FT_LOAD_TARGET_LCD);
 
@@ -463,12 +463,12 @@ R_LoadFont(MemoryArena *arena, R_Font *font, String8 font_path, String8 icon_pat
 		U8 *src = glyph_bitmap->data;
 		U8 *dst = new_teture_data;
 
-		for (S32 y = 0; y < glyph_bitmap->dim.height; ++y)
+		for(S32 y = 0; y < glyph_bitmap->dim.height; ++y)
 		{
 			U8 *dst_row = dst;
 			U8 *src_row = src;
 			U8 *test2 = (U8 *)src_row;
-			for (S32 x = 0; x < glyph_bitmap->dim.width; ++x)
+			for(S32 x = 0; x < glyph_bitmap->dim.width; ++x)
 			{
 				U8 r = *test2++;
 				U8 g = *test2++;
@@ -493,14 +493,14 @@ R_LoadFont(MemoryArena *arena, R_Font *font, String8 font_path, String8 icon_pat
 		glyph->size = V2S(width, height);
 		glyph->bearing = V2S(icon_face->glyph->bitmap_left, icon_face->glyph->bitmap_top);
 		glyph->advance = icon_face->glyph->advance.x >> 6;
-		if (glyph->size.y > font->max_height)
+		if(glyph->size.y > font->max_height)
 		{
 			font->max_height = (F32)glyph->size.y;
 		}
 	}
 
 	font->atlas = R_PackBitmapsIntoTextureAtlas(arena, 1024, 1024, loaded_bitmap_glyphs, 256 + 128, 5);
-	for (U32 i = 0; i < 256 + 128; ++i)
+	for(U32 i = 0; i < 256 + 128; ++i)
 	{
 		font->glyphs[i].texture = font->atlas.textures[i];
 	}
@@ -509,8 +509,8 @@ R_LoadFont(MemoryArena *arena, R_Font *font, String8 font_path, String8 icon_pat
 internal void
 R_PushClipRect(RectF32 rect)
 {
-	Assert(rect.x1 > rect.x0);
-	Assert(rect.y1 > rect.y0);
+	Assert(rect.x1 >= rect.x0);
+	Assert(rect.y1 >= rect.y0);
 
 	ClipRectNode *node = PushStruct(r_state->arena, ClipRectNode);
 	node->rect = rect;
@@ -563,7 +563,7 @@ R_GetTextDim(R_Font *font, String8 text)
 {
 	Vec2F32 result = {0};
 
-	for (U64 i = 0; i < text.size; ++i)
+	for(U64 i = 0; i < text.size; ++i)
 	{
 		result.x += font->glyphs[text.str[i]].advance;
 	}

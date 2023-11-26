@@ -48,7 +48,7 @@ internal void OS_Init()
 internal LRESULT CALLBACK OS_WindowProc(HWND window, UINT message, WPARAM wparam, LPARAM lparam)
 {
 	LRESULT result = 0;
-	switch (message)
+	switch(message)
 	{
 		case WM_CLOSE:
 		{
@@ -111,7 +111,7 @@ OS_CreateWindow(String8 title, S32 x, S32 y, S32 width, S32 height, B32 show_win
 	window_class.hInstance = instance;
 	window_class.lpszClassName = (LPCSTR)class_name.str;
 	window_class.hCursor = LoadCursorA(0, IDC_ARROW);
-	if (!RegisterClassExA(&window_class))
+	if(!RegisterClassExA(&window_class))
 	{
 		Assert(false);
 	}
@@ -119,7 +119,7 @@ OS_CreateWindow(String8 title, S32 x, S32 y, S32 width, S32 height, B32 show_win
 	SetCursor(LoadCursorA(0, IDC_ARROW));
 
 	DWORD create_window_flags = WS_OVERLAPPEDWINDOW;
-	if (show_window)
+	if(show_window)
 	{
 		create_window_flags |= WS_VISIBLE;
 	}
@@ -156,11 +156,11 @@ OS_ToggleFullscreen(OS_Window *window)
 {
 	local_persist WINDOWPLACEMENT g_wpPrev = {sizeof(g_wpPrev)};
 	DWORD WindowStyle = GetWindowLong(window->handle, GWL_STYLE);
-	if (WindowStyle & WS_OVERLAPPEDWINDOW)
+	if(WindowStyle & WS_OVERLAPPEDWINDOW)
 	{
 		MONITORINFO MonitorInfo = {sizeof(MonitorInfo)};
-		if (GetWindowPlacement(window->handle, &g_wpPrev) &&
-				GetMonitorInfo(MonitorFromWindow(window->handle, MONITOR_DEFAULTTOPRIMARY), &MonitorInfo))
+		if(GetWindowPlacement(window->handle, &g_wpPrev) &&
+			 GetMonitorInfo(MonitorFromWindow(window->handle, MONITOR_DEFAULTTOPRIMARY), &MonitorInfo))
 		{
 			SetWindowLong(window->handle, GWL_STYLE, WindowStyle & ~WS_OVERLAPPEDWINDOW);
 
@@ -184,18 +184,18 @@ OS_ToggleFullscreen(OS_Window *window)
 internal void
 OS_EatEvent(OS_EventList *event_list, OS_EventNode *node)
 {
-	if (node == event_list->first)
+	if(node == event_list->first)
 	{
 		event_list->first = event_list->first->next;
 	}
 	else
 	{
-		if (node->prev)
+		if(node->prev)
 		{
 			node->prev->next = node->next;
 		}
 
-		if (node->next)
+		if(node->next)
 		{
 			node->next->prev = node->prev;
 		}
@@ -212,13 +212,13 @@ OS_GatherEventsFromWindow(MemoryArena *arena)
 	os_state.scroll = 0;
 
 	MSG message;
-	while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE))
+	while(PeekMessageA(&message, 0, 0, 0, PM_REMOVE))
 	{
 		OS_Event event = {0};
 
 		B32 interesting_message = true;
 
-		switch (message.message)
+		switch(message.message)
 		{
 			case WM_QUIT:
 			{
@@ -281,9 +281,9 @@ OS_GatherEventsFromWindow(MemoryArena *arena)
 				B32 is_down = ((message.lParam & (1 << 31)) == 0);
 				B32 alt_key_was_down = ((message.lParam & (1 << 29)));
 
-				if (was_down != is_down)
+				if(was_down != is_down)
 				{
-					if (is_down)
+					if(is_down)
 					{
 						event.type = OS_EventType_KeyPress;
 					}
@@ -293,7 +293,7 @@ OS_GatherEventsFromWindow(MemoryArena *arena)
 					}
 
 #define ProcessKeyMessage(vk, platform_key) case vk: { event.key = platform_key; } break;
-					switch (vk_code)
+					switch(vk_code)
 					{
 						ProcessKeyMessage('A', OS_Key_A);
 						ProcessKeyMessage('B', OS_Key_B);
@@ -344,7 +344,7 @@ OS_GatherEventsFromWindow(MemoryArena *arena)
 					}
 				}
 
-				if (vk_code == VK_F4 && alt_key_was_down)
+				if(vk_code == VK_F4 && alt_key_was_down)
 				{
 					event.type = OS_EventType_Quit;
 				}
@@ -360,7 +360,7 @@ OS_GatherEventsFromWindow(MemoryArena *arena)
 			} break;
 		}
 
-		if (interesting_message)
+		if(interesting_message)
 		{
 			OS_EventNode *node = PushStruct(arena, OS_EventNode);
 			node->event = event;
@@ -400,14 +400,14 @@ internal OS_ReadFileResult OS_ReadEntireFile(String8 path)
 
 	HANDLE file = CreateFileA((char *)path.str, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
-	if (file == INVALID_HANDLE_VALUE)
+	if(file == INVALID_HANDLE_VALUE)
 	{
 		// TODO(hampus):  Logging
 		return result;
 	}
 
 	LARGE_INTEGER file_size;
-	if (!GetFileSizeEx(file, &file_size))
+	if(!GetFileSizeEx(file, &file_size))
 	{
 		// TODO(hampus):  Logging
 		return result;
@@ -422,7 +422,7 @@ internal OS_ReadFileResult OS_ReadEntireFile(String8 path)
 	Assert(result.content);
 
 	DWORD bytes_read;
-	if (!ReadFile(file, result.content, file_size32, &bytes_read, 0))
+	if(!ReadFile(file, result.content, file_size32, &bytes_read, 0))
 	{
 		// TODO(hampus):  Logging
 		VirtualFree(result.content, 0, MEM_RELEASE);
@@ -455,7 +455,7 @@ OS_AllocMem(size_t size)
 
 internal void OS_FreeMemory(void *memory)
 {
-	if (memory)
+	if(memory)
 	{
 		VirtualFree(memory, 0, MEM_DECOMMIT);
 	}
@@ -522,11 +522,11 @@ internal Time OS_GetLastWriteTime(String8 file_name)
 	Time result = {0};
 
 	WIN32_FILE_ATTRIBUTE_DATA data = {0};
-	if (GetFileAttributesExA((LPCSTR)file_name.str, GetFileExInfoStandard, &data))
+	if(GetFileAttributesExA((LPCSTR)file_name.str, GetFileExInfoStandard, &data))
 	{
 		FILETIME last_write_time = data.ftLastWriteTime;
 		SYSTEMTIME time;
-		if (FileTimeToSystemTime(&last_write_time, &time))
+		if(FileTimeToSystemTime(&last_write_time, &time))
 		{
 			result = OS_SystemTimeToTime(&time);
 		}
@@ -577,31 +577,31 @@ OS_TimeGreaterThanTime(Time *a, Time *b)
 {
 	B32 result = false;
 
-	if (a->year > b->year)
+	if(a->year > b->year)
 	{
 		result = true;
 	}
-	else if (a->month > b->month)
+	else if(a->month > b->month)
 	{
 		result = true;
 	}
-	else if (a->day > b->day)
+	else if(a->day > b->day)
 	{
 		result = true;
 	}
-	else if (a->hour > b->hour)
+	else if(a->hour > b->hour)
 	{
 		result = true;
 	}
-	else if (a->minute > b->minute)
+	else if(a->minute > b->minute)
 	{
 		result = true;
 	}
-	else if (a->second > b->second)
+	else if(a->second > b->second)
 	{
 		result = true;
 	}
-	else if (a->millisecond > b->millisecond)
+	else if(a->millisecond > b->millisecond)
 	{
 		result = true;
 	}

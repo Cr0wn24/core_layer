@@ -118,10 +118,6 @@ UI_Check(String8 string, B32 *val)
 			}
 
 		}
-		UI_Spacer(UI_Em(0.5f));
-
-		UI_NextSize2(UI_TextContent(), check_box->semantic_size[Axis2_Y]);
-		UI_Text(string);
 	}
 
 	UI_PopString();
