@@ -359,7 +359,8 @@ internal B32 UI_BoxHasFlag(UI_Box *box, UI_BoxFlag flag)
 	return ((box->flags & flag) != 0);
 }
 
-internal UI_Comm UI_CommFromBox(UI_Box *box)
+internal UI_Comm
+UI_CommFromBox(UI_Box *box)
 {
 	UI_Comm result = {0};
 
@@ -442,6 +443,7 @@ internal UI_Comm UI_CommFromBox(UI_Box *box)
 					if (event.key == OS_Key_MouseLeft)
 					{
 						result.clicked = true;
+						result.released = true;
 
 						DLL_Remove(event_list->first, event_list->last, node);
 					}

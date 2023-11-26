@@ -240,3 +240,20 @@ LengthVec2F32(Vec2F32 v)
 
 	return(result);
 }
+
+internal Vec2F32
+GetClosestPointBetweenLineAndPoint(Vec2F32 p0, Vec2F32 p1, Vec2F32 p)
+{
+	Vec2F32 result;
+
+	F32 k = (p1.y - p0.y) / (p1.x - p0.x);
+
+	Vec2F32 line_dir = V2SubV2(p1, p0);
+	Vec2F32 to_mouse = V2SubV2(p, p0);
+
+	F32 t = DotVec2F32(p, line_dir) / DotVec2F32(line_dir, line_dir);
+
+	result = V2AddV2(p0, V2MulF32(line_dir, t));
+
+	return(result);
+}
