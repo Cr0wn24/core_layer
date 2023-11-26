@@ -47,6 +47,8 @@ typedef S32 B32;
 
 #define Glue(a, b) a##b
 
+#define Stringify(a) #a
+
 #define MemberOffset(type, member) ((size_t)&(((type*)0)->member)) 
 
 #define IntFromPtr(p) (U64)((U8 *)p - (U8 *)0)
