@@ -183,6 +183,18 @@ R_PushLine(Vec2F32 p0, Vec2F32 p1, F32 thickness, Vec4F32 color)
 }
 
 internal void
+R_PushCircle_(Vec2F32 p, F32 radius, R_RectParams params)
+{
+	F32 cr = radius / 2;
+	R_RectParams params2 = params;
+	params2.r00 = cr;
+	params2.r01 = cr;
+	params2.r10 = cr;
+	params2.r11 = cr;
+	R_PushRect_(p, V2AddV2(p, V2(radius, radius)), params2);
+}
+
+internal void
 R_PushGlyph(Vec2F32 pos, S32 glyph_height, R_Font *font, R_Glyph *glyph, Vec4F32 color)
 {
 	F32 scale = (F32)glyph_height / (F32)font->height;
@@ -262,7 +274,7 @@ R_PackBitmapsIntoTextureAtlas(MemoryArena *arena, S32 atlas_width, S32 atlas_hei
 				Swap(indices[j], indices[j + 1], S32);
 			}
 		}
-	}
+}
 #endif
 	// NOTE(hampus): Atlas-packing
 

@@ -212,5 +212,6 @@ typedef struct R_Font
 } R_Font;
 
 #define R_PushRect(min, max, ...) R_PushRect_(min, max, (R_RectParams){.texture = r_state->white_texture, .color = V4(1.0f, 1.0f, 1.0f, 1.0f), __VA_ARGS__})
+#define R_PushCircle(min, r, ...) R_PushCircle_(min, r, (R_RectParams){.texture = r_state->white_texture, .color = V4(1.0f, 1.0f, 1.0f, 1.0f), __VA_ARGS__})
 
 #endif
