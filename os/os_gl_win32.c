@@ -19,9 +19,9 @@ internal void APIENTRY OS_GL_DebugCallback(GLenum source, GLenum type, GLuint id
 {
 	OutputDebugStringA(message);
 	OutputDebugStringA("\n");
-	if(severity == GL_DEBUG_SEVERITY_HIGH || severity == GL_DEBUG_SEVERITY_MEDIUM)
+	if (severity == GL_DEBUG_SEVERITY_HIGH || severity == GL_DEBUG_SEVERITY_MEDIUM)
 	{
-		if(IsDebuggerPresent())
+		if (IsDebuggerPresent())
 		{
 			Assert(!"OpenGL error - check the callstack in debugger");
 		}
@@ -31,9 +31,9 @@ internal void APIENTRY OS_GL_DebugCallback(GLenum source, GLenum type, GLuint id
 
 internal B32 StringsAreEqual(char *src, char *dst, size_t dstlen)
 {
-	while(*src && dstlen-- && *dst)
+	while (*src && dstlen-- && *dst)
 	{
-		if(*src++ != *dst++)
+		if (*src++ != *dst++)
 		{
 			return 0;
 		}
@@ -59,7 +59,7 @@ internal void OS_GL_GetWGLinternals()
 	};
 
 	S32 format = ChoosePixelFormat(dc, &desc);
-	if(!format)
+	if (!format)
 	{
 		FatalError("Cannot choose OpenGL pixel format for dummy window");
 	}
@@ -67,7 +67,7 @@ internal void OS_GL_GetWGLinternals()
 	S32 ok = DescribePixelFormat(dc, format, sizeof(desc), &desc);
 	Assert(ok && "Failed to describe OpenGL pixel format");
 
-	if(!SetPixelFormat(dc, format, &desc))
+	if (!SetPixelFormat(dc, format, &desc))
 	{
 		FatalError("Cannot set OpenGL pixel format for dummy window");
 	}
@@ -80,7 +80,7 @@ internal void OS_GL_GetWGLinternals()
 
 	typedef char * WINAPI wglGetExtensionsStringARBproc(HDC hdc);
 	wglGetExtensionsStringARBproc *wglGetExtensionsStringARB = (void *)wglGetProcAddress("wglGetExtensionsStringARB");
-	if(!wglGetExtensionsStringARB)
+	if (!wglGetExtensionsStringARB)
 	{
 		FatalError("OpenGL does not support WGL_ARB_extensions_string extension");
 	}
@@ -89,29 +89,29 @@ internal void OS_GL_GetWGLinternals()
 	Assert(ext && "Failed to get OpenGL WGL extension string");
 
 	char * start = ext;
-	for(;;)
+	for (;;)
 	{
-		while(*ext != 0 && *ext != ' ')
+		while (*ext != 0 && *ext != ' ')
 		{
 			ext++;
 		}
 		size_t length = ext - start;
-		if(StringsAreEqual("WGL_ARB_pixel_format", start, length))
+		if (StringsAreEqual("WGL_ARB_pixel_format", start, length))
 		{
 			// https://www.khronos.org/registry/OpenGL/extensions/ARB/WGL_ARB_pixel_format.txt
 			wglChoosePixelFormatARB = (void*)wglGetProcAddress("wglChoosePixelFormatARB");
 		}
-		else if(StringsAreEqual("WGL_ARB_create_context", start, length))
+		else if (StringsAreEqual("WGL_ARB_create_context", start, length))
 		{
 			// https://www.khronos.org/registry/OpenGL/extensions/ARB/WGL_ARB_create_context.txt
 			wglCreateContextAttribsARB = (void*)wglGetProcAddress("wglCreateContextAttribsARB");
 		}
-		else if(StringsAreEqual("WGL_EXT_swap_control", start, length))
+		else if (StringsAreEqual("WGL_EXT_swap_control", start, length))
 		{
 			// https://www.khronos.org/registry/OpenGL/extensions/EXT/WGL_EXT_swap_control.txt
 			wglSwapIntervalEXT = (void*)wglGetProcAddress("wglSwapIntervalEXT");
 		}
-		if(*ext == 0)
+		if (*ext == 0)
 		{
 			break;
 		}
@@ -120,7 +120,7 @@ internal void OS_GL_GetWGLinternals()
 		start = ext;
 	}
 
-	if(!(wglChoosePixelFormatARB && wglCreateContextAttribsARB && wglSwapIntervalEXT))
+	if (!(wglChoosePixelFormatARB && wglCreateContextAttribsARB && wglSwapIntervalEXT))
 	{
 		FatalError("OpenGL does not support required WGL extensions for modern context!");
 	}
@@ -162,7 +162,7 @@ internal void OS_GL_CreateContext(OS_Window *window)
 
 		S32 format;
 		UINT formats;
-		if(!wglChoosePixelFormatARB(dc, attrib, NULL, 1, &format, &formats) || formats == 0)
+		if (!wglChoosePixelFormatARB(dc, attrib, NULL, 1, &format, &formats) || formats == 0)
 		{
 			FatalError("OpenGL does not support required pixel format!");
 		}
@@ -171,7 +171,7 @@ internal void OS_GL_CreateContext(OS_Window *window)
 		S32 ok = DescribePixelFormat(dc, format, sizeof(desc), &desc);
 		Assert(ok && "Failed to describe OpenGL pixel format");
 
-		if(!SetPixelFormat(dc, format, &desc))
+		if (!SetPixelFormat(dc, format, &desc))
 		{
 			FatalError("Cannot set OpenGL selected pixel format!");
 		}
@@ -191,7 +191,7 @@ internal void OS_GL_CreateContext(OS_Window *window)
 		};
 
 		HGLRC rc = wglCreateContextAttribsARB(dc, NULL, attrib);
-		if(!rc)
+		if (!rc)
 		{
 			FatalError("Cannot create modern OpenGL context! OpenGL version 4.5 not supported?");
 		}

@@ -3,7 +3,7 @@ global OpenGL open_gl;
 internal ShaderProgram
 R_GL_CreateShader(String8 vertex_shader_path, String8 fragment_shader_path, B32 debug_callback)
 {
-	if(!debug_callback)
+	if (!debug_callback)
 	{
 		glDebugMessageCallback(0, NULL);
 		glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -13,7 +13,7 @@ R_GL_CreateShader(String8 vertex_shader_path, String8 fragment_shader_path, B32 
 	GLchar *header = "#version 330 core\n";
 
 	OS_ReadFileResult vertex_shader_read_result = OS_ReadEntireFile(vertex_shader_path);
-	if(vertex_shader_read_result.contents_size == 0)
+	if (vertex_shader_read_result.contents_size == 0)
 	{
 		printf("Failed to read vertex shader!\n");
 		return result;
@@ -33,14 +33,14 @@ R_GL_CreateShader(String8 vertex_shader_path, String8 fragment_shader_path, B32 
 	char info_log[512];
 	glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
 
-	if(!success)
+	if (!success)
 	{
 		glGetShaderInfoLog(vertex_shader, 512, NULL, info_log);
 		printf("Failed to compile vertex shader: %s\n", info_log);
 	}
 
 	OS_ReadFileResult fragment_shader_read_result = OS_ReadEntireFile(fragment_shader_path);
-	if(fragment_shader_read_result.contents_size == 0)
+	if (fragment_shader_read_result.contents_size == 0)
 	{
 		printf("Failed to read fragment shader!\n");
 		return result;
@@ -56,7 +56,7 @@ R_GL_CreateShader(String8 vertex_shader_path, String8 fragment_shader_path, B32 
 	glShaderSource(fragment_shader, ArrayCount(fragment_shader_source), fragment_shader_source, 0);
 	glCompileShader(fragment_shader);
 
-	if(!success)
+	if (!success)
 	{
 		glGetShaderInfoLog(fragment_shader, 512, NULL, info_log);
 		printf("Failed to compile fragment shader: %s\n", info_log);
@@ -68,7 +68,7 @@ R_GL_CreateShader(String8 vertex_shader_path, String8 fragment_shader_path, B32 
 	glLinkProgram(result.id);
 
 	glGetProgramiv(result.id, GL_LINK_STATUS, &success);
-	if(!success)
+	if (!success)
 	{
 		glGetProgramInfoLog(result.id, 512, NULL, info_log);
 		printf("Failed to compile shader program: %s\n", info_log);
@@ -80,7 +80,7 @@ R_GL_CreateShader(String8 vertex_shader_path, String8 fragment_shader_path, B32 
 	glDeleteShader(vertex_shader);
 	glDeleteShader(fragment_shader);
 
-	if(!debug_callback)
+	if (!debug_callback)
 	{
 		// enable debug callback
 		glDebugMessageCallback(&OS_GL_DebugCallback, NULL);
@@ -127,12 +127,12 @@ internal void R_GL_End(OS_Window *window)
 	glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, r_state->num_rects);
 
 	R_TextureQueue *texture_queue = &r_state->texture_queue;
-	for(R_TextureNode *node = texture_queue->first;
-			node != 0;
-			node = QueuePop(texture_queue->first, texture_queue->last))
+	for (R_TextureNode *node = texture_queue->first;
+			 node != 0;
+			 node = QueuePop(texture_queue->first, texture_queue->last))
 	{
 		R_Texture *texture = node->texture;
-		if(texture->handle)
+		if (texture->handle)
 		{
 			R_GL_UpdateTextureHandle(texture);
 		}

@@ -4,12 +4,12 @@ internal void
 ParseCommandLineArguments(String8List *string_list, MemoryArena *arena, char *command_line)
 {
 	char *arg = command_line;
-	while(*arg)
+	while (*arg)
 	{
 		U64 i = 0;
-		for(i = 0;
-				*arg != ' ' && *arg != 0;
-				++i, ++arg)
+		for (i = 0;
+				 *arg != ' ' && *arg != 0;
+				 ++i, ++arg)
 		{
 		}
 
@@ -18,7 +18,7 @@ ParseCommandLineArguments(String8List *string_list, MemoryArena *arena, char *co
 
 		DLL_PushBack(string_list->first, string_list->last, node);
 
-		if(*arg == ' ')
+		if (*arg == ' ')
 		{
 			++arg;
 		}
@@ -34,7 +34,7 @@ main(S32 argc, char *argv[])
 	ArenaInit(&args_arena, malloc(1024), 1024);
 
 	String8List string_list = {0};
-	for(S32 i = 0; i < argc; ++i)
+	for (S32 i = 0; i < argc; ++i)
 	{
 		ParseCommandLineArguments(&string_list, &args_arena, argv[i]);
 	}

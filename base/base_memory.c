@@ -4,7 +4,7 @@ global MemoryArena scratch_arena_[2];
 
 internal void CopySize_(U8 *dst, U8 *src, size_t size)
 {
-	for(size_t i = 0; i < size;++i)
+	for (size_t i = 0; i < size;++i)
 	{
 		*dst++ = *src++;
 	}
@@ -12,7 +12,7 @@ internal void CopySize_(U8 *dst, U8 *src, size_t size)
 
 internal void ZeroSize_(U8 *base, size_t size)
 {
-	for(size_t i = 0; i < size;++i)
+	for (size_t i = 0; i < size;++i)
 	{
 		*base++ = 0;
 	}
@@ -78,19 +78,19 @@ internal TempMemoryArena
 GetScratch(MemoryArena **conflicts, U64 conflict_count)
 {
 	TempMemoryArena scratch = {0};
-	for(U64 i = 0; i < ArrayCount(scratch_arena_); ++i)
+	for (U64 i = 0; i < ArrayCount(scratch_arena_); ++i)
 	{
 		B32 is_conflicting = 0;
-		for(MemoryArena **conflict = conflicts; conflict < conflicts + conflict_count; conflict++)
+		for (MemoryArena **conflict = conflicts; conflict < conflicts + conflict_count; conflict++)
 		{
-			if(*conflict == (scratch_arena_ + i))
+			if (*conflict == (scratch_arena_ + i))
 			{
 				is_conflicting = 1;
 				break;
 			}
 		}
 
-		if(is_conflicting == 0)
+		if (is_conflicting == 0)
 		{
 			scratch.arena = &scratch_arena_[i];
 			scratch.pos = scratch_arena_[i].pos;
