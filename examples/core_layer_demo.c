@@ -71,11 +71,21 @@ UITest()
 			UI_Divider();
 
 			UI_Spacer(UI_Em(0.5f));
-			UI_Check(Str8Lit("Show debug lines"), &ui_state->show_debug_lines);
+			UI_Row()
+			{
+				UI_Check(Str8Lit("Show debug lines"), &ui_state->show_debug_lines);
+				UI_Spacer(UI_Em(0.5f));
+				UI_Text(Str8Lit("Show debug lines"));
+			}
 			UI_Spacer(UI_Em(0.5f));
 
 			local_persist B32 check_value2 = false;
-			UI_Check(Str8Lit("Test check##11"), &check_value2);
+			UI_Row()
+			{
+				UI_Check(Str8Lit("Test check##11"), &check_value2);
+				UI_Spacer(UI_Em(0.5f));
+				UI_Text(Str8Lit("Test check##11"));
+			}
 			UI_Spacer(UI_Em(0.5f));
 
 			UI_ColorPicker(&color_test, Str8Lit("Color picker"));
