@@ -239,9 +239,9 @@ D3D11_End(Vec4F32 clear_color)
 	OS_QueryWindowSize(d3d11_state.window, (S32 *)&width, (S32 *)&height);
 
 	// NOTE(hampus): Resize swap chain if needed
-	if (d3d11_state.rtview == 0 || width != d3d11_state.current_width || height != d3d11_state.current_height)
+	if(d3d11_state.rtview == 0 || width != d3d11_state.current_width || height != d3d11_state.current_height)
 	{
-		if (d3d11_state.rtview)
+		if(d3d11_state.rtview)
 		{
 			ID3D11DeviceContext_ClearState(d3d11_state.context);
 			ID3D11RenderTargetView_Release(d3d11_state.rtview);
@@ -250,10 +250,10 @@ D3D11_End(Vec4F32 clear_color)
 		}
 
 		// NOTE(hampus): Resize to new size for non-zero size
-		if (width != 0 && height != 0)
+		if(width != 0 && height != 0)
 		{
 			hr = IDXGISwapChain1_ResizeBuffers(d3d11_state.swap_chain, 0, width, height, DXGI_FORMAT_UNKNOWN, 0);
-			if (FAILED(hr))
+			if(FAILED(hr))
 			{
 				Assert(!"Failed to resize swap chain!");
 			}
@@ -290,15 +290,15 @@ D3D11_End(Vec4F32 clear_color)
 	ID3D11DeviceContext_ClearRenderTargetView(d3d11_state.context, d3d11_state.rtview, color);
 	ID3D11DeviceContext_ClearDepthStencilView(d3d11_state.context, d3d11_state.dsview, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
-	if (d3d11_state.rtview)
+	if(d3d11_state.rtview)
 	{
-		for (Batch2DNode *node = r_state->render_data.batch_list->first;
-				 node != 0;
-				 node = node->next)
+		for(Batch2DNode *node = r_state->render_data.batch_list->first;
+				node != 0;
+				node = node->next)
 		{
 			Batch2D *batch = node->batch;
 
-			switch (batch->inst_kind)
+			switch(batch->inst_kind)
 			{
 				case Batch2DInstKind_Rect:
 				{
@@ -347,12 +347,12 @@ D3D11_End(Vec4F32 clear_color)
 					rect.right = (LONG)batch->clip_rect.x1;
 					rect.bottom = (LONG)batch->clip_rect.y1;
 
-					if (rect.right > viewport.Width)
+					if(rect.right > viewport.Width)
 					{
 						rect.right = (LONG)viewport.Width;
 					}
 
-					if (rect.bottom > viewport.Height)
+					if(rect.bottom > viewport.Height)
 					{
 						rect.bottom = (LONG)viewport.Height;
 					}
@@ -423,12 +423,12 @@ D3D11_End(Vec4F32 clear_color)
 					rect.right = (LONG)batch->clip_rect.x1;
 					rect.bottom = (LONG)batch->clip_rect.y1;
 
-					if (rect.right > viewport.Width)
+					if(rect.right > viewport.Width)
 					{
 						rect.right = (LONG)viewport.Width;
 					}
 
-					if (rect.bottom > viewport.Height)
+					if(rect.bottom > viewport.Height)
 					{
 						rect.bottom = (LONG)viewport.Height;
 					}
@@ -461,15 +461,15 @@ D3D11_End(Vec4F32 clear_color)
 	// change to FALSE to disable vsync
 	BOOL vsync = TRUE;
 	hr = IDXGISwapChain1_Present(d3d11_state.swap_chain, vsync ? 1 : 0, 0);
-	if (hr == DXGI_STATUS_OCCLUDED)
+	if(hr == DXGI_STATUS_OCCLUDED)
 	{
 		// window is minimized, cannot vsync - instead sleep a bit
-		if (vsync)
+		if(vsync)
 		{
 			Sleep(10);
 		}
 	}
-	else if (FAILED(hr))
+	else if(FAILED(hr))
 	{
 		Assert(!"Failed to present swap chain! Device lost?");
 	}

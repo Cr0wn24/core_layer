@@ -1487,7 +1487,7 @@ UI_Init(MemoryArena *arena, R_Font *font, OS_Window *window)
 {
 	UI_State *result = PushStructNoZero(arena, UI_State);
 
-	size_t ui_permanent_storage_size = GIGABYTES(1);
+	size_t ui_permanent_storage_size = MEGABYTES(128);
 	size_t ui_frame_storage_size = MEGABYTES(8);
 	size_t ui_memory_size = ui_permanent_storage_size + ui_frame_storage_size;
 	// TODO(hampus): Remove calloc()
@@ -1519,7 +1519,8 @@ UI_Init(MemoryArena *arena, R_Font *font, OS_Window *window)
 	return(result);
 }
 
-internal UI_Box *ui_get_box(String8 string)
+internal UI_Box *
+UI_GetBox(String8 string)
 {
 	UI_Key key = UI_KeyFromString(string);
 

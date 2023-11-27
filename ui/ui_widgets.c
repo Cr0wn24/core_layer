@@ -697,7 +697,7 @@ UI_PushScrollableContainer(String8 string)
 	UI_NextSize2(UI_Pixels(container_width), UI_Pixels(container_height - scrollbar_size));
 	UI_Box *container_x = UI_BoxMake(UI_BoxFlag_DrawBackground, Str8Lit("Containerx"));
 
-	UI_Box *content_box = ui_get_box(Str8Lit("ScrollCalcBox"));
+	UI_Box *content_box = UI_GetBox(Str8Lit("ScrollCalcBox"));
 
 	F32 content_dim[Axis2_COUNT] = {0};
 
