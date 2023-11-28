@@ -21,8 +21,6 @@ OS_Init()
 	ArenaInit(scratch_arena_ + 0, OS_AllocMem(GIGABYTES(1)), GIGABYTES(1));
 	ArenaInit(scratch_arena_ + 1, OS_AllocMem(GIGABYTES(1)), GIGABYTES(1));
 
-	ArenaInit(&os_state.permanent_arena, OS_AllocMem(MEGABYTES(64)), MEGABYTES(64));
-
 	QueryPerformanceCounter(&os_state.start_counter);
 
 	LARGE_INTEGER freq_counter;

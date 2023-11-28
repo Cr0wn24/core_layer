@@ -33,8 +33,8 @@ R_FontAtlasRegionAlloc(MemoryArena *arena, R_FontAtlas *atlas, Vec2S32 dim)
 	// fits the required size
 	while (free_region)
 	{
-		if(region_dim.width >= dim.width && 
-		   region_dim.height >= dim.height)
+		if (region_dim.width >= dim.width && 
+		    region_dim.height >= dim.height)
 		{
 			// We found a region
 			found_region = true;
@@ -54,8 +54,8 @@ R_FontAtlasRegionAlloc(MemoryArena *arena, R_FontAtlas *atlas, Vec2S32 dim)
 	// See if we can make the region smaller
 	// in order to save space
 
-	B32 can_halve_size = 	region_dim.width > (dim.width * 2) &&
-							region_dim.height > (dim.height * 2);
+	B32 can_halve_size = region_dim.width > (dim.width * 2) &&
+						 region_dim.height > (dim.height * 2);
 
 	while (can_halve_size)
 	{

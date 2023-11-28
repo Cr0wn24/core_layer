@@ -90,8 +90,6 @@ typedef enum OS_Cursor
 
 typedef struct OS_State
 {
-	MemoryArena permanent_arena;
-
 	char last_char;
 
 	LARGE_INTEGER start_counter;

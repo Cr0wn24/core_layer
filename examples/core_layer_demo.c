@@ -251,7 +251,6 @@ EntryPoint(String8List args)
 		ReleaseScratch(scratch);
 
 		atlas = R_PackBitmapsIntoTextureAtlas(&permanent_arena, 128, 128, loaded_bitmaps, 16, 1);
-
 		for (U32 i = 0; i < 16; ++i)
 		{
 			stbi_image_free(loaded_bitmaps[i].data);
@@ -301,7 +300,7 @@ EntryPoint(String8List args)
 
 		R_PushText(V2(0, 0), R_FontKeyFromString(CORE_RESOURCE("font/Inter-Regular.ttf")), 
 		           8, Str8Lit("Hello world!"), V4(1, 1, 1, 1));
-			
+
 #if 0
 		R_FreeFontAtlasRegion *first_region = font_atlas->first_used_region;
 		while(first_region)

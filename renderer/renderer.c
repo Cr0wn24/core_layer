@@ -309,13 +309,12 @@ R_PushGlyph(Vec2F32 pos, R_Font *font, R_Glyph *glyph, Vec4F32 color)
 	F32 width = (F32)glyph->size.x;
 	F32 height = (F32)glyph->size.y;
 
-	R_PushRect(V2(xpos,
-								ypos),
-						 V2(xpos + width,
-								ypos + height),
-						 .texture = glyph->texture,
-						 .color = color,
-						 .text = true);
+	R_PushRect(V2(xpos, ypos),
+			   	V2(xpos + width,
+				  ypos + height),
+			   .texture = glyph->texture,
+			   .color = color,
+			   .text = true);
 
 }
 
@@ -326,8 +325,8 @@ R_PushGlyphIndex(Vec2F32 pos, R_Font *font, U32 index, Vec4F32 color)
 	R_PushGlyph(pos, font, glyph, color);
 }
 
-internal void
-R_PushText(Vec2F32 pos, R_FontKey font_key, S32 height, String8 text, Vec4F32 color)
+internal R_Font *
+R_GetFont(R_FontKey font_key, S32 height)
 {
 	Assert(height >= 0);
 	Assert(height < 128);
@@ -338,18 +337,26 @@ R_PushText(Vec2F32 pos, R_FontKey font_key, S32 height, String8 text, Vec4F32 co
 	{
 		r_state->fonts[slot_index] = PushStruct(r_state->permanent_arena, R_FontSizeCollection);
 		r_state->fonts[slot_index]->key = font_key;
-	
 	}
+
 	font_collection = r_state->fonts[slot_index];
 
 	Assert(font_collection->key.key == font_key.key);
 	R_Font *font = font_collection->fonts + height;
-	
+
 	if(!font->max_height)
 	{
 		R_LoadFont(r_state->permanent_arena, &font_collection->fonts[height], r_state->font_atlas, font_key.font, Str8Lit(""), height);
 	}
-	
+
+	return(font);
+}
+
+internal void
+R_PushText(Vec2F32 pos, R_FontKey font_key, S32 height, String8 text, Vec4F32 color)
+{
+	R_Font *font = R_GetFont(font_key, height);
+
 	for (U64 i = 0; i < text.size; ++i)
 	{
 		R_Glyph *glyph = font->glyphs + text.str[i];
@@ -360,7 +367,7 @@ R_PushText(Vec2F32 pos, R_FontKey font_key, S32 height, String8 text, Vec4F32 co
 
 internal TextureAtlas
 R_PackBitmapsIntoTextureAtlas(MemoryArena *arena, S32 atlas_width, S32 atlas_height,
-															R_LoadedBitmap *bitmaps, S32 bitmap_count, S32 padding)
+							  R_LoadedBitmap *bitmaps, S32 bitmap_count, S32 padding)
 {
 	// TODO(hampus): Really naive algoritm. Rewrite
 
