@@ -23,10 +23,10 @@ UITest()
 	UI_NextRelativePos2(300, 300);
 	UI_NextBackgroundColor(ui_state->theme.window_color);
 	UI_Box *box2 = UI_BoxMake(UI_BoxFlag_DrawBackground |
-														UI_BoxFlag_DrawBorder |
-														UI_BoxFlag_DrawDropShadow |
-														UI_BoxFlag_FixedX |
-														UI_BoxFlag_FixedY |
+							  UI_BoxFlag_DrawBorder |
+							  UI_BoxFlag_DrawDropShadow |
+							  UI_BoxFlag_FixedX |
+							  UI_BoxFlag_FixedY |
 														UI_BoxFlag_AnimateWidth |
 														UI_BoxFlag_AnimateHeight |
 														UI_BoxFlag_Clip,
@@ -246,8 +246,7 @@ EntryPoint(String8List args)
 				path = PushStr8F(scratch.arena, "../res/test/Tiles/tile_00%d.png", i);
 			}
 
-			loaded_bitmaps[i].data = stbi_load((const char *)path.str,
-																				 &loaded_bitmaps[i].dim.width, &loaded_bitmaps[i].dim.height, &channels, 0);
+			loaded_bitmaps[i].data = stbi_load((const char *)path.str, &loaded_bitmaps[i].dim.width, &loaded_bitmaps[i].dim.height, &channels, 0);
 		}
 		ReleaseScratch(scratch);
 
@@ -258,6 +257,8 @@ EntryPoint(String8List args)
 			stbi_image_free(loaded_bitmaps[i].data);
 		}
 	}
+
+	Hello
 
 	R_Font font = {0};
 	R_LoadFont(&permanent_arena, &font, CORE_RESOURCE("font/liberation-mono.ttf"), CORE_RESOURCE("font/icon/mfglabsiconset-webfont.ttf"), 20);
