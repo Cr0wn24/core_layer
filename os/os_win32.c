@@ -7,12 +7,14 @@ global OS_State os_state;
 
 internal void *OS_AllocMem(size_t size);
 
-internal void CoreShutdown(OS_Window *window)
+internal void 
+CoreShutdown(OS_Window *window)
 {
 	OS_DestroyWindow(window);
 }
 
-internal void OS_Init()
+internal void 
+OS_Init()
 {
 	srand((U32)time(0));
 
@@ -45,7 +47,8 @@ internal void OS_Init()
 	os_state.initialized = true;
 }
 
-internal LRESULT CALLBACK OS_WindowProc(HWND window, UINT message, WPARAM wparam, LPARAM lparam)
+internal LRESULT CALLBACK 
+OS_WindowProc(HWND window, UINT message, WPARAM wparam, LPARAM lparam)
 {
 	LRESULT result = 0;
 	switch (message)
@@ -453,7 +456,8 @@ OS_AllocMem(size_t size)
 	return result;
 }
 
-internal void OS_FreeMemory(void *memory)
+internal void 
+OS_FreeMemory(void *memory)
 {
 	if (memory)
 	{
@@ -471,7 +475,8 @@ OS_LoadLibrary(String8 library_name)
 	return(result);
 }
 
-internal void OS_FreeLibrary(OS_Library *library)
+internal void 
+OS_FreeLibrary(OS_Library *library)
 {
 	FreeLibrary(library->handle);
 	library->handle = 0;
@@ -496,12 +501,14 @@ internal B32 SameTime(Time *a, Time *b)
 				 a->second == b->second);
 }
 
-internal void OS_CopyFile(String8 dst, String8 src)
+internal void 
+OS_CopyFile(String8 dst, String8 src)
 {
 	CopyFileA((LPCSTR)src.str, (LPCSTR)dst.str, FALSE);
 }
 
-internal Time OS_SystemTimeToTime(SYSTEMTIME *time)
+internal Time 
+OS_SystemTimeToTime(SYSTEMTIME *time)
 {
 	Time result;
 
@@ -517,7 +524,8 @@ internal Time OS_SystemTimeToTime(SYSTEMTIME *time)
 	return(result);
 }
 
-internal Time OS_GetLastWriteTime(String8 file_name)
+internal Time 
+OS_GetLastWriteTime(String8 file_name)
 {
 	Time result = {0};
 
@@ -539,7 +547,8 @@ internal Time OS_GetLastWriteTime(String8 file_name)
 	return(result);
 }
 
-internal void OS_Sleep(U32 milliseconds)
+internal void 
+OS_Sleep(U32 milliseconds)
 {
 	Sleep(milliseconds);
 }

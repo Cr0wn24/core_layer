@@ -4,13 +4,13 @@
 
 #include "core_layer/base/base_inc.h"
 #include "core_layer/os/os_win32_inc.h"
-#include "core_layer/renderer/renderer.h"
+#include "core_layer/renderer/r_inc.h"
 #include "core_layer/renderer/backends/d3d11/d3d11.h"
 #include "core_layer/ui/ui_inc.h"
 
 #include "core_layer/base/base_inc.c"
 #include "core_layer/os/os_win32_inc.c"
-#include "core_layer/renderer/renderer.c"
+#include "core_layer/renderer/r_inc.c"
 #include "core_layer/renderer/backends/d3d11/d3d11.c"
 #include "core_layer/ui/ui_inc.c"
 
@@ -27,10 +27,10 @@ UITest()
 							  UI_BoxFlag_DrawDropShadow |
 							  UI_BoxFlag_FixedX |
 							  UI_BoxFlag_FixedY |
-														UI_BoxFlag_AnimateWidth |
-														UI_BoxFlag_AnimateHeight |
-														UI_BoxFlag_Clip,
-														Str8Lit("My box2"));
+							  UI_BoxFlag_AnimateWidth |
+							  UI_BoxFlag_AnimateHeight |
+							  UI_BoxFlag_Clip,
+							  Str8Lit("My box2"));
 	UI_Size tree_spacing = UI_Em(0.3f);
 
 	local_persist Vec4F32 color_test = {1.0f, 1.0f, 1.0f, 1.0f};
@@ -275,8 +275,8 @@ EntryPoint(String8List args)
 		OS_EventList *event_list = OS_GatherEventsFromWindow(scratch.arena);
 
 		for (OS_EventNode *node = event_list->first;
-				 node != 0;
-				 node = node->next)
+			 node != 0;
+			 node = node->next)
 		{
 			switch (node->event.type)
 			{
