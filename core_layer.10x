@@ -36,7 +36,9 @@
 			<ConfigAndPlatform>
 				<Name>Debug:x64</Name>
 				<Defines></Defines>
-				<ForceIncludes></ForceIncludes>
+				<ForceIncludes>
+					<ForceInclude>examples/core_layer_demo.c</ForceInclude>
+				</ForceIncludes>
 			</ConfigAndPlatform>
 			<Config>
 				<Name>Debug</Name>
