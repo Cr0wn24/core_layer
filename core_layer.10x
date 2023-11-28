@@ -29,7 +29,9 @@
 			<Platform>Win32</Platform>
 		</Platforms>
 		<AdditionalIncludePaths>
-			<AdditionalIncludePath></AdditionalIncludePath>
+			<AdditionalIncludePath>C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um</AdditionalIncludePath>
+			<AdditionalIncludePath>C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\ucrt</AdditionalIncludePath>
+			<AdditionalIncludePath>C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared</AdditionalIncludePath>
 		</AdditionalIncludePaths>
 		<Defines></Defines>
 		<ConfigProperties>
@@ -37,7 +39,7 @@
 				<Name>Debug:x64</Name>
 				<Defines></Defines>
 				<ForceIncludes>
-					<ForceInclude>examples/core_layer_demo.c</ForceInclude>
+					<ForceInclude>core_layer_demo.c</ForceInclude>
 				</ForceIncludes>
 			</ConfigAndPlatform>
 			<Config>

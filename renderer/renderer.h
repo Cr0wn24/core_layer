@@ -24,42 +24,6 @@ typedef enum R_IconIndex
 	R_IconIndex_SkipBackward = 230,
 } R_IconIndex;
 
-typedef union RectS32
-{
-	struct
-	{
-		S32 x0;
-		S32 y0;
-		S32 x1;
-		S32 y1;
-	};
-
-	struct
-	{
-		Vec2S32 min;
-		Vec2S32 max;
-	};
-
-} RectS32;
-
-typedef union RectF32
-{
-	struct
-	{
-		F32 x0;
-		F32 y0;
-		F32 x1;
-		F32 y1;
-	};
-
-	struct
-	{
-		Vec2F32 min;
-		Vec2F32 max;
-	};
-
-} RectF32;
-
 typedef struct R_Handle
 {
 	U64 a;
@@ -165,20 +129,6 @@ typedef struct ClipRectList
 #define GPU_LOAD_TEXTURE(name) R_Handle name(void *data, S32 width, S32 height);
 typedef GPU_LOAD_TEXTURE(GPULoadTextureProc);
 
-typedef struct R_State
-{
-	MemoryArena *arena;
-	RenderData render_data;
-
-	R_Texture white_texture;
-
-	ClipRectStack clip_rect_stack;
-
-	GPULoadTextureProc *GPULoadTexture;
-
-	Vec2S32 render_dim;
-} R_State;
-
 typedef struct R_Glyph
 {
 	R_Texture texture;
@@ -200,16 +150,24 @@ typedef struct R_LoadedBitmap
 	void *data;
 } R_LoadedBitmap;
 
-typedef struct R_Font
+typedef struct R_State
 {
-	R_Glyph glyphs[512];
-	F32 max_height;
-	F32 max_width;
-	S32 max_ascent;
-	S32 max_descent;
-	S32 height;
-	TextureAtlas atlas;
-} R_Font;
+	MemoryArena *arena;
+	MemoryArena *permanent_arena;
+	RenderData render_data;
+
+	R_Texture white_texture;
+
+	ClipRectStack clip_rect_stack;
+
+	struct R_FontAtlas *font_atlas;
+
+	GPULoadTextureProc *GPULoadTexture;
+
+	struct R_FontSizeCollection *fonts[128];
+
+	Vec2S32 render_dim;
+} R_State;
 
 #define R_PushRect(min, max, ...) R_PushRect_(min, max, (R_RectParams){.texture = r_state->white_texture, .color = V4(1.0f, 1.0f, 1.0f, 1.0f), __VA_ARGS__})
 #define R_PushCircle(min, r, ...) R_PushCircle_(min, r, (R_RectParams){.texture = r_state->white_texture, .color = V4(1.0f, 1.0f, 1.0f, 1.0f), __VA_ARGS__})

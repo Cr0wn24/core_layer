@@ -182,6 +182,112 @@ R_PushLine(Vec2F32 p0, Vec2F32 p1, F32 thickness, Vec4F32 color)
 	batch->inst_count++;
 }
 
+internal void 
+	R_LoadGlyph(MemoryArena *arena, R_FontAtlas *atlas, U32 glyph_index, FT_Face face, R_Font *font)
+{
+	R_Glyph *glyph = font->glyphs + glyph_index;
+	Assert(glyph->advance == 0);
+	FT_Load_Char(face, glyph_index, FT_LOAD_RENDER | FT_LOAD_TARGET_LCD);
+
+	FT_Render_Glyph(face->glyph, FT_RENDER_MODE_LCD);
+
+	R_LoadedBitmap glyph_bitmap = {0};
+	glyph_bitmap.data = face->glyph->bitmap.buffer;
+
+	// NOTE(hampus): Divide by 3 for LCD
+	S32 width = face->glyph->bitmap.width / 3;
+	// S32 width = face->glyph->bitmap.width;
+	S32 height = face->glyph->bitmap.rows;
+
+	glyph_bitmap.dim.width = width;
+	glyph_bitmap.dim.height = height;
+
+	U8 *new_teture_data = PushArray(arena, glyph_bitmap.dim.width * glyph_bitmap.dim.height * 4, U8);
+	U8 *src = glyph_bitmap.data;
+	U8 *dst = new_teture_data;
+
+	for (S32 y = 0; y < glyph_bitmap.dim.height; ++y)
+	{
+		U8 *dst_row = dst;
+		U8 *src_row = src;
+		U8 *test2 = (U8 *)src_row;
+		for (S32 x = 0; x < glyph_bitmap.dim.width; ++x)
+		{
+			U8 r = *test2++;
+			U8 g = *test2++;
+			U8 b = *test2++;
+			*dst_row++ = r;
+			*dst_row++ = g;
+			*dst_row++ = b;
+			*dst_row++ = 0xff;
+		}
+
+		dst += (S32)(glyph_bitmap.dim.width * 4);
+
+		// NOTE(hampus): Freetype actually adds padding
+		// so the pitch is the correct width to increment
+		// by. 
+		src += (S32)(face->glyph->bitmap.pitch);
+	}
+
+	// TODO(hampus): Memory leak here
+	glyph_bitmap.data = new_teture_data;
+
+	glyph->size = V2S(width, height);
+	glyph->bearing = V2S(face->glyph->bitmap_left, face->glyph->bitmap_top);
+	glyph->advance = face->glyph->advance.x >> 6;
+	if (glyph->size.y > font->max_height)
+	{
+		font->max_height = (F32)glyph->size.y;
+	}
+
+	R_FontAtlasRegion atlas_region = R_FontAtlasRegionAlloc(arena, atlas, glyph_bitmap.dim);
+	glyph->texture = R_FillFontAtlasRegionWithBitmap(atlas, atlas_region, &glyph_bitmap);
+}
+
+internal void
+R_LoadFont(MemoryArena *arena, R_Font *font, R_FontAtlas *atlas, String8 font_path, String8 icon_path, S32 size)
+{
+	// TODO(hampus): This is temporary for now. Rewrite
+
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft))
+	{
+		printf("Failed to initialize freetype!\n");
+		return;
+	}
+
+	FT_Face face;
+	if (FT_New_Face(ft, (const char *)font_path.str, 0, &face))
+	{
+		printf("Failed to load face!\n");
+		return;
+	}
+
+	FT_Set_Pixel_Sizes(face, 0, size);
+	font->height = size;
+
+	font->max_ascent = ((S32)(face->ascender * (face->size->metrics.y_scale / 65536.0f))) >> 6;
+	font->max_descent = ((S32)Abs((F32)face->descender * ((F32)face->size->metrics.y_scale / 65536.0f))) >> 6;
+
+	for (U32 glyph_index = 32;
+		glyph_index < 127;
+		++glyph_index)
+	{
+		R_LoadGlyph(arena, atlas, glyph_index, face, font);
+	}
+
+	atlas->texture.handle = r_state->GPULoadTexture(atlas->data, atlas->dim.x, atlas->dim.y);
+	
+	for (U64 glyph_index = 32;
+		glyph_index < 127;
+		++glyph_index)
+	{
+		R_Glyph *glyph = font->glyphs + glyph_index;
+		glyph->texture.handle = atlas->texture.handle;
+	}
+}
+
 internal void
 R_PushCircle_(Vec2F32 p, F32 radius, R_RectParams params)
 {
@@ -195,15 +301,13 @@ R_PushCircle_(Vec2F32 p, F32 radius, R_RectParams params)
 }
 
 internal void
-R_PushGlyph(Vec2F32 pos, S32 glyph_height, R_Font *font, R_Glyph *glyph, Vec4F32 color)
+R_PushGlyph(Vec2F32 pos, R_Font *font, R_Glyph *glyph, Vec4F32 color)
 {
-	F32 scale = (F32)glyph_height / (F32)font->height;
+	F32 xpos = pos.x + glyph->bearing.x;
+	F32 ypos = pos.y + (-glyph->bearing.y) + (font->max_ascent);
 
-	F32 xpos = pos.x + glyph->bearing.x * scale;
-	F32 ypos = pos.y + (-glyph->bearing.y) * scale + (font->max_ascent) * scale;
-
-	F32 width = glyph->size.x * scale;
-	F32 height = glyph->size.y * scale;
+	F32 width = (F32)glyph->size.x;
+	F32 height = (F32)glyph->size.y;
 
 	R_PushRect(V2(xpos,
 								ypos),
@@ -216,22 +320,41 @@ R_PushGlyph(Vec2F32 pos, S32 glyph_height, R_Font *font, R_Glyph *glyph, Vec4F32
 }
 
 internal void
-R_PushGlyphIndex(Vec2F32 pos, S32 glyph_height, R_Font *font, U32 index, Vec4F32 color)
+R_PushGlyphIndex(Vec2F32 pos, R_Font *font, U32 index, Vec4F32 color)
 {
 	R_Glyph *glyph = font->glyphs + index;
-	R_PushGlyph(pos, glyph_height, font, glyph, color);
+	R_PushGlyph(pos, font, glyph, color);
 }
 
 internal void
-R_PushText(Vec2F32 pos, S32 height, R_Font *font, String8 text, Vec4F32 color)
+R_PushText(Vec2F32 pos, R_FontKey font_key, S32 height, String8 text, Vec4F32 color)
 {
-	F32 scale = (F32)height / (F32)font->height;
+	Assert(height >= 0);
+	Assert(height < 128);
 
+	U64 slot_index = font_key.key % ArrayCount(r_state->fonts);
+	R_FontSizeCollection *font_collection = 0;
+	if (!r_state->fonts[slot_index])
+	{
+		r_state->fonts[slot_index] = PushStruct(r_state->permanent_arena, R_FontSizeCollection);
+		r_state->fonts[slot_index]->key = font_key;
+	
+	}
+	font_collection = r_state->fonts[slot_index];
+
+	Assert(font_collection->key.key == font_key.key);
+	R_Font *font = font_collection->fonts + height;
+	
+	if(!font->max_height)
+	{
+		R_LoadFont(r_state->permanent_arena, &font_collection->fonts[height], r_state->font_atlas, font_key.font, Str8Lit(""), height);
+	}
+	
 	for (U64 i = 0; i < text.size; ++i)
 	{
 		R_Glyph *glyph = font->glyphs + text.str[i];
-		R_PushGlyph(pos, height, font, glyph, color);
-		pos.x += (glyph->advance) * scale;
+		R_PushGlyph(pos, font, glyph, color);
+		pos.x += (glyph->advance);
 	}
 }
 
@@ -343,170 +466,6 @@ R_PackBitmapsIntoTextureAtlas(MemoryArena *arena, S32 atlas_width, S32 atlas_hei
 }
 
 internal void
-R_LoadFont(MemoryArena *arena, R_Font *font, String8 font_path, String8 icon_path, S32 size)
-{
-	// TODO(hampus): This is temporary for now. Rewrite
-
-	R_LoadedBitmap loaded_bitmap_glyphs[128 + 256];
-
-	FT_Library ft;
-	if (FT_Init_FreeType(&ft))
-	{
-		printf("Failed to initialize freetype!\n");
-		return;
-	}
-
-	FT_Face face;
-	if (FT_New_Face(ft, (const char *)font_path.str, 0, &face))
-	{
-		printf("Failed to load face!\n");
-		return;
-	}
-
-	FT_Set_Pixel_Sizes(face, 0, size);
-	font->height = size;
-
-	font->max_ascent = ((S32)(face->ascender * (face->size->metrics.y_scale / 65536.0f))) >> 6;
-	font->max_descent = ((S32)Abs((F32)face->descender * ((F32)face->size->metrics.y_scale / 65536.0f))) >> 6;
-
-	for (U32 glyph_index = 0;
-			 glyph_index < 128;
-			 ++glyph_index)
-	{
-		FT_Load_Char(face, glyph_index, FT_LOAD_RENDER | FT_LOAD_TARGET_LCD);
-		// FT_Load_Glyph(face, (FT_UInt)(glyph_index), FT_LOAD_RENDER | FT_LOAD_TARGET_LCD);
-
-		FT_Render_Glyph(face->glyph, FT_RENDER_MODE_LCD);
-
-		R_Glyph *glyph = font->glyphs + glyph_index;
-		R_LoadedBitmap *glyph_bitmap = loaded_bitmap_glyphs + glyph_index;
-		glyph_bitmap->data = face->glyph->bitmap.buffer;
-
-		// NOTE(hampus): Divide by 3 for LCD
-		S32 width = face->glyph->bitmap.width / 3;
-		// S32 width = face->glyph->bitmap.width;
-		S32 height = face->glyph->bitmap.rows;
-
-		glyph_bitmap->dim.width = width;
-		glyph_bitmap->dim.height = height;
-
-		U8 *new_teture_data = PushArray(arena, glyph_bitmap->dim.width * glyph_bitmap->dim.height * 4, U8);
-		U8 *src = glyph_bitmap->data;
-		U8 *dst = new_teture_data;
-
-		for (S32 y = 0; y < glyph_bitmap->dim.height; ++y)
-		{
-			U8 *dst_row = dst;
-			U8 *src_row = src;
-			U8 *test2 = (U8 *)src_row;
-			for (S32 x = 0; x < glyph_bitmap->dim.width; ++x)
-			{
-				U8 r = *test2++;
-				U8 g = *test2++;
-				U8 b = *test2++;
-				*dst_row++ = r;
-				*dst_row++ = g;
-				*dst_row++ = b;
-				*dst_row++ = 0xff;
-			}
-
-			dst += (S32)(glyph_bitmap->dim.width * 4);
-
-			// NOTE(hampus): Freetype actually adds padding
-			// so the pitch is the correct width to increment
-			// by. 
-			src += (S32)(face->glyph->bitmap.pitch);
-		}
-
-		// TODO(hampus): Memory leak here
-		glyph_bitmap->data = new_teture_data;
-
-		glyph->size = V2S(width, height);
-		glyph->bearing = V2S(face->glyph->bitmap_left, face->glyph->bitmap_top);
-		glyph->advance = face->glyph->advance.x >> 6;
-		if (glyph->size.y > font->max_height)
-		{
-			font->max_height = (F32)glyph->size.y;
-		}
-	}
-
-	FT_Face icon_face;
-	if (FT_New_Face(ft, (const char *)icon_path.str, 0, &icon_face))
-	{
-		printf("Failed to load face!\n");
-		return;
-	}
-
-	FT_Set_Pixel_Sizes(icon_face, 0, size - 5);
-
-	for (U32 glyph_index = 0;
-			 glyph_index < 256;
-			 ++glyph_index)
-	{
-		FT_Load_Glyph(icon_face, (FT_UInt)(glyph_index), FT_LOAD_RENDER | FT_LOAD_TARGET_LCD);
-
-		FT_Render_Glyph(icon_face->glyph, FT_RENDER_MODE_LCD);
-
-		R_Glyph *glyph = font->glyphs + glyph_index + 128;
-		R_LoadedBitmap *glyph_bitmap = loaded_bitmap_glyphs + glyph_index + 128;
-		glyph_bitmap->data = icon_face->glyph->bitmap.buffer;
-
-		// NOTE(hampus): Divide by 3 for LCD
-		S32 width = icon_face->glyph->bitmap.width / 3;
-		// S32 width = icon_face->glyph->bitmap.width;
-		S32 height = icon_face->glyph->bitmap.rows;
-
-		glyph_bitmap->dim.width = width;
-		glyph_bitmap->dim.height = height;
-
-		U8 *new_teture_data = PushArray(arena, glyph_bitmap->dim.width * glyph_bitmap->dim.height * 4, U8);
-		U8 *src = glyph_bitmap->data;
-		U8 *dst = new_teture_data;
-
-		for (S32 y = 0; y < glyph_bitmap->dim.height; ++y)
-		{
-			U8 *dst_row = dst;
-			U8 *src_row = src;
-			U8 *test2 = (U8 *)src_row;
-			for (S32 x = 0; x < glyph_bitmap->dim.width; ++x)
-			{
-				U8 r = *test2++;
-				U8 g = *test2++;
-				U8 b = *test2++;
-				*dst_row++ = r;
-				*dst_row++ = g;
-				*dst_row++ = b;
-				*dst_row++ = 0xff;
-			}
-
-			dst += (S32)(glyph_bitmap->dim.width * 4);
-
-			// NOTE(hampus): Freetype actually adds padding
-			// so the pitch is the correct width to increment
-			// by. 
-			src += (S32)(icon_face->glyph->bitmap.pitch);
-		}
-
-		// TODO(hampus): Memory leak here
-		glyph_bitmap->data = new_teture_data;
-
-		glyph->size = V2S(width, height);
-		glyph->bearing = V2S(icon_face->glyph->bitmap_left, icon_face->glyph->bitmap_top);
-		glyph->advance = icon_face->glyph->advance.x >> 6;
-		if (glyph->size.y > font->max_height)
-		{
-			font->max_height = (F32)glyph->size.y;
-		}
-	}
-
-	font->atlas = R_PackBitmapsIntoTextureAtlas(arena, 1024, 1024, loaded_bitmap_glyphs, 256 + 128, 5);
-	for (U32 i = 0; i < 256 + 128; ++i)
-	{
-		font->glyphs[i].texture = font->atlas.textures[i];
-	}
-}
-
-internal void
 R_PushClipRect(RectF32 rect)
 {
 	Assert(rect.x1 >= rect.x0);
@@ -527,6 +486,14 @@ internal RectF32
 R_MakeRectF32(F32 x0, F32 y0, F32 x1, F32 y1)
 {
 	RectF32 result = {x0, y0, x1, y1};
+
+	return result;
+}
+
+internal RectS32
+R_MakeRectS32(S32 x0, S32 y0, S32 x1, S32 y1)
+{
+	RectS32 result = {x0, y0, x1, y1};
 
 	return result;
 }

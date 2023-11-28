@@ -1415,7 +1415,7 @@ UI_Draw(UI_Box *root)
 			};
 
 			R_PushGlyphIndex(UI_AlignDimInRect(glyph_dim, root->calc_rect, text_style->text_align, padding),
-											 text_style->font_size, ui_state->font, text_style->icon, V4(1.0f, 1.0f, 1.0f, 1.0f));
+											 ui_state->font, text_style->icon, V4(1.0f, 1.0f, 1.0f, 1.0f));
 		}
 		else
 		{
@@ -1427,11 +1427,13 @@ UI_Draw(UI_Box *root)
 				text_style->text_edge_padding[Axis2_Y] * root->text_style.font_size,
 			};
 
+#if 0
 			R_PushText(UI_AlignDimInRect(text_dim, root->calc_rect, text_style->text_align, padding),
-								 text_style->font_size,
 								 ui_state->font,
+								 12,
 								 root->display_string,
 								 text_style->text_color);
+#endif
 		}
 	}
 

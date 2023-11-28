@@ -75,4 +75,40 @@ typedef struct Mat4x4F32
 	F32 m[4][4];
 } Mat4x4F32;
 
+typedef union RectS32
+{
+	struct
+	{
+		S32 x0;
+		S32 y0;
+		S32 x1;
+		S32 y1;
+	};
+
+	struct
+	{
+		Vec2S32 min;
+		Vec2S32 max;
+	};
+
+} RectS32;
+
+typedef union RectF32
+{
+	struct
+	{
+		F32 x0;
+		F32 y0;
+		F32 x1;
+		F32 y1;
+	};
+
+	struct
+	{
+		Vec2F32 min;
+		Vec2F32 max;
+	};
+
+} RectF32;
+
 #endif

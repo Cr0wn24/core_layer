@@ -258,11 +258,13 @@ EntryPoint(String8List args)
 		}
 	}
 
-	R_Font font = {0};
-	R_LoadFont(&permanent_arena, &font, CORE_RESOURCE("font/liberation-mono.ttf"), CORE_RESOURCE("font/icon/mfglabsiconset-webfont.ttf"), 20);
+	R_FontAtlas *font_atlas = R_FontAtlasMake(&permanent_arena, V2S(2048, 2048));
 
-	UI_State *state = UI_Init(&permanent_arena, &font, window);
-	UI_SelectState(state);
+	//UI_State *state = UI_Init(&permanent_arena, &font, window);
+	//UI_SelectState(state);
+
+	r_state->font_atlas = font_atlas;
+	r_state->permanent_arena = &permanent_arena;
 
 	F64 dt = 0;
 	F64 start_counter = OS_SecondsSinceAppStart();
@@ -297,25 +299,30 @@ EntryPoint(String8List args)
 
 		R_Begin(scratch.arena);
 
-		R_PushText(V2(1700, 50), 20, &font, Str8Lit("Hello, world!"), V4(1.0f, 1.0f, 1.0f, 1.0f));
-		R_PushRect(V2(1200 - 50, 50), V2(1200 + 450, 50 + 65), .color = V4(0.5, 0, 0, 1), .corner_radius = V4(10, 10, 10, 10), .edge_softness = 1);
-		R_PushRect(V2(1200 - 50, 50), V2(1200 + 450, 50 + 65), .color = V4(1, 1, 1, 1), .corner_radius = V4(10, 10, 10, 10), .edge_softness = 1, .border_thickness = 1);
+		R_PushText(V2(0, 0), R_FontKeyFromString(CORE_RESOURCE("font/Inter-Regular.ttf")), 
+		           8, Str8Lit("Hello world!"), V4(1, 1, 1, 1));
+			
+#if 0
+		R_FreeFontAtlasRegion *first_region = font_atlas->first_used_region;
+		while(first_region)
+		{
+			Vec2F32 p0 = V2((F32)first_region->region.rect.x0, (F32)first_region->region.rect.y0);
+			Vec2F32 p1 = V2((F32)first_region->region.rect.x1, (F32)first_region->region.rect.y1);
+			R_PushRect(p0, p1, .color = V4(1.0f, 0, 0, 1.0f), .border_thickness = 1);
 
-		R_PushRect(V2(0, 0), V2(1024, 1024), .texture = font.atlas.texture, .text = true);
+			first_region = first_region->next;
+		}
 
-		R_PushRect(V2(1800, 800), V2(2400, 1400), .texture = atlas.texture);
+		first_region = font_atlas->first_free_region;
+		while(first_region)
+		{
+			Vec2F32 p0 = V2((F32)first_region->region.rect.x0, (F32)first_region->region.rect.y0);
+			Vec2F32 p1 = V2((F32)first_region->region.rect.x1, (F32)first_region->region.rect.y1);
+			R_PushRect(p0, p1, .color = V4(1.0f, 0, 0, 1.0f), .border_thickness = 1);
 
-		Vec4F32 corner_radius = V4(30, 50, 20, 10);
-
-		R_PushRect(V2(50, 500), V2(500, 1000), .color = V4(0, 0, 0, 1), .corner_radius = corner_radius, .edge_softness = 1);
-		R_PushRect(V2(50, 500), V2(500, 1000), .color = V4(1, 0, 0, 1), .corner_radius = corner_radius, .edge_softness = 1, .border_thickness = 0.5f);
-
-		UI_Begin(UI_DefaultTheme(), event_list, dt);
-
-		UITest();
-
-		UI_End();
-
+			first_region = first_region->next;
+		}
+#endif
 		R_End();
 		D3D11_End(V4(0.1f, 0.1f, 0.1f, 1.0f));
 
