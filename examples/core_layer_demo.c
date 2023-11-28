@@ -258,10 +258,6 @@ EntryPoint(String8List args)
 		}
 	}
 
-	Github test 
-
-	Hello
-
 	R_Font font = {0};
 	R_LoadFont(&permanent_arena, &font, CORE_RESOURCE("font/liberation-mono.ttf"), CORE_RESOURCE("font/icon/mfglabsiconset-webfont.ttf"), 20);
 
