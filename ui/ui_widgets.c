@@ -211,6 +211,8 @@ UI_BeginTree(String8 string)
 
 	UI_NextSize2(UI_SumOfChildren(), UI_Em(1.0f));
 	UI_NextBackgroundColor(V4(0, 0, 0, 0));
+	UI_NextHotColor(V4(0, 0, 0, 0));
+	UI_NextActiveColor(V4(0, 0, 0, 0));
 	UI_NextHoverCursor(OS_Cursor_Hand);
 	UI_NextBoxFlags(UI_BoxFlag_HotAnimation |
 	                UI_BoxFlag_Clickable |

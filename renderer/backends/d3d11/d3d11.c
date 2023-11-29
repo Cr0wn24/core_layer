@@ -23,7 +23,7 @@ D3D11_Init(OS_Window *window)
 #endif
 		D3D_FEATURE_LEVEL levels[] = {D3D_FEATURE_LEVEL_11_0};
 		hr = D3D11CreateDevice(0, D3D_DRIVER_TYPE_HARDWARE, 0, flags, levels, ArrayCount(levels),
-													 D3D11_SDK_VERSION, &d3d11_state.device, 0, &d3d11_state.context);
+		                       D3D11_SDK_VERSION, &d3d11_state.device, 0, &d3d11_state.context);
 		AssertHR(hr);
 	}
 
@@ -107,6 +107,9 @@ D3D11_Init(OS_Window *window)
 			{"MIN_UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, MemberOffset(Rect, min_uv), D3D11_INPUT_PER_INSTANCE_DATA, 1},
 			{"MAX_UV", 0, DXGI_FORMAT_R32G32_FLOAT, 0, MemberOffset(Rect, max_uv), D3D11_INPUT_PER_INSTANCE_DATA, 1},
 			{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, MemberOffset(Rect, color), D3D11_INPUT_PER_INSTANCE_DATA, 1},
+			{"COLOR", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, MemberOffset(Rect, color)+sizeof(Vec4F32), D3D11_INPUT_PER_INSTANCE_DATA, 1},
+			{"COLOR", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, MemberOffset(Rect, color)+sizeof(Vec4F32)*2, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+			{"COLOR", 3, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, MemberOffset(Rect, color)+sizeof(Vec4F32)*3, D3D11_INPUT_PER_INSTANCE_DATA, 1},
 			{"CORNER_RADIUS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, MemberOffset(Rect, corner_radius), D3D11_INPUT_PER_INSTANCE_DATA, 1},
 			{"EXTRA_PARAMS", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, MemberOffset(Rect, edge_softness), D3D11_INPUT_PER_INSTANCE_DATA, 1},
 		};
@@ -189,17 +192,17 @@ D3D11_Init(OS_Window *window)
 		// enable alpha blending
 		D3D11_BLEND_DESC desc =
 		{
-				.RenderTarget[0] =
-				{
-						.BlendEnable = TRUE,
-						.SrcBlend = D3D11_BLEND_SRC_ALPHA,
-						.DestBlend = D3D11_BLEND_INV_SRC_ALPHA,
-						.BlendOp = D3D11_BLEND_OP_ADD,
-						.SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA,
-						.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA,
-						.BlendOpAlpha = D3D11_BLEND_OP_ADD,
-						.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL,
-				},
+			.RenderTarget[0] =
+			{
+				.BlendEnable = TRUE,
+				.SrcBlend = D3D11_BLEND_SRC_ALPHA,
+				.DestBlend = D3D11_BLEND_INV_SRC_ALPHA,
+				.BlendOp = D3D11_BLEND_OP_ADD,
+				.SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA,
+				.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA,
+				.BlendOpAlpha = D3D11_BLEND_OP_ADD,
+				.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL,
+			},
 		};
 		ID3D11Device_CreateBlendState(d3d11_state.device, &desc, &d3d11_state.line_blend_state);
 	}
@@ -293,8 +296,8 @@ D3D11_End(Vec4F32 clear_color)
 	if (d3d11_state.rtview)
 	{
 		for (Batch2DNode *node = r_state->render_data.batch_list->first;
-				 node != 0;
-				 node = node->next)
+			node != 0;
+			node = node->next)
 		{
 			Batch2D *batch = node->batch;
 

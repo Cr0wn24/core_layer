@@ -53,7 +53,9 @@ typedef struct Rect
 	Vec2F32 max;
 	Vec2F32 min_uv;
 	Vec2F32 max_uv;
-	Vec4F32 color;
+	// NOTE(hampus): Top left, top right, bottom left, bottom right
+	Vec4F32 color[4];
+	// NOTE(hampus): Top left, top right, bottom left, bottom right
 	Vec4F32 corner_radius;
 	F32 edge_softness;
 	F32 omit_texture;
@@ -71,7 +73,16 @@ typedef struct LineVertex
 
 typedef struct R_RectParams
 {
-	Vec4F32 color;
+	union
+	{
+		Vec4F32 color;
+
+		struct 
+		{
+			Vec4F32 colors[2];
+		};
+	};
+	B32 gradient;
 	R_Texture texture;
 	B32 text;
 	union
@@ -79,7 +90,7 @@ typedef struct R_RectParams
 		Vec4F32 corner_radius;
 		struct
 		{
-			F32 r00, r01, r10, r11;
+			F32 r00, r10, r01, r11;
 		};
 	};
 	F32 edge_softness;
@@ -179,6 +190,7 @@ typedef struct R_State
 } R_State;
 
 #define R_PushRect(min, max, ...) R_PushRect_(min, max, (R_RectParams){.texture = r_state->white_texture, .color = V4(1.0f, 1.0f, 1.0f, 1.0f), __VA_ARGS__})
+#define R_PushRectGradient(min, max, c0, c1, ...) R_PushRect_(min, max, (R_RectParams){.gradient = true, .texture = r_state->white_texture, .colors[0] = c0, .colors[1] = c1, __VA_ARGS__})
 #define R_PushCircle(min, r, ...) R_PushCircle_(min, r, (R_RectParams){.texture = r_state->white_texture, .color = V4(1.0f, 1.0f, 1.0f, 1.0f), __VA_ARGS__})
 
 #endif

@@ -4,7 +4,7 @@ struct VS_INPUT
 	float2 max : MAX;
 	float2 min_uv : MIN_UV;
 	float2 max_uv : MAX_UV;
-	float4 color : COLOR;
+	float4 colors[4] : COLOR;
 	float4 corner_radius : CORNER_RADIUS;
 	float4 extra_params : EXTRA_PARAMS; // x: edge_softness, y: omit_texture, z: is_text, w: border_thickness
 	uint vertex_id : SV_VertexID;
@@ -62,7 +62,7 @@ PS_INPUT vs(VS_INPUT input)
 
 	PS_INPUT output;
 	output.pos = mul(uTransform, float4(dst_pos, 0, 1));
-	output.color = input.color;
+	output.color = input.colors[input.vertex_id];
 	output.uv = src_pos;
 	output.corner_radius = input.corner_radius[input.vertex_id];
 	output.dst_center = dst_center;

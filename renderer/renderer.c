@@ -76,9 +76,9 @@ R_PushRect_(Vec2F32 min, Vec2F32 max, R_RectParams params)
 	}
 
 	if (!batch_node ||
-			(!R_HandleMatch(texture.handle, batch_node->batch->tex.handle) &&
-			 !R_HandleMatch(texture.handle, r_state->white_texture.handle)) ||
-			!rect_match)
+	    (!R_HandleMatch(texture.handle, batch_node->batch->tex.handle) &&
+	    !R_HandleMatch(texture.handle, r_state->white_texture.handle)) ||
+	    !rect_match)
 	{
 		// NOTE(hampus): If the previus batch just contained a white texture,
 		// we'll just replace it with our texture instead
@@ -112,7 +112,20 @@ R_PushRect_(Vec2F32 min, Vec2F32 max, R_RectParams params)
 
 	rect->min = V2(roundf(min.x), roundf(min.y));
 	rect->max = V2(roundf(max.x), roundf(max.y));
-	rect->color = params.color;
+	if (params.gradient)
+	{
+		rect->color[0] = params.colors[0];
+		rect->color[1] = params.colors[0];
+		rect->color[2] = params.colors[1];
+		rect->color[3] = params.colors[1];
+	}
+	else
+	{
+		rect->color[0] = params.color;
+		rect->color[1] = params.color;
+		rect->color[2] = params.color;
+		rect->color[3] = params.color;
+	}
 	rect->min_uv = params.texture.src_p0;
 	rect->max_uv = params.texture.src_p1;
 	rect->corner_radius = params.corner_radius;
@@ -194,6 +207,7 @@ R_LoadGlyph(MemoryArena *arena, R_FontAtlas *atlas, U32 glyph_index, FT_Face fac
 	{
 		glyph = font->glyphs + glyph_index;
 	}
+	
 	Assert(glyph->advance == 0);
 	FT_Load_Char(face, glyph_index, FT_LOAD_RENDER | FT_LOAD_TARGET_LCD);
 
@@ -343,11 +357,11 @@ R_PushGlyph(Vec2F32 pos, R_Font *font, R_Glyph *glyph, Vec4F32 color)
 	F32 height = (F32)glyph->size.y;
 
 	R_PushRect(V2(xpos, ypos),
-			   	V2(xpos + width,
-				  ypos + height),
-			   .texture = glyph->texture,
-			   .color = color,
-			   .text = true);
+	           V2(xpos + width,
+	              ypos + height),
+	              .texture = glyph->texture,
+	              .color = color,
+	              .text = true);
 
 }
 
@@ -406,7 +420,7 @@ R_PushText(Vec2F32 pos, R_FontKey font_key, S32 height, String8 text, Vec4F32 co
 
 internal TextureAtlas
 R_PackBitmapsIntoTextureAtlas(MemoryArena *arena, S32 atlas_width, S32 atlas_height,
-							  R_LoadedBitmap *bitmaps, S32 bitmap_count, S32 padding)
+                              R_LoadedBitmap *bitmaps, S32 bitmap_count, S32 padding)
 {
 	// TODO(hampus): Really naive algoritm. Rewrite
 

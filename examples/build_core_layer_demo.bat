@@ -16,8 +16,8 @@ if not exist freetype.lib (
 
 set shader_path=%core_layer_root%\res\shaders
 set shader_output_path=%core_layer_root%\renderer\backends\d3d11
-REM fxc.exe /nologo /T vs_5_0 /E vs /O3 /WX /Zpc /Ges /Fh %shader_output_path%\d3d11_vshader.h /Vn d3d11_vshader /Qstrip_reflect /Qstrip_debug /Qstrip_priv %shader_path%\shader.hlsl
-REM fxc.exe /nologo /T ps_5_0 /E ps /O3 /WX /Zpc /Ges /Fh %shader_output_path%\d3d11_pshader.h /Vn d3d11_pshader /Qstrip_reflect /Qstrip_debug /Qstrip_priv %shader_path%\shader.hlsl
+fxc.exe /nologo /T vs_5_0 /E vs /O3 /WX /Zpc /Ges /Fh %shader_output_path%\d3d11_vshader.h /Vn d3d11_vshader /Qstrip_reflect /Qstrip_debug /Qstrip_priv %shader_path%\shader.hlsl
+fxc.exe /nologo /T ps_5_0 /E ps /O3 /WX /Zpc /Ges /Fh %shader_output_path%\d3d11_pshader.h /Vn d3d11_pshader /Qstrip_reflect /Qstrip_debug /Qstrip_priv %shader_path%\shader.hlsl
 
 cl ..\examples\core_layer_demo.c -I%core_layer_root%\..\ -I%ft_root%include\ %common_compiler_flags% -DEBUG:FULL -link -incremental:no
 
