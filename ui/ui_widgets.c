@@ -28,7 +28,7 @@ internal UI_Box *
 UI_Text(String8 string)
 {
 	UI_Box *box = UI_BoxMake(UI_BoxFlag_DrawText,
-													 Str8Lit(""));
+	                         Str8Lit(""));
 	UI_EquipBoxWithDisplayString(box, string);
 	return(box);
 }
@@ -50,12 +50,12 @@ UI_Button(String8 string)
 
 	UI_NextHoverCursor(OS_Cursor_Hand);
 	UI_Box *box = UI_BoxMake(UI_BoxFlag_DrawBackground |
-													 UI_BoxFlag_DrawText |
-													 UI_BoxFlag_DrawBorder |
-													 UI_BoxFlag_HotAnimation |
-													 UI_BoxFlag_ActiveAnimation |
-													 UI_BoxFlag_Clickable,
-													 string);
+	                         UI_BoxFlag_DrawText |
+	                         UI_BoxFlag_DrawBorder |
+	                         UI_BoxFlag_HotAnimation |
+	                         UI_BoxFlag_ActiveAnimation |
+	                         UI_BoxFlag_Clickable,
+	                         string);
 	UI_EquipBoxWithDisplayString(box, string);
 
 	UI_Comm comm = UI_CommFromBox(box);
@@ -94,11 +94,11 @@ UI_Check(String8 string, B32 *val)
 		UI_NextSize2(UI_Em(1.0f), UI_Em(1.0f));
 		UI_NextHoverCursor(OS_Cursor_Hand);
 		UI_Box *check_box = UI_BoxMake(UI_BoxFlag_DrawBackground |
-																	 UI_BoxFlag_Clickable |
-																	 UI_BoxFlag_DrawBorder |
-																	 UI_BoxFlag_HotAnimation |
-																	 UI_BoxFlag_ActiveAnimation,
-																	 Str8Lit("Check"));
+		                               UI_BoxFlag_Clickable |
+		                               UI_BoxFlag_DrawBorder |
+		                               UI_BoxFlag_HotAnimation |
+		                               UI_BoxFlag_ActiveAnimation,
+		                               Str8Lit("Check"));
 
 		comm = UI_CommFromBox(check_box);
 
@@ -114,9 +114,8 @@ UI_Check(String8 string, B32 *val)
 				UI_NextIcon(R_IconIndex_Check);
 				UI_NextSize2(UI_Pct(1), UI_Pct(1));
 				UI_Box *check_mark = UI_BoxMake(UI_BoxFlag_DrawText,
-																				Str8Lit("CheckMark"));
+				                                Str8Lit("CheckMark"));
 			}
-
 		}
 	}
 
@@ -205,8 +204,8 @@ UI_BeginTree(String8 string)
 	UI_NextSize2(UI_SumOfChildren(), UI_SumOfChildren());
 	UI_NextBoxFlags(UI_BoxFlag_SaveState);
 	UI_Box *container = UI_BoxMake(UI_BoxFlag_AnimateWidth |
-																 UI_BoxFlag_AnimateHeight,
-																 Str8Lit("TreeContainer"));
+	                               UI_BoxFlag_AnimateHeight,
+	                               Str8Lit("TreeContainer"));
 
 	UI_PushParent(container);
 
@@ -214,9 +213,9 @@ UI_BeginTree(String8 string)
 	UI_NextBackgroundColor(V4(0, 0, 0, 0));
 	UI_NextHoverCursor(OS_Cursor_Hand);
 	UI_NextBoxFlags(UI_BoxFlag_HotAnimation |
-									UI_BoxFlag_Clickable |
-									UI_BoxFlag_DrawBackground |
-									UI_BoxFlag_ActiveAnimation);
+	                UI_BoxFlag_Clickable |
+	                UI_BoxFlag_DrawBackground |
+	                UI_BoxFlag_ActiveAnimation);
 	UI_Box *label = UI_BeginNamedRow(Str8Lit("Label"));
 	UI_Comm comm = UI_CommFromBox(label);
 
@@ -248,7 +247,7 @@ UI_BeginTree(String8 string)
 
 	UI_NextSize2(UI_Em(1.0f), UI_Em(1.0f));
 	UI_Box *collapser = UI_BoxMake(UI_BoxFlag_DrawText,
-																 Str8Lit("TreeCollapser"));
+	                               Str8Lit("TreeCollapser"));
 
 	UI_Spacer(UI_Em(0.5f));
 
@@ -270,10 +269,10 @@ UI_BeginTree(String8 string)
 			UI_NextSize2(UI_Pixels(1), UI_Fill());
 			UI_NextBackgroundColor(V4(0.9f, 0.9f, 0.9f, 1.0f));
 			UI_BoxMake(UI_BoxFlag_DrawBackground |
-								 UI_BoxFlag_AnimateHeight |
-								 UI_BoxFlag_AnimateStart |
-								 UI_BoxFlag_SaveState,
-								 Str8Lit("Indent guide"));
+			           UI_BoxFlag_AnimateHeight |
+			           UI_BoxFlag_AnimateStart |
+			           UI_BoxFlag_SaveState,
+			           Str8Lit("Indent guide"));
 		}
 	}
 
@@ -318,10 +317,10 @@ UI_SliderF32(F32 *val, F32 min, F32 max, String8 string)
 		UI_NextHoverCursor(OS_Cursor_ResizeX);
 		UI_NextSize2(UI_Em(6), UI_Em(1.2f));
 		UI_Box *slider_back = UI_BoxMake(UI_BoxFlag_DrawBackground |
-																		 UI_BoxFlag_DrawBorder |
-																		 UI_BoxFlag_HotAnimation |
-																		 UI_BoxFlag_ActiveAnimation,
-																		 Str8Lit("SliderBack"));
+		                                 UI_BoxFlag_DrawBorder |
+		                                 UI_BoxFlag_HotAnimation |
+		                                 UI_BoxFlag_ActiveAnimation,
+		                                 Str8Lit("SliderBack"));
 		slider_back->display_string = Str8Lit("SliderBack");
 
 		comm = UI_CommFromBox(slider_back);
@@ -343,17 +342,17 @@ UI_SliderF32(F32 *val, F32 min, F32 max, String8 string)
 			UI_NextSize2(UI_Pct((F32)(*val - min) / (F32)(max - min)), UI_Em(1.2f));
 			UI_NextBackgroundColor(V4(0.0f, 0.3f, 0.4f, 1.0f));
 			UI_Box *dragger = UI_BoxMake(UI_BoxFlag_DrawBackground |
-																	 UI_BoxFlag_DrawBorder,
-																	 Str8Lit("SliderDragger"));
+			                             UI_BoxFlag_DrawBorder,
+			                             Str8Lit("SliderDragger"));
 
 			dragger->display_string = Str8Lit("SliderDragger");
 
 			UI_NextRelativePos2(0, 0);
 			UI_NextSize2(UI_Pct(1), UI_Em(1.2f));
 			UI_Box *value_display = UI_BoxMake(UI_BoxFlag_DrawText |
-																				 UI_BoxFlag_FixedX |
-																				 UI_BoxFlag_FixedY,
-																				 Str8Lit(""));
+			                                   UI_BoxFlag_FixedX |
+			                                   UI_BoxFlag_FixedY,
+			                                   Str8Lit(""));
 
 			UI_EquipBoxWithDisplayString(value_display, PushStr8F(UI_FrameArena(), "%.02f", *val));
 
@@ -385,10 +384,10 @@ UI_SliderS32(S32 *val, S32 min, S32 max, String8 string)
 		UI_NextHoverCursor(OS_Cursor_ResizeX);
 		UI_NextSize2(UI_Em(6), UI_Em(1.2f));
 		UI_Box *slider_back = UI_BoxMake(UI_BoxFlag_DrawBackground |
-																		 UI_BoxFlag_DrawBorder |
-																		 UI_BoxFlag_HotAnimation |
-																		 UI_BoxFlag_ActiveAnimation,
-																		 Str8Lit("SliderBack"));
+		                                 UI_BoxFlag_DrawBorder |
+		                                 UI_BoxFlag_HotAnimation |
+		                                 UI_BoxFlag_ActiveAnimation,
+		                                 Str8Lit("SliderBack"));
 		slider_back->display_string = Str8Lit("SliderBack");
 
 		comm = UI_CommFromBox(slider_back);
@@ -407,17 +406,17 @@ UI_SliderS32(S32 *val, S32 min, S32 max, String8 string)
 			UI_NextSize2(UI_Pct((F32)(*val - min) / (F32)(max - min)), UI_Em(1.2f));
 			UI_NextBackgroundColor(V4(0.0f, 0.3f, 0.4f, 1.0f));
 			UI_Box *dragger = UI_BoxMake(UI_BoxFlag_DrawBackground |
-																	 UI_BoxFlag_DrawBorder,
-																	 Str8Lit("SliderDragger"));
+			                             UI_BoxFlag_DrawBorder,
+			                             Str8Lit("SliderDragger"));
 
 			dragger->display_string = Str8Lit("SliderDragger");
 
 			UI_NextRelativePos2(0, 0);
 			UI_NextSize2(UI_Pct(1), UI_Em(1.2f));
 			UI_Box *value_display = UI_BoxMake(UI_BoxFlag_DrawText |
-																				 UI_BoxFlag_FixedX |
-																				 UI_BoxFlag_FixedY,
-																				 Str8Lit(""));
+			                                   UI_BoxFlag_FixedX |
+			                                   UI_BoxFlag_FixedY,
+			                                   Str8Lit(""));
 
 			UI_EquipBoxWithDisplayString(value_display, PushStr8F(UI_FrameArena(), "%d", *val));
 		}
@@ -469,11 +468,11 @@ UI_ColorPicker(Vec4F32 *color, String8 string)
 				UI_NextSize2(UI_Em(1.0f), UI_Em(1.0f));
 				UI_NextHoverCursor(OS_Cursor_Hand);
 				UI_Box *color_rect = UI_BoxMake(UI_BoxFlag_DrawBackground |
-																				UI_BoxFlag_DrawBorder |
-																				UI_BoxFlag_HotAnimation |
-																				UI_BoxFlag_ActiveAnimation |
-																				UI_BoxFlag_Clickable,
-																				Str8Lit("ColorRect"));
+				                                UI_BoxFlag_DrawBorder |
+				                                UI_BoxFlag_HotAnimation |
+				                                UI_BoxFlag_ActiveAnimation |
+				                                UI_BoxFlag_Clickable,
+				                                Str8Lit("ColorRect"));
 				UI_Comm comm = UI_CommFromBox(color_rect);
 				if (comm.pressed)
 				{
@@ -529,12 +528,12 @@ UI_TextInput(char *buffer, size_t buffer_size, String8 string)
 	{
 		UI_NextSize2(UI_Fill(), UI_Pct(1));
 		UI_Box *input_box = UI_BoxMake(UI_BoxFlag_DrawBackground |
-																	 UI_BoxFlag_DrawText |
-																	 UI_BoxFlag_DrawBorder |
-																	 UI_BoxFlag_HotAnimation |
-																	 UI_BoxFlag_ActiveAnimation |
-																	 UI_BoxFlag_FocusAnimation |
-																	 UI_BoxFlag_Clickable, Str8Lit("InputBox"));
+		                               UI_BoxFlag_DrawText |
+		                               UI_BoxFlag_DrawBorder |
+		                               UI_BoxFlag_HotAnimation |
+		                               UI_BoxFlag_ActiveAnimation |
+		                               UI_BoxFlag_FocusAnimation |
+		                               UI_BoxFlag_Clickable, Str8Lit("InputBox"));
 		input_box_comm = UI_CommFromBox(input_box);
 
 		R_PushClipRect(input_box->calc_rect);
@@ -582,9 +581,9 @@ UI_TextInput(char *buffer, size_t buffer_size, String8 string)
 				UI_NextSize2(UI_Pixels(2), UI_Fill());
 				UI_NextBackgroundColor(V4(1.0f, 1.0f, 1.0f, 1.0f));
 				UI_BoxMake(UI_BoxFlag_DrawBackground |
-									 UI_BoxFlag_AnimateX |
-									 UI_BoxFlag_AnimateY |
-									 UI_BoxFlag_AnimateWidth, Str8Lit("Cursor"));
+				           UI_BoxFlag_AnimateX |
+				           UI_BoxFlag_AnimateY |
+				           UI_BoxFlag_AnimateWidth, Str8Lit("Cursor"));
 			}
 		}
 
@@ -610,18 +609,18 @@ UI_Radio(UI_RadioData *data, U32 data_count, String8 string)
 	UI_Text(string);
 	UI_Spacer(UI_Em(0.5f));
 
-	UI_PushCornerRadius4(15);
+	UI_PushCornerRadius4(17.5f);
 	for (U32 i = 0; i < data_count; ++i)
 	{
 		UI_Row()
 		{
 			UI_NextSize2(UI_Em(1), UI_Em(1));
 			UI_Box *box = UI_BoxMake(UI_BoxFlag_DrawBackground |
-															 UI_BoxFlag_DrawBorder |
-															 UI_BoxFlag_Clickable |
-															 UI_BoxFlag_HotAnimation |
-															 UI_BoxFlag_ActiveAnimation,
-															 data[i].string);
+			                         UI_BoxFlag_DrawBorder |
+			                         UI_BoxFlag_Clickable |
+			                         UI_BoxFlag_HotAnimation |
+			                         UI_BoxFlag_ActiveAnimation,
+			                         data[i].string);
 			UI_Comm comm = UI_CommFromBox(box);
 			if (comm.pressed)
 			{
@@ -638,17 +637,25 @@ UI_Radio(UI_RadioData *data, U32 data_count, String8 string)
 			{
 				UI_Parent(box)
 				{
-					UI_NextRelativePos2(UI_Em(0.25f).value, UI_Em(0.25f).value);
-					UI_NextBackgroundColor(ui_state->theme.window_color);
-					UI_NextSize2(UI_Pct(0.5f), UI_Pct(0.5f));
-					UI_NextCornerRadius4(7.5f);
+					UI_Spacer(UI_Fill());
+					UI_NextSize2(UI_Em(0.6f), UI_Fill());
+					UI_Column()
+					{
+						UI_Spacer(UI_Fill());
 
-					UI_Box *inner_box = UI_BoxMake(UI_BoxFlag_FixedPos |
-																				 UI_BoxFlag_AnimateScale |
-																				 UI_BoxFlag_AnimateStart |
-																				 UI_BoxFlag_DrawBackground |
-																				 UI_BoxFlag_DrawBorder,
-																				 PushStr8F(UI_FrameArena(), "%d", i));
+						UI_NextBackgroundColor(ui_state->theme.window_color);
+						UI_NextSize2(UI_Em(0.6f), UI_Em(0.6f));
+						UI_NextCornerRadius4(17.5f * 0.6f);
+
+						UI_Box *inner_box = UI_BoxMake(UI_BoxFlag_AnimateScale |
+						                               UI_BoxFlag_AnimateStart |
+						                               UI_BoxFlag_DrawBackground |
+						                               UI_BoxFlag_DrawBorder,
+						                               PushStr8F(UI_FrameArena(), "%d", i));
+
+						UI_Spacer(UI_Fill());
+					}
+					UI_Spacer(UI_Fill());
 				}
 			}
 			UI_Spacer(UI_Em(0.5f));
@@ -725,7 +732,8 @@ UI_PushScrollableContainer(String8 string)
 		UI_NextBackgroundColor(ui_state->theme.window_color);
 		UI_NextChildLayoutCorner(UI_Corner_BottomLeft);
 		view_box = UI_BoxMake(UI_BoxFlag_DrawBackground |
-													UI_BoxFlag_DrawBorder, Str8Lit("ContentBox"));
+		                      UI_BoxFlag_DrawBorder, 
+		                      Str8Lit("ContentBox"));
 		UI_Comm comm = UI_CommFromBox(view_box);
 
 		view_dim[Axis2_X] = floorf(view_box->calc_size[Axis2_X]);
@@ -779,11 +787,11 @@ UI_PushScrollableContainer(String8 string)
 		UI_NextSize2(UI_Pixels(scrollbar_size), UI_Fill());
 		UI_NextChildLayoutAxis(Axis2_Y);
 		UI_Box *right_scrollbar = UI_BoxMake(UI_BoxFlag_Clickable |
-																				 UI_BoxFlag_DrawBorder |
-																				 UI_BoxFlag_DrawBackground |
-																				 UI_BoxFlag_HotAnimation |
-																				 UI_BoxFlag_ActiveAnimation,
-																				 Str8Lit("Right border"));
+		                                     UI_BoxFlag_DrawBorder |
+		                                     UI_BoxFlag_DrawBackground |
+		                                     UI_BoxFlag_HotAnimation |
+		                                     UI_BoxFlag_ActiveAnimation,
+		                                     Str8Lit("Right border"));
 		UI_Comm right_scrollbar_comm = UI_CommFromBox(right_scrollbar);
 
 		if (right_scrollbar_comm.dragging)
@@ -830,8 +838,8 @@ UI_PushScrollableContainer(String8 string)
 					UI_NextBoxFlags(UI_BoxFlag_AnimateX | UI_BoxFlag_AnimateY);
 				}
 				UI_Box *right_scrollbar_button = UI_BoxMake(UI_BoxFlag_DrawBorder |
-																										UI_BoxFlag_DrawBackground,
-																										Str8Lit("Right scrollbar button"));
+				                                            UI_BoxFlag_DrawBackground,
+				                                            Str8Lit("Right scrollbar button"));
 
 				if (right_scrollbar_button->calc_pos[Axis2_Y] != right_scrollbar_button->target_pos[Axis2_Y])
 				{
@@ -845,11 +853,11 @@ UI_PushScrollableContainer(String8 string)
 	{
 		UI_NextSize2(UI_Pixels(container_width - scrollbar_size), UI_Pixels(scrollbar_size));
 		UI_Box *down_scrollbar = UI_BoxMake(UI_BoxFlag_DrawBorder |
-																				UI_BoxFlag_DrawBackground |
-																				UI_BoxFlag_HotAnimation |
-																				UI_BoxFlag_Clickable |
-																				UI_BoxFlag_ActiveAnimation,
-																				Str8Lit("Down border"));
+		                                    UI_BoxFlag_DrawBackground |
+		                                    UI_BoxFlag_HotAnimation |
+		                                    UI_BoxFlag_Clickable |
+		                                    UI_BoxFlag_ActiveAnimation,
+		                                    Str8Lit("Down border"));
 		UI_Comm down_scrollbar_comm = UI_CommFromBox(down_scrollbar);
 
 		if (down_scrollbar_comm.dragging)
@@ -869,7 +877,7 @@ UI_PushScrollableContainer(String8 string)
 				UI_NextBackgroundColor(V4(0.0f, 0.3f, 0.4f, 1.0f));
 				UI_NextSize2(UI_Pct(view_dim[Axis2_X] / content_dim[Axis2_X]), UI_Pct(1));
 				UI_Box *down_scrollbar_button = UI_BoxMake(UI_BoxFlag_DrawBorder |
-																									 UI_BoxFlag_DrawBackground, Str8Lit("Down scrollbar button"));
+				                                           UI_BoxFlag_DrawBackground, Str8Lit("Down scrollbar button"));
 			}
 		}
 
@@ -895,7 +903,7 @@ UI_PushScrollableContainer(String8 string)
 	UI_NextChildLayoutAxis(Axis2_Y);
 	UI_NextChildLayoutCorner(UI_Corner_BottomLeft);
 	content_box = UI_BoxMake(0,
-													 Str8Lit("ScrollCalcBox"));
+	                         Str8Lit("ScrollCalcBox"));
 
 #if 1
 	if (content_box->calc_pos[Axis2_Y] != content_box->target_pos[Axis2_Y])
