@@ -7,6 +7,7 @@ R_FontAtlasMake(MemoryArena *arena, Vec2S32 dim)
 	atlas->texture.dim = dim;
 	atlas->texture.src_p0 = V2(0, 0);
 	atlas->texture.src_p1 = V2(1, 1);
+	atlas->texture.handle = r_state->GPULoadTexture(atlas->data, atlas->dim.width, atlas->dim.height);
 	R_FreeFontAtlasRegion *first = PushStruct(arena, R_FreeFontAtlasRegion);
 	first->region.rect = R_MakeRectS32(0, 0, dim.x, dim.y);
 	DLL_PushBack(atlas->first_free_region, atlas->last_free_region, first);
@@ -54,8 +55,8 @@ R_FontAtlasRegionAlloc(MemoryArena *arena, R_FontAtlas *atlas, Vec2S32 dim)
 	// See if we can make the region smaller
 	// in order to save space
 
-	B32 can_halve_size = region_dim.width > (dim.width * 2) &&
-						 region_dim.height > (dim.height * 2);
+	B32 can_halve_size = region_dim.width >= (dim.width * 2) &&
+						 region_dim.height >= (dim.height * 2);
 
 	while (can_halve_size)
 	{
@@ -176,4 +177,33 @@ R_FontKeyFromString(String8 string)
 	result.font = string;
 
 	return(result);
+}
+
+internal void
+R_DEBUG_DrawFontAtlas(R_FontAtlas *atlas)
+{
+	R_PushRect(V2(0, 0), 
+	           V2((F32)atlas->dim.width, 
+	              (F32)atlas->dim.height),
+	              .texture = atlas->texture);
+
+	R_FreeFontAtlasRegion *first_region = atlas->first_used_region;
+	while(first_region)
+	{
+		Vec2F32 p0 = V2((F32)first_region->region.rect.x0, (F32)first_region->region.rect.y0);
+		Vec2F32 p1 = V2((F32)first_region->region.rect.x1, (F32)first_region->region.rect.y1);
+		R_PushRect(p0, p1, .color = V4(1.0f, 0, 0, 1.0f), .border_thickness = 1);
+
+		first_region = first_region->next;
+	}
+
+	first_region = atlas->first_free_region;
+	while(first_region)
+	{
+		Vec2F32 p0 = V2((F32)first_region->region.rect.x0, (F32)first_region->region.rect.y0);
+		Vec2F32 p1 = V2((F32)first_region->region.rect.x1, (F32)first_region->region.rect.y1);
+		R_PushRect(p0, p1, .color = V4(1.0f, 0, 0, 1.0f), .border_thickness = 1);
+
+		first_region = first_region->next;
+	}
 }

@@ -157,13 +157,6 @@ typedef struct R_Glyph
 	Vec2S32 bearing;
 } R_Glyph;
 
-typedef struct TextureAtlas
-{
-	Vec2S32 dim;
-	R_Texture texture;
-	R_Texture *textures;
-} TextureAtlas;
-
 typedef struct R_LoadedBitmap
 {
 	Vec2S32 dim;

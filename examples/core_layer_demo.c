@@ -245,9 +245,7 @@ EntryPoint(String8List args)
 
 	D3D11_Init(window);
 
-	R_Texture tile_atlas = R_LoadTexture(Str8Lit("../res/test/Tilemap/tilemap_packed.png"));
-
-	TextureAtlas atlas = {0};
+	R_FontAtlas *tile_atlas = R_FontAtlasMake(&permanent_arena, V2S(1024, 1024));
 	{
 		R_LoadedBitmap loaded_bitmaps[16] = {0};
 		TempMemoryArena scratch = GetScratch(0, 0);
@@ -266,10 +264,13 @@ EntryPoint(String8List args)
 			}
 
 			loaded_bitmaps[i].data = stbi_load((const char *)path.str, &loaded_bitmaps[i].dim.width, &loaded_bitmaps[i].dim.height, &channels, 0);
+			R_FontAtlasRegion region = R_FontAtlasRegionAlloc(&permanent_arena, tile_atlas, loaded_bitmaps[i].dim);
+			R_FillFontAtlasRegionWithBitmap(tile_atlas, region, &loaded_bitmaps[i]);
+			
 		}
 		ReleaseScratch(scratch);
+		tile_atlas->texture.handle = r_state->GPULoadTexture(tile_atlas->data, tile_atlas->dim.width, tile_atlas->dim.height);
 
-		atlas = R_PackBitmapsIntoTextureAtlas(&permanent_arena, 128, 128, loaded_bitmaps, 16, 1);
 		for (U32 i = 0; i < 16; ++i)
 		{
 			stbi_image_free(loaded_bitmaps[i].data);
@@ -322,36 +323,12 @@ EntryPoint(String8List args)
 
 		UI_Begin(UI_DefaultTheme(), event_list, dt);
 
-		UITest();
+		//UITest();
 
 		UI_End();
 
-#if 0
-		R_PushRect(V2(0, 0), 
-		           V2((F32)r_state->font_atlas->dim.width, 
-		              (F32)r_state->font_atlas->dim.height),
-		              .texture = r_state->font_atlas->texture, .text = true);
-
-		R_FreeFontAtlasRegion *first_region = font_atlas->first_used_region;
-		while(first_region)
-		{
-			Vec2F32 p0 = V2((F32)first_region->region.rect.x0, (F32)first_region->region.rect.y0);
-			Vec2F32 p1 = V2((F32)first_region->region.rect.x1, (F32)first_region->region.rect.y1);
-			R_PushRect(p0, p1, .color = V4(1.0f, 0, 0, 1.0f), .border_thickness = 1);
-
-			first_region = first_region->next;
-		}
-		s
-		first_region = font_atlas->first_free_region;
-		while(first_region)
-		{
-			Vec2F32 p0 = V2((F32)first_region->region.rect.x0, (F32)first_region->region.rect.y0);
-			Vec2F32 p1 = V2((F32)first_region->region.rect.x1, (F32)first_region->region.rect.y1);
-			R_PushRect(p0, p1, .color = V4(1.0f, 0, 0, 1.0f), .border_thickness = 1);
-
-			first_region = first_region->next;
-		}
-#endif
+		R_DEBUG_DrawFontAtlas(tile_atlas);
+		
 		R_End();
 		D3D11_End(V4(0.3f, 0.3f, 0.3f, 1.0f));
 
