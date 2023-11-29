@@ -183,9 +183,17 @@ R_PushLine(Vec2F32 p0, Vec2F32 p1, F32 thickness, Vec4F32 color)
 }
 
 internal void 
-	R_LoadGlyph(MemoryArena *arena, R_FontAtlas *atlas, U32 glyph_index, FT_Face face, R_Font *font)
+R_LoadGlyph(MemoryArena *arena, R_FontAtlas *atlas, U32 glyph_index, FT_Face face, R_Font *font)
 {
 	R_Glyph *glyph = font->glyphs + glyph_index;
+	if (glyph_index >= 0xE800)
+	{
+		glyph = font->icons + (glyph_index - 0xE800);
+	}
+	else
+	{
+		glyph = font->glyphs + glyph_index;
+	}
 	Assert(glyph->advance == 0);
 	FT_Load_Char(face, glyph_index, FT_LOAD_RENDER | FT_LOAD_TARGET_LCD);
 
@@ -253,14 +261,14 @@ R_LoadFont(MemoryArena *arena, R_Font *font, R_FontAtlas *atlas, String8 font_pa
 	FT_Library ft;
 	if (FT_Init_FreeType(&ft))
 	{
-		printf("Failed to initialize freetype!\n");
+		InvalidCodePath;
 		return;
 	}
 
 	FT_Face face;
 	if (FT_New_Face(ft, (const char *)font_path.str, 0, &face))
 	{
-		printf("Failed to load face!\n");
+		InvalidCodePath;
 		return;
 	}
 
@@ -277,13 +285,38 @@ R_LoadFont(MemoryArena *arena, R_Font *font, R_FontAtlas *atlas, String8 font_pa
 		R_LoadGlyph(arena, atlas, glyph_index, face, font);
 	}
 
+	FT_Done_Face(face);
+
+	if (FT_New_Face(ft, (const char *)icon_path.str, 0, &face))
+	{
+		InvalidCodePath;
+		return;
+	}
+
+	FT_Set_Pixel_Sizes(face, 0, size);
+
+	for (U32 icon_index = 1;
+		icon_index < R_IconIndex_COUNT;
+		++icon_index)
+	{
+		R_LoadGlyph(arena, atlas, 0xE800 + (icon_index-1), face, font);
+	}
+
 	atlas->texture.handle = r_state->GPULoadTexture(atlas->data, atlas->dim.x, atlas->dim.y);
-	
-	for (U64 glyph_index = 32;
+
+	for (U32 glyph_index = 32;
 		glyph_index < 127;
 		++glyph_index)
 	{
 		R_Glyph *glyph = font->glyphs + glyph_index;
+		glyph->texture.handle = atlas->texture.handle;
+	}
+
+	for (U32 icon_index = 1;
+		icon_index < R_IconIndex_COUNT;
+		++icon_index)
+	{
+		R_Glyph *glyph = font->icons + (icon_index-1);
 		glyph->texture.handle = atlas->texture.handle;
 	}
 }
@@ -321,12 +354,12 @@ R_PushGlyph(Vec2F32 pos, R_Font *font, R_Glyph *glyph, Vec4F32 color)
 internal void
 R_PushGlyphIndex(Vec2F32 pos, R_Font *font, U32 index, Vec4F32 color)
 {
-	R_Glyph *glyph = font->glyphs + index;
+	R_Glyph *glyph = index >= 0xE800 ? font->icons + ((index-1) - 0xE800) : font->glyphs + index;
 	R_PushGlyph(pos, font, glyph, color);
 }
 
 internal R_Font *
-R_GetFont(R_FontKey font_key, S32 height)
+R_GetFontFromKey(R_FontKey font_key, S32 height)
 {
 	Assert(height >= 0);
 	Assert(height < 128);
@@ -342,11 +375,17 @@ R_GetFont(R_FontKey font_key, S32 height)
 	font_collection = r_state->fonts[slot_index];
 
 	Assert(font_collection->key.key == font_key.key);
+
 	R_Font *font = font_collection->fonts + height;
 
 	if(!font->max_height)
 	{
-		R_LoadFont(r_state->permanent_arena, &font_collection->fonts[height], r_state->font_atlas, font_key.font, Str8Lit(""), height);
+		R_LoadFont(r_state->permanent_arena, 
+		           &font_collection->fonts[height], 
+		           r_state->font_atlas, 
+		           font_key.font, 
+		           CORE_RESOURCE("font/icon/fontello.ttf"), 
+		           height);
 	}
 
 	return(font);
@@ -355,7 +394,7 @@ R_GetFont(R_FontKey font_key, S32 height)
 internal void
 R_PushText(Vec2F32 pos, R_FontKey font_key, S32 height, String8 text, Vec4F32 color)
 {
-	R_Font *font = R_GetFont(font_key, height);
+	R_Font *font = R_GetFontFromKey(font_key, height);
 
 	for (U64 i = 0; i < text.size; ++i)
 	{

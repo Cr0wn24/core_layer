@@ -254,6 +254,7 @@ typedef struct UI_State
 
 	size_t prev_frame_arena_used;
 
+	R_FontKey font_key;
 	R_Font *font;
 	OS_Window *window;
 
@@ -353,8 +354,8 @@ typedef struct UI_State
 #define UI_PopTextAlign()           (UI_PopTextStyle())
 
 #define UI_NextFontSize(x)          (UI_GetAutoPopTextStyle()->font_size = x)
-#define UI_PushFontSize(x)          (UI_PushTextStyle()->font_size = x)
-#define UI_PopFontSize()            (UI_PopTextStyle())
+#define UI_PushFontSize(x)          (UI_PushTextStyle()->font_size = x, ui_state->font = R_GetFontFromKey(ui_state->font_key, x))
+#define UI_PopFontSize()            (UI_PopTextStyle(), ui_state->font = R_GetFontFromKey(ui_state->text_style_stack.first->font_size, x))
 
 #define UI_NextIcon(x)          (UI_GetAutoPopTextStyle()->icon = x)
 #define UI_PushIcon(x)          (UI_PushTextStyle()->icon = x)

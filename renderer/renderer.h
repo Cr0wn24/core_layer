@@ -11,17 +11,26 @@
 
 typedef enum R_IconIndex
 {
-	R_IconIndex_Check = 183,
-	R_IconIndex_Cross = 184,
-	R_IconIndex_Cogwheel = 189,
-	R_IconIndex_Angle_Down = 215,
-	R_IconIndex_Angle_Up = 216,
-	R_IconIndex_Angle_Right = 217,
-	R_IconIndex_Angle_Left = 218,
-	R_IconIndex_Pause = 225,
-	R_IconIndex_Play = 226,
-	R_IconIndex_SkipForward = 229,
-	R_IconIndex_SkipBackward = 230,
+	R_IconIndex_Null,
+
+	R_IconIndex_Check,
+	R_IconIndex_Cogwheel,
+	R_IconIndex_Angle_Down,
+	R_IconIndex_Angle_Left,
+	R_IconIndex_Angle_Right,
+	R_IconIndex_Angle_Up,
+	R_IconIndex_Play,
+	R_IconIndex_Stop,
+	R_IconIndex_Pause,
+	R_IconIndex_ToEnd,
+	R_IconIndex_ToEndAlt,
+	R_IconIndex_ToStart,
+	R_IconIndex_ToStartAlt,
+	R_IconIndex_SkipForward,
+	R_IconIndex_SkipBackward,
+	R_IconIndex_Cross,
+
+	R_IconIndex_COUNT,
 } R_IconIndex;
 
 typedef struct R_Handle

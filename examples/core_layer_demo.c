@@ -42,6 +42,7 @@ UITest()
 		UI_Column()
 		{
 			UI_Spacer(UI_Em(0.5f));
+			UI_NextFontSize(50);
 			UI_Text(Str8Lit("Column 1"));
 			UI_Spacer(UI_Em(0.2f));
 
@@ -100,10 +101,10 @@ UITest()
 
 			UI_RadioData radio_data[] =
 			{
-					{&b0, Str8Lit("Option 1")},
-					{&b1, Str8Lit("Option 2")},
-					{&b2, Str8Lit("Option 3")},
-					{&b3, Str8Lit("Option 4")},
+				{&b0, Str8Lit("Option 1")},
+				{&b1, Str8Lit("Option 2")},
+				{&b2, Str8Lit("Option 3")},
+				{&b3, Str8Lit("Option 4")},
 			};
 
 			UI_Radio(radio_data, 4, Str8Lit("Radio"));
@@ -259,8 +260,10 @@ EntryPoint(String8List args)
 
 	R_FontAtlas *font_atlas = R_FontAtlasMake(&permanent_arena, V2S(2048, 2048));
 
-	//UI_State *state = UI_Init(&permanent_arena, &font, window);
-	//UI_SelectState(state);
+	UI_State *state = UI_Init(&permanent_arena, 
+	                          R_FontKeyFromString(CORE_RESOURCE("font/Inter-Regular.ttf")), 
+	                          window);
+	UI_SelectState(state);
 
 	r_state->font_atlas = font_atlas;
 	r_state->permanent_arena = &permanent_arena;
@@ -299,7 +302,20 @@ EntryPoint(String8List args)
 		R_Begin(scratch.arena);
 
 		R_PushText(V2(0, 0), R_FontKeyFromString(CORE_RESOURCE("font/Inter-Regular.ttf")), 
-		           8, Str8Lit("Hello world!"), V4(1, 1, 1, 1));
+		           30, Str8Lit("Hello world!"), V4(1, 1, 1, 1));
+
+		UI_Begin(UI_DefaultTheme(), event_list, dt);
+		
+		UITest();
+
+		UI_End();
+
+#if 0
+		R_PushRect(V2(50, 50), 
+		           V2(50.0f + r_state->font_atlas->dim.width, 
+		              50.0f + r_state->font_atlas->dim.height),
+		              .texture = r_state->font_atlas->texture, .text = true);
+#endif
 
 #if 0
 		R_FreeFontAtlasRegion *first_region = font_atlas->first_used_region;

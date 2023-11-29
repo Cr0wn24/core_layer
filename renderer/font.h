@@ -36,6 +36,7 @@ typedef struct R_FontKey
 typedef struct R_Font
 {
 	R_Glyph glyphs[128];
+	R_Glyph icons[R_IconIndex_COUNT];
 	F32 max_height;
 	F32 max_width;
 	S32 max_ascent;

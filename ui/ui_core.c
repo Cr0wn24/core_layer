@@ -170,9 +170,10 @@ internal UI_TextStyle *UI_PushTextStyle()
 	return(text_style);
 }
 
-internal void UI_PopTextStyle()
+internal UI_TextStyle * UI_PopTextStyle()
 {
 	ui_state->text_style_stack.first = ui_state->text_style_stack.first->stack_next;
+	return(ui_state->text_style_stack.first);
 }
 
 internal UI_TextStyle *UI_GetAutoPopTextStyle()
@@ -853,8 +854,8 @@ internal void UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 	UI_TextStyle *text_style = UI_PushTextStyle();
 
 	text_style->text_color = theme.text_color;
-
-	text_style->font_size = ui_state->font->height;
+	text_style->font_size = 20;
+	ui_state->font = R_GetFontFromKey(ui_state->font_key, text_style->font_size);
 
 	UI_RectStyle *rect_style = UI_PushRectStyle();
 
@@ -868,9 +869,9 @@ internal void UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 
 	rect_style->border_thickness = 0.5f;
 	rect_style->corner_radius = V4(corner_radius,
-																 corner_radius,
-																 corner_radius,
-																 corner_radius);
+								   corner_radius,
+								   corner_radius,
+								   corner_radius);
 	rect_style->edge_softness = 1.0f;
 
 	UI_CreateRootParent();
@@ -895,7 +896,9 @@ internal void UI_SolveIndependentSizes(UI_Box *root)
 	root->target_size[Axis2_X] = 0;
 	root->target_size[Axis2_Y] = 0;
 
-	Vec2F32 text_dim = R_GetTextDim(ui_state->font, root->display_string);
+	R_Font *font = R_GetFontFromKey(ui_state->font_key, root->text_style.font_size);
+
+	Vec2F32 text_dim = R_GetTextDim(font, root->display_string);
 
 	// NOTE(hampus): Calculate its size
 	switch (root->semantic_size[Axis2_X].kind)
@@ -1274,7 +1277,8 @@ internal void UI_CalculateFinalRect(UI_Box *root)
 	}
 }
 
-internal Vec2F32 UI_AlignDimInRect(Vec2F32 dim, RectF32 calc_rect, UI_TextAlign align, F32 padding[2])
+internal Vec2F32 
+UI_AlignDimInRect(Vec2F32 dim, RectF32 calc_rect, UI_TextAlign align, F32 padding[2])
 {
 	Vec2F32 result = {0};
 
@@ -1400,12 +1404,13 @@ UI_Draw(UI_Box *root)
 								 .edge_softness = 1.0f);
 		}
 	}
-
+	
+	R_Font *font = R_GetFontFromKey(ui_state->font_key, text_style->font_size);
 	if (root->flags & UI_BoxFlag_DrawText)
 	{
 		if (text_style->icon)
 		{
-			R_Glyph *glyph = &ui_state->font->glyphs[text_style->icon];
+			R_Glyph *glyph = &font->icons[(text_style->icon-1)];
 			Vec2F32 glyph_dim = V2((F32)glyph->advance, (F32)ui_state->font->max_height);
 
 			F32 padding[Axis2_COUNT] =
@@ -1415,11 +1420,11 @@ UI_Draw(UI_Box *root)
 			};
 
 			R_PushGlyphIndex(UI_AlignDimInRect(glyph_dim, root->calc_rect, text_style->text_align, padding),
-											 ui_state->font, text_style->icon, V4(1.0f, 1.0f, 1.0f, 1.0f));
+											 ui_state->font, text_style->icon + 0xE800, V4(1.0f, 1.0f, 1.0f, 1.0f));
 		}
 		else
 		{
-			Vec2F32 text_dim = R_GetTextDim(ui_state->font, root->display_string);
+			Vec2F32 text_dim = R_GetTextDim(font, root->display_string);
 
 			F32 padding[Axis2_COUNT] =
 			{
@@ -1427,13 +1432,11 @@ UI_Draw(UI_Box *root)
 				text_style->text_edge_padding[Axis2_Y] * root->text_style.font_size,
 			};
 
-#if 0
 			R_PushText(UI_AlignDimInRect(text_dim, root->calc_rect, text_style->text_align, padding),
-								 ui_state->font,
-								 12,
-								 root->display_string,
-								 text_style->text_color);
-#endif
+					   ui_state->font_key,
+					   text_style->font_size,
+					   root->display_string,
+					   text_style->text_color);
 		}
 	}
 
@@ -1485,7 +1488,7 @@ UI_End()
 }
 
 internal UI_State *
-UI_Init(MemoryArena *arena, R_Font *font, OS_Window *window)
+UI_Init(MemoryArena *arena, R_FontKey font_key, OS_Window *window)
 {
 	UI_State *result = PushStructNoZero(arena, UI_State);
 
@@ -1495,7 +1498,7 @@ UI_Init(MemoryArena *arena, R_Font *font, OS_Window *window)
 	// TODO(hampus): Remove calloc()
 	void *ui_memory = PushArrayNoZero(arena, ui_memory_size, U8);
 
-	result->font = font;
+	result->font_key = font_key;
 	result->window = window;
 
 	ArenaInit(&result->permanent_arena, ui_memory, ui_permanent_storage_size);
