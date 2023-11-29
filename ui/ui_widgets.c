@@ -304,6 +304,85 @@ UI_BeginTreeF(char *fmt, ...)
 	return(b);
 }
 
+typedef struct UI_DragData
+{
+	F32 val;
+	F32 min;
+	F32 max;
+} UI_DragData;
+
+UI_CUSTOM_DRAW_FUNCTION(UI_SliderF32CustomDraw)
+{
+	UI_RectStyle *rect_style = &root->rect_style;
+	UI_TextStyle *text_style = &root->text_style;
+
+	R_Font *font = R_GetFontFromKey(ui_state->font_key, text_style->font_size);
+
+	Vec4F32 corner_radius = rect_style->corner_radius;
+	corner_radius = V4MulF32(corner_radius, (F32)font->height);
+
+	if (root->flags & UI_BoxFlag_DrawDropShadow)
+	{
+		R_PushRect(V2SubV2(root->calc_rect.min, V2(10, 10)),
+		           V2AddV2(root->calc_rect.max, V2(15, 15)),
+		           .color = V4(0, 0, 0, 0.5f),
+		           .edge_softness = 10.0f,
+		           .corner_radius = corner_radius);
+	}
+
+	if (root->flags & UI_BoxFlag_DrawBackground)
+	{
+		Vec4F32 color0 = rect_style->background_color;
+		Vec4F32 color1 = rect_style->background_color;
+
+		if ((root->flags & UI_BoxFlag_ActiveAnimation) &&
+		    UI_IsActive(root))
+		{
+			color0 = rect_style->active_color;
+		}
+		else if (root->flags & UI_BoxFlag_HotAnimation &&
+		         UI_IsHot(root))
+		{
+			color0 = rect_style->hot_color;
+		}
+
+		UI_DragData *drag_data = root->user;
+
+		Vec2F32 min = root->calc_rect.min;
+		Vec2F32 max = root->calc_rect.max;
+		
+		F32 width = max.x - min.x;
+
+		max.x = min.x + (F32)(drag_data->val - drag_data->min) / (F32)(drag_data->max - drag_data->min) * width;
+		R_PushRectGradient(min, max,
+		                   color0, color1,
+		                   .corner_radius = corner_radius,
+		                   .edge_softness = rect_style->edge_softness);
+	}
+
+	if (root->flags & UI_BoxFlag_DrawBorder)
+	{
+		if (UI_IsFocused(root) && !UI_KeyIsNull(ui_state->focus_key) && UI_BoxHasFlag(root, UI_BoxFlag_FocusAnimation))
+		{
+			// TODO(hampus): Fix this. 
+			F32 t = 0;
+			R_PushRect(root->calc_rect.min, root->calc_rect.max,
+			           .corner_radius = corner_radius,
+			           .border_thickness = rect_style->border_thickness,
+			           .color = V4(0.8f + 0.2f * t, 0.8f + 0.2f * t, 0.0f, 1.0f),
+			           .edge_softness = 1.0f);
+		}
+		else
+		{
+			R_PushRect(root->calc_rect.min, root->calc_rect.max,
+			           .corner_radius = corner_radius,
+			           .border_thickness = rect_style->border_thickness,
+			           .color = rect_style->border_color,
+			           .edge_softness = 1.0f);
+		}
+	}
+}
+
 internal UI_Comm
 UI_SliderF32(F32 *val, F32 min, F32 max, String8 string)
 {
@@ -316,38 +395,43 @@ UI_SliderF32(F32 *val, F32 min, F32 max, String8 string)
 	UI_Comm comm = {0};
 	UI_Parent(container)
 	{
-		UI_NextHoverCursor(OS_Cursor_ResizeX);
 		UI_NextSize2(UI_Em(6), UI_Em(1.2f));
 		UI_Box *slider_back = UI_BoxMake(UI_BoxFlag_DrawBackground |
-		                                 UI_BoxFlag_DrawBorder |
-		                                 UI_BoxFlag_HotAnimation |
-		                                 UI_BoxFlag_ActiveAnimation,
+		                                 UI_BoxFlag_DrawBorder,
 		                                 Str8Lit("SliderBack"));
-		slider_back->display_string = Str8Lit("SliderBack");
-
-		comm = UI_CommFromBox(slider_back);
-
-		if (comm.box)
-		{
-			if (comm.dragging)
-			{
-				F32 val_pct = (comm.drag_delta.x) / slider_back->calc_size[Axis2_X];
-
-				*val += (F32)(val_pct * (max - min));
-			}
-		}
-
-		*val = Clamp(min, *val, max);
 
 		UI_Parent(slider_back)
 		{
-			UI_NextSize2(UI_Pct((F32)(*val - min) / (F32)(max - min)), UI_Em(1.2f));
+			UI_NextSize2(UI_Pct(1), UI_Pct(1));
+			UI_NextHoverCursor(OS_Cursor_ResizeX);
 			UI_NextBackgroundColor(V4(0.0f, 0.3f, 0.4f, 1.0f));
+			UI_NextHotColor(V4(0.0f, 0.5f, 0.6f, 1.0f));
+			UI_NextActiveColor(V4(0.0f, 0.6f, 0.7f, 1.0f));
 			UI_Box *dragger = UI_BoxMake(UI_BoxFlag_DrawBackground |
-			                             UI_BoxFlag_DrawBorder,
+			                             UI_BoxFlag_DrawBorder |
+			                             UI_BoxFlag_HotAnimation |
+			                             UI_BoxFlag_ActiveAnimation |
+			                             UI_BoxFlag_Clickable,
 			                             Str8Lit("SliderDragger"));
+			UI_Comm comm = UI_CommFromBox(dragger);
+			if (comm.box)
+			{
+				if (comm.dragging)
+				{
+					F32 val_pct = (comm.drag_delta.x) / slider_back->calc_size[Axis2_X];
 
-			dragger->display_string = Str8Lit("SliderDragger");
+					*val += (F32)(val_pct * (max - min));
+				}
+			}
+
+			*val = Clamp(min, *val, max);
+
+			UI_DragData *drag_data = PushStruct(UI_FrameArena(), UI_DragData);
+			drag_data->val = *val;
+			drag_data->min = min;
+			drag_data->max = max;
+
+			UI_EquipBoxWithCustomDrawFunction(dragger, UI_SliderF32CustomDraw, drag_data);
 
 			UI_NextRelativePos2(0, 0);
 			UI_NextSize2(UI_Pct(1), UI_Em(1.2f));

@@ -159,6 +159,9 @@ typedef struct UI_LayoutStack
 	B32 auto_pop;
 } UI_LayoutStack;
 
+#define UI_CUSTOM_DRAW_FUNCTION(name) void name(struct UI_Box *root)
+typedef UI_CUSTOM_DRAW_FUNCTION(UI_CustomDrawProc);
+
 typedef struct UI_Box
 {
 	struct UI_Box *first;
@@ -208,6 +211,9 @@ typedef struct UI_Box
 	F32 active_t;
 
 	B32 solved_size[Axis2_COUNT];
+
+	void *user;
+	UI_CustomDrawProc *CustomDraw;
 
 	// NOTE(hampus): Builder code data, core don't touch.
 	// This is data the user doesn't have to care about, 

@@ -534,6 +534,13 @@ UI_EquipBoxWithDisplayString(UI_Box *box, String8 string)
 	box->display_string = display_string;
 }
 
+internal void 
+UI_EquipBoxWithCustomDrawFunction(UI_Box *box, UI_CustomDrawProc *proc, void *data)
+{
+	box->user = data;
+	box->CustomDraw = proc;
+}
+
 internal UI_Box *
 UI_BoxAlloc()
 {
@@ -1368,108 +1375,114 @@ UI_Draw(UI_Box *root)
 {
 	R_PushClipRect(root->clip_rect);
 
-	UI_RectStyle *rect_style = &root->rect_style;
-	UI_TextStyle *text_style = &root->text_style;
-
-	R_Font *font = R_GetFontFromKey(ui_state->font_key, text_style->font_size);
-
-	Vec4F32 corner_radius = rect_style->corner_radius;
-	corner_radius = V4MulF32(corner_radius, (F32)font->height);
-
-	if (root->flags & UI_BoxFlag_DrawDropShadow)
+	if (root->CustomDraw)
 	{
-		R_PushRect(V2SubV2(root->calc_rect.min, V2(10, 10)),
-		           V2AddV2(root->calc_rect.max, V2(15, 15)),
-		           .color = V4(0, 0, 0, 0.5f),
-		           .edge_softness = 10.0f,
-		           .corner_radius = corner_radius);
+		root->CustomDraw(root);
 	}
-
-	if (root->flags & UI_BoxFlag_DrawBackground)
+	else
 	{
-		Vec4F32 color0 = rect_style->background_color;
-		Vec4F32 color1 = rect_style->background_color;
+		UI_RectStyle *rect_style = &root->rect_style;
+		UI_TextStyle *text_style = &root->text_style;
 
-		if ((root->flags & UI_BoxFlag_ActiveAnimation) &&
-		    UI_IsActive(root))
+		R_Font *font = R_GetFontFromKey(ui_state->font_key, text_style->font_size);
+
+		Vec4F32 corner_radius = rect_style->corner_radius;
+		corner_radius = V4MulF32(corner_radius, (F32)font->height);
+
+		if (root->flags & UI_BoxFlag_DrawDropShadow)
 		{
-			color0 = rect_style->active_color;
+			R_PushRect(V2SubV2(root->calc_rect.min, V2(10, 10)),
+			           V2AddV2(root->calc_rect.max, V2(15, 15)),
+			           .color = V4(0, 0, 0, 0.5f),
+			           .edge_softness = 10.0f,
+			           .corner_radius = corner_radius);
 		}
-		else if (root->flags & UI_BoxFlag_HotAnimation &&
-		         UI_IsHot(root))
-		{
-			color0 = rect_style->hot_color;
-		}
 
-		R_PushRectGradient(root->calc_rect.min, root->calc_rect.max,
-		           color0, color1,
-		           .corner_radius = corner_radius,
-		           .edge_softness = rect_style->edge_softness);
-	}
-
-	if (root->flags & UI_BoxFlag_DrawBorder)
-	{
-		if (UI_IsFocused(root) && !UI_KeyIsNull(ui_state->focus_key) && UI_BoxHasFlag(root, UI_BoxFlag_FocusAnimation))
+		if (root->flags & UI_BoxFlag_DrawBackground)
 		{
-			// TODO(hampus): Fix this. 
-			F32 t = 0;
-			R_PushRect(root->calc_rect.min, root->calc_rect.max,
-			           .corner_radius = corner_radius,
-			           .border_thickness = rect_style->border_thickness,
-			           .color = V4(0.8f + 0.2f * t, 0.8f + 0.2f * t, 0.0f, 1.0f),
-			           .edge_softness = 1.0f);
-		}
-		else
-		{
-			R_PushRect(root->calc_rect.min, root->calc_rect.max,
-			           .corner_radius = corner_radius,
-			           .border_thickness = rect_style->border_thickness,
-			           .color = rect_style->border_color,
-			           .edge_softness = 1.0f);
-		}
-	}
+			Vec4F32 color0 = rect_style->background_color;
+			Vec4F32 color1 = rect_style->background_color;
 
-	if (root->flags & UI_BoxFlag_DrawText)
-	{
-		if (text_style->icon)
-		{
-			R_Glyph *glyph = &font->icons[(text_style->icon-1)];
-			Vec2F32 glyph_dim = V2((F32)glyph->advance, (F32)font->max_height);
-
-			F32 padding[Axis2_COUNT] =
+			if ((root->flags & UI_BoxFlag_ActiveAnimation) &&
+			    UI_IsActive(root))
 			{
-				text_style->text_edge_padding[Axis2_X] * root->text_style.font_size,
-				text_style->text_edge_padding[Axis2_Y] * root->text_style.font_size,
-			};
-
-			R_PushGlyphIndex(UI_AlignDimInRect(glyph_dim, root->calc_rect, text_style->text_align, padding),
-			                 font, text_style->icon + 0xE800, V4(1.0f, 1.0f, 1.0f, 1.0f));
-		}
-		else
-		{
-			Vec2F32 text_dim = R_GetTextDim(font, root->display_string);
-
-			F32 padding[Axis2_COUNT] =
+				color0 = rect_style->active_color;
+			}
+			else if (root->flags & UI_BoxFlag_HotAnimation &&
+			         UI_IsHot(root))
 			{
-				text_style->text_edge_padding[Axis2_X] * root->text_style.font_size,
-				text_style->text_edge_padding[Axis2_Y] * root->text_style.font_size,
-			};
+				color0 = rect_style->hot_color;
+			}
 
-			R_PushText(UI_AlignDimInRect(text_dim, root->calc_rect, text_style->text_align, padding),
-			           ui_state->font_key,
-			           text_style->font_size,
-			           root->display_string,
-			           text_style->text_color);
+			R_PushRectGradient(root->calc_rect.min, root->calc_rect.max,
+			                   color0, color1,
+			                   .corner_radius = corner_radius,
+			                   .edge_softness = rect_style->edge_softness);
+		}
+
+		if (root->flags & UI_BoxFlag_DrawBorder)
+		{
+			if (UI_IsFocused(root) && !UI_KeyIsNull(ui_state->focus_key) && UI_BoxHasFlag(root, UI_BoxFlag_FocusAnimation))
+			{
+				// TODO(hampus): Fix this. 
+				F32 t = 0;
+				R_PushRect(root->calc_rect.min, root->calc_rect.max,
+				           .corner_radius = corner_radius,
+				           .border_thickness = rect_style->border_thickness,
+				           .color = V4(0.8f + 0.2f * t, 0.8f + 0.2f * t, 0.0f, 1.0f),
+				           .edge_softness = 1.0f);
+			}
+			else
+			{
+				R_PushRect(root->calc_rect.min, root->calc_rect.max,
+				           .corner_radius = corner_radius,
+				           .border_thickness = rect_style->border_thickness,
+				           .color = rect_style->border_color,
+				           .edge_softness = 1.0f);
+			}
+		}
+
+		if (root->flags & UI_BoxFlag_DrawText)
+		{
+			if (text_style->icon)
+			{
+				R_Glyph *glyph = &font->icons[(text_style->icon-1)];
+				Vec2F32 glyph_dim = V2((F32)glyph->advance, (F32)font->max_height);
+
+				F32 padding[Axis2_COUNT] =
+				{
+					text_style->text_edge_padding[Axis2_X] * root->text_style.font_size,
+					text_style->text_edge_padding[Axis2_Y] * root->text_style.font_size,
+				};
+
+				R_PushGlyphIndex(UI_AlignDimInRect(glyph_dim, root->calc_rect, text_style->text_align, padding),
+				                 font, text_style->icon + 0xE800, V4(1.0f, 1.0f, 1.0f, 1.0f));
+			}
+			else
+			{
+				Vec2F32 text_dim = R_GetTextDim(font, root->display_string);
+
+				F32 padding[Axis2_COUNT] =
+				{
+					text_style->text_edge_padding[Axis2_X] * root->text_style.font_size,
+					text_style->text_edge_padding[Axis2_Y] * root->text_style.font_size,
+				};
+
+				R_PushText(UI_AlignDimInRect(text_dim, root->calc_rect, text_style->text_align, padding),
+				           ui_state->font_key,
+				           text_style->font_size,
+				           root->display_string,
+				           text_style->text_color);
+			}
 		}
 	}
-
+	
 	if (ui_state->show_debug_lines)
 	{
 		R_PushRect(root->calc_rect.min, root->calc_rect.max,
 		           .border_thickness = 1.0f,
 		           .color = V4(1.0f, 0.0f, 1.0f, 1.0f));
 	}
-
 	R_PopClipRect();
 
 	for (UI_Box *child = root->first;
