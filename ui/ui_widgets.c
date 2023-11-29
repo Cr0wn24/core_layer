@@ -21,7 +21,7 @@ UI_Spacer(UI_Size size)
 	UI_NextSize(axis, size);
 	UI_NextSize(Flip(axis), UI_Pixels(0));
 	UI_BoxMake(0,
-						 Str8Lit(""));
+	           Str8Lit(""));
 }
 
 internal UI_Box *
@@ -388,66 +388,49 @@ UI_SliderF32(F32 *val, F32 min, F32 max, String8 string)
 {
 	UI_PushString(string);
 
-	UI_DefaultSize(UI_SumOfChildren(), UI_SumOfChildren());
+	UI_DefaultSize(UI_Em(6), UI_Em(1.0f));
 
-	UI_NextChildLayoutAxis(Axis2_X);
-	UI_Box *container = UI_BoxMake(0, Str8Lit("Container"));
+	UI_Box *slider_back = UI_BoxMake(UI_BoxFlag_DrawBackground |
+	                                 UI_BoxFlag_DrawBorder,
+	                                 Str8Lit("SliderBack"));
 	UI_Comm comm = {0};
-	UI_Parent(container)
+	UI_Parent(slider_back)
 	{
-		UI_NextSize2(UI_Em(6), UI_Em(1.2f));
-		UI_Box *slider_back = UI_BoxMake(UI_BoxFlag_DrawBackground |
-		                                 UI_BoxFlag_DrawBorder,
-		                                 Str8Lit("SliderBack"));
-
-		UI_Parent(slider_back)
+		UI_NextSize2(UI_Pct(1), UI_Pct(1));
+		UI_NextHoverCursor(OS_Cursor_ResizeX);
+		UI_NextBackgroundColor(V4(0.0f, 0.3f, 0.4f, 1.0f));
+		UI_NextHotColor(V4(0.0f, 0.5f, 0.6f, 1.0f));
+		UI_NextActiveColor(V4(0.0f, 0.6f, 0.7f, 1.0f));
+		UI_Box *dragger = UI_BoxMake(UI_BoxFlag_DrawBackground |
+		                             UI_BoxFlag_DrawBorder |
+		                             UI_BoxFlag_HotAnimation |
+		                             UI_BoxFlag_ActiveAnimation |
+		                             UI_BoxFlag_Clickable,
+		                             Str8Lit("SliderDragger"));
+		comm = UI_CommFromBox(dragger);
+		if (comm.dragging)
 		{
-			UI_NextSize2(UI_Pct(1), UI_Pct(1));
-			UI_NextHoverCursor(OS_Cursor_ResizeX);
-			UI_NextBackgroundColor(V4(0.0f, 0.3f, 0.4f, 1.0f));
-			UI_NextHotColor(V4(0.0f, 0.5f, 0.6f, 1.0f));
-			UI_NextActiveColor(V4(0.0f, 0.6f, 0.7f, 1.0f));
-			UI_Box *dragger = UI_BoxMake(UI_BoxFlag_DrawBackground |
-			                             UI_BoxFlag_DrawBorder |
-			                             UI_BoxFlag_HotAnimation |
-			                             UI_BoxFlag_ActiveAnimation |
-			                             UI_BoxFlag_Clickable,
-			                             Str8Lit("SliderDragger"));
-			UI_Comm comm = UI_CommFromBox(dragger);
-			if (comm.box)
-			{
-				if (comm.dragging)
-				{
-					F32 val_pct = (comm.drag_delta.x) / slider_back->calc_size[Axis2_X];
+			F32 val_pct = (comm.drag_delta.x) / slider_back->calc_size[Axis2_X];
 
-					*val += (F32)(val_pct * (max - min));
-				}
-			}
-
-			*val = Clamp(min, *val, max);
-
-			UI_DragData *drag_data = PushStruct(UI_FrameArena(), UI_DragData);
-			drag_data->val = *val;
-			drag_data->min = min;
-			drag_data->max = max;
-
-			UI_EquipBoxWithCustomDrawFunction(dragger, UI_SliderF32CustomDraw, drag_data);
-
-			UI_NextRelativePos2(0, 0);
-			UI_NextSize2(UI_Pct(1), UI_Em(1.2f));
-			UI_Box *value_display = UI_BoxMake(UI_BoxFlag_DrawText |
-			                                   UI_BoxFlag_FixedX |
-			                                   UI_BoxFlag_FixedY,
-			                                   Str8Lit(""));
-
-			UI_EquipBoxWithDisplayString(value_display, PushStr8F(UI_FrameArena(), "%.02f", *val));
-
+			*val += (F32)(val_pct * (max - min));
 		}
 
-		UI_Spacer(UI_Em(0.5f));
+		*val = Clamp(min, *val, max);
 
-		UI_NextSize(Axis2_Y, UI_Em(1.2f));
-		UI_Box *box = UI_Text(string);
+		UI_DragData *drag_data = PushStruct(UI_FrameArena(), UI_DragData);
+		drag_data->val = *val;
+		drag_data->min = min;
+		drag_data->max = max;
+
+		UI_EquipBoxWithCustomDrawFunction(dragger, UI_SliderF32CustomDraw, drag_data);
+
+		UI_NextSize2(UI_Pct(1), UI_Pct(1));
+		UI_Box *value_display = UI_BoxMake(UI_BoxFlag_DrawText |
+		                                   UI_BoxFlag_FixedPos,
+		                                   Str8Lit(""));
+
+		UI_EquipBoxWithDisplayString(value_display, PushStr8F(UI_FrameArena(), "%.02f", *val));
+
 	}
 
 	UI_PopString();
@@ -460,57 +443,51 @@ UI_SliderS32(S32 *val, S32 min, S32 max, String8 string)
 {
 	UI_PushString(string);
 
-	UI_DefaultSize(UI_SumOfChildren(), UI_SumOfChildren());
+	UI_DefaultSize(UI_Em(6), UI_Em(1.0f));
 
-	UI_NextChildLayoutAxis(Axis2_X);
-	UI_Box *container = UI_BoxMake(0, Str8Lit("Container"));
+	UI_Box *slider_back = UI_BoxMake(UI_BoxFlag_DrawBackground |
+	                                 UI_BoxFlag_DrawBorder,
+	                                 Str8Lit("SliderBack"));
 	UI_Comm comm = {0};
-	UI_Parent(container)
+	UI_Parent(slider_back)
 	{
+		UI_NextSize2(UI_Pct(1), UI_Pct(1));
 		UI_NextHoverCursor(OS_Cursor_ResizeX);
-		UI_NextSize2(UI_Em(6), UI_Em(1.2f));
-		UI_Box *slider_back = UI_BoxMake(UI_BoxFlag_DrawBackground |
-		                                 UI_BoxFlag_DrawBorder |
-		                                 UI_BoxFlag_HotAnimation |
-		                                 UI_BoxFlag_ActiveAnimation,
-		                                 Str8Lit("SliderBack"));
-		slider_back->display_string = Str8Lit("SliderBack");
-
-		comm = UI_CommFromBox(slider_back);
-
+		UI_NextBackgroundColor(V4(0.0f, 0.3f, 0.4f, 1.0f));
+		UI_NextHotColor(V4(0.0f, 0.5f, 0.6f, 1.0f));
+		UI_NextActiveColor(V4(0.0f, 0.6f, 0.7f, 1.0f));
+		UI_Box *dragger = UI_BoxMake(UI_BoxFlag_DrawBackground |
+		                             UI_BoxFlag_DrawBorder |
+		                             UI_BoxFlag_HotAnimation |
+		                             UI_BoxFlag_ActiveAnimation |
+		                             UI_BoxFlag_Clickable,
+		                             Str8Lit("SliderDragger"));
+		comm = UI_CommFromBox(dragger);
 		if (comm.dragging)
 		{
-			F32 val_pct = (comm.mouse.x - slider_back->calc_rect.x0) / slider_back->calc_size[Axis2_X];
+			F32 val_pct = (comm.drag_delta.x) / slider_back->calc_size[Axis2_X];
 
-			*val = (S32)(val_pct * (max - min));
+			*val += (S32)(val_pct * (max - min));
 		}
 
 		*val = Clamp(min, *val, max);
 
-		UI_Parent(slider_back)
-		{
-			UI_NextSize2(UI_Pct((F32)(*val - min) / (F32)(max - min)), UI_Em(1.2f));
-			UI_NextBackgroundColor(V4(0.0f, 0.3f, 0.4f, 1.0f));
-			UI_Box *dragger = UI_BoxMake(UI_BoxFlag_DrawBackground |
-			                             UI_BoxFlag_DrawBorder,
-			                             Str8Lit("SliderDragger"));
+		UI_DragData *drag_data = PushStruct(UI_FrameArena(), UI_DragData);
+		drag_data->val = (F32)*val;
+		drag_data->min = (F32)min;
+		drag_data->max = (F32)max;
 
-			dragger->display_string = Str8Lit("SliderDragger");
+		UI_EquipBoxWithCustomDrawFunction(dragger, UI_SliderF32CustomDraw, drag_data);
 
-			UI_NextRelativePos2(0, 0);
-			UI_NextSize2(UI_Pct(1), UI_Em(1.2f));
-			UI_Box *value_display = UI_BoxMake(UI_BoxFlag_DrawText |
-			                                   UI_BoxFlag_FixedX |
-			                                   UI_BoxFlag_FixedY,
-			                                   Str8Lit(""));
+		UI_NextRelativePos2(0, 0);
+		UI_NextSize2(UI_Pct(1), UI_Pct(1));
+		UI_Box *value_display = UI_BoxMake(UI_BoxFlag_DrawText |
+		                                   UI_BoxFlag_FixedX |
+		                                   UI_BoxFlag_FixedY,
+		                                   Str8Lit(""));
 
-			UI_EquipBoxWithDisplayString(value_display, PushStr8F(UI_FrameArena(), "%d", *val));
-		}
+		UI_EquipBoxWithDisplayString(value_display, PushStr8F(UI_FrameArena(), "%.02f", *val));
 
-		UI_Spacer(UI_Em(0.5f));
-
-		UI_NextSize(Axis2_Y, UI_Em(1.2f));
-		UI_Box *box = UI_Text(string);
 	}
 
 	UI_PopString();
@@ -637,12 +614,12 @@ UI_TextInput(char *buffer, size_t buffer_size, String8 string)
 			if (ch == 8)
 			{
 				if (string_length)
-					buffer[string_length - 1] = 0;
+				buffer[string_length - 1] = 0;
 			}
 			else if (ch >= 3 && ch <= 125)
 			{
 				if (string_length + 1 < buffer_size)
-					buffer[string_length] = ch;
+				buffer[string_length] = ch;
 			}
 		}
 
@@ -833,9 +810,9 @@ UI_PushScrollableContainer(String8 string)
 		{
 			F32 scroll_speed = 100;
 			if (reverse_scroll_y)
-				container->scroll.y -= comm.scroll * scroll_speed;
+			container->scroll.y -= comm.scroll * scroll_speed;
 			else
-				container->scroll.y += comm.scroll * scroll_speed;
+			container->scroll.y += comm.scroll * scroll_speed;
 
 			scrolling_with_mousewheel = true;
 		}
@@ -843,9 +820,9 @@ UI_PushScrollableContainer(String8 string)
 		{
 			F32 scroll_speed = -view_dim[Axis2_Y];
 			if (reverse_scroll_y)
-				container->scroll.y -= scroll_speed;
+			container->scroll.y -= scroll_speed;
 			else
-				container->scroll.y += scroll_speed;
+			container->scroll.y += scroll_speed;
 			scrolling_with_mousewheel = true;
 		}
 
@@ -853,9 +830,9 @@ UI_PushScrollableContainer(String8 string)
 		{
 			F32 scroll_speed = view_dim[Axis2_Y];
 			if (reverse_scroll_y)
-				container->scroll.y -= scroll_speed;
+			container->scroll.y -= scroll_speed;
 			else
-				container->scroll.y += scroll_speed;
+			container->scroll.y += scroll_speed;
 			scrolling_with_mousewheel = true;
 		}
 

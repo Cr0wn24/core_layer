@@ -52,8 +52,26 @@ UITest()
 			UI_Spacer(UI_Em(0.5f));
 
 			local_persist F32 test_value = 5.0f;
+			
+			UI_Row()
+			{
+				UI_SliderF32(&test_value, -10, 10, Str8Lit("F32 slider"));
+				UI_Spacer(UI_Em(0.5f));
+				UI_Text(Str8Lit("F32 Slider"));
+			}
 
-			UI_SliderF32(&test_value, -10.0f, 10, Str8Lit("Slider"));
+			UI_Spacer(UI_Em(0.5f));
+
+			local_persist S32 test_value2 = 5;
+
+			UI_Row()
+			{
+				UI_SliderS32(&test_value2, -50, 100, Str8Lit("S32 slider"));
+				UI_Spacer(UI_Em(0.5f));
+				UI_Text(Str8Lit("S32 Slider"));
+			}
+			UI_Spacer(UI_Em(0.5f));
+
 			UI_PushSize2(UI_Em(12.0f), UI_Em(1.0f));
 			UI_Spacer(UI_Em(0.5f));
 

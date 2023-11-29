@@ -257,3 +257,14 @@ GetClosestPointBetweenLineAndPoint(Vec2F32 p0, Vec2F32 p1, Vec2F32 p)
 
 	return(result);
 }
+
+internal Vec2F32
+V2FromV2S(Vec2S32 v)
+{
+	Vec2F32 result;
+
+	result.x = (F32)v.x;
+	result.y = (F32)v.y;
+
+	return(result);
+}
