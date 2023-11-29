@@ -378,7 +378,7 @@ R_GetFontFromKey(R_FontKey font_key, S32 height)
 
 	R_Font *font = font_collection->fonts + height;
 
-	if(!font->max_height)
+	if (!font->max_height)
 	{
 		R_LoadFont(r_state->permanent_arena, 
 		           &font_collection->fonts[height], 

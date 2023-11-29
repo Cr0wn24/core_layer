@@ -562,7 +562,9 @@ UI_TextInput(char *buffer, size_t buffer_size, String8 string)
 
 		String8 text = Str8C(buffer);
 
-		Vec2F32 text_dim = R_GetTextDim(ui_state->font, text);
+		R_Font *font = R_GetFontFromKey(ui_state->font_key, UI_TopTextStyle()->font_size);
+
+		Vec2F32 text_dim = R_GetTextDim(font, text);
 		overflow_x = (text_dim.x + UI_Em(0.5f).value) - input_box->calc_size[Axis2_X];
 		if (overflow_x < 0)
 		{
@@ -609,7 +611,10 @@ UI_Radio(UI_RadioData *data, U32 data_count, String8 string)
 	UI_Text(string);
 	UI_Spacer(UI_Em(0.5f));
 
-	UI_PushCornerRadius4(17.5f);
+	F32 corner_radius = 0.6f;
+	F32 inner_box_pct_size = 0.6f;
+
+	UI_PushCornerRadius4(corner_radius);
 	for (U32 i = 0; i < data_count; ++i)
 	{
 		UI_Row()
@@ -643,14 +648,13 @@ UI_Radio(UI_RadioData *data, U32 data_count, String8 string)
 					{
 						UI_Spacer(UI_Fill());
 
-						UI_NextBackgroundColor(ui_state->theme.window_color);
-						UI_NextSize2(UI_Em(0.6f), UI_Em(0.6f));
-						UI_NextCornerRadius4(17.5f * 0.6f);
+						UI_NextBackgroundColor(V4(0.0f, 0.3f, 0.4f, 1.0f));
+						UI_NextSize2(UI_Em(inner_box_pct_size), UI_Em(inner_box_pct_size));
+						UI_NextCornerRadius4(inner_box_pct_size * corner_radius);
 
 						UI_Box *inner_box = UI_BoxMake(UI_BoxFlag_AnimateScale |
 						                               UI_BoxFlag_AnimateStart |
-						                               UI_BoxFlag_DrawBackground |
-						                               UI_BoxFlag_DrawBorder,
+						                               UI_BoxFlag_DrawBackground ,
 						                               PushStr8F(UI_FrameArena(), "%d", i));
 
 						UI_Spacer(UI_Fill());
@@ -905,12 +909,10 @@ UI_PushScrollableContainer(String8 string)
 	content_box = UI_BoxMake(0,
 	                         Str8Lit("ScrollCalcBox"));
 
-#if 1
 	if (content_box->calc_pos[Axis2_Y] != content_box->target_pos[Axis2_Y])
 	{
 		content_box->flags |= UI_BoxFlag_AnimateX | UI_BoxFlag_AnimateY;
 	}
-#endif
 
 	UI_PushParent(content_box);
 	view_box->calc_rect = R_IntersectRectF32(view_box->calc_rect, content_box->calc_rect);

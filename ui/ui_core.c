@@ -138,12 +138,14 @@ UI_PushRectStyle()
 	return(rect_style);
 }
 
-internal void UI_PopRectStyle()
+internal void 
+UI_PopRectStyle()
 {
 	ui_state->rect_style_stack.first = ui_state->rect_style_stack.first->stack_next;
 }
 
-internal UI_RectStyle *UI_GetAutoPopRectStyle()
+internal UI_RectStyle *
+UI_GetAutoPopRectStyle()
 {
 	UI_RectStyle *rect_style = UI_TopRectStyle();
 	if (!ui_state->rect_style_stack.auto_pop)
@@ -156,7 +158,8 @@ internal UI_RectStyle *UI_GetAutoPopRectStyle()
 
 // hampus: Text style stack
 
-internal UI_TextStyle *UI_PushTextStyle()
+internal UI_TextStyle *
+UI_PushTextStyle()
 {
 	UI_TextStyle *text_style = PushStruct(&ui_state->frame_arena, UI_TextStyle);
 	UI_TextStyle *first = UI_TopTextStyle();
@@ -170,13 +173,15 @@ internal UI_TextStyle *UI_PushTextStyle()
 	return(text_style);
 }
 
-internal UI_TextStyle * UI_PopTextStyle()
+internal UI_TextStyle *
+UI_PopTextStyle()
 {
 	ui_state->text_style_stack.first = ui_state->text_style_stack.first->stack_next;
 	return(ui_state->text_style_stack.first);
 }
 
-internal UI_TextStyle *UI_GetAutoPopTextStyle()
+internal UI_TextStyle *
+UI_GetAutoPopTextStyle()
 {
 	UI_TextStyle *text_style = UI_TopTextStyle();
 	if (!ui_state->text_style_stack.auto_pop)
@@ -189,14 +194,16 @@ internal UI_TextStyle *UI_GetAutoPopTextStyle()
 
 // hampus: Keying
 
-internal void UI_PushString(String8 string)
+internal void 
+UI_PushString(String8 string)
 {
 	String8StackNode *node = PushStruct(UI_FrameArena(), String8StackNode);
 	node->string = string;
 	StackPush(ui_state->string_stack.first, node);
 }
 
-internal void UI_PushStringF(String8 string)
+internal void 
+UI_PushStringF(String8 string)
 {
 	S32 triple_pound_pos = Str8FindSubStr8(string, Str8Lit("###"));
 	if (triple_pound_pos >= 0)
@@ -213,17 +220,20 @@ internal void UI_PushStringF(String8 string)
 	}
 }
 
-internal void UI_PopString()
+internal void 
+UI_PopString()
 {
 	StackPop(ui_state->string_stack.first);
 }
 
-internal B32 UI_KeyMatch(UI_Key a, UI_Key b)
+internal B32 
+UI_KeyMatch(UI_Key a, UI_Key b)
 {
 	return(a.key == b.key);
 }
 
-internal B32 UI_KeyIsNull(UI_Key key)
+internal B32 
+UI_KeyIsNull(UI_Key key)
 {
 	return(key.key == 0);
 }
@@ -311,9 +321,11 @@ internal UI_Size UI_Pixels(F32 value)
 	return(result);
 }
 
+
 internal UI_Size UI_Em(F32 value)
 {
-	return(UI_Pixels(value * ui_state->font->max_height));
+	R_Font *font = R_GetFontFromKey(ui_state->font_key, ui_state->text_style_stack.first->font_size);
+	return(UI_Pixels(value * font->max_height));
 }
 
 internal UI_Size UI_TextContent()
@@ -855,7 +867,6 @@ internal void UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 
 	text_style->text_color = theme.text_color;
 	text_style->font_size = 20;
-	ui_state->font = R_GetFontFromKey(ui_state->font_key, text_style->font_size);
 
 	UI_RectStyle *rect_style = UI_PushRectStyle();
 
@@ -865,9 +876,8 @@ internal void UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 	rect_style->border_color = theme.border_color;
 	rect_style->border_thickness = 0.5f;
 
-	F32 corner_radius = text_style->font_size / 4.0f;
+	F32 corner_radius = 0.25f;
 
-	rect_style->border_thickness = 0.5f;
 	rect_style->corner_radius = V4(corner_radius,
 								   corner_radius,
 								   corner_radius,
@@ -884,14 +894,14 @@ internal void UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 
 	UI_NextSize2(UI_Pct(1), UI_Pct(1));
 	UI_Box *popup_root = UI_BoxMake(UI_BoxFlag_FixedPos,
-																	Str8Lit("PopupRoot"));
-
+	                                Str8Lit("PopupRoot"));
 	ui_state->popup_root = popup_root;
 
 	UI_PushParent(root2);
 }
 
-internal void UI_SolveIndependentSizes(UI_Box *root)
+internal void 
+UI_SolveIndependentSizes(UI_Box *root)
 {
 	root->target_size[Axis2_X] = 0;
 	root->target_size[Axis2_Y] = 0;
@@ -1309,7 +1319,8 @@ UI_AlignDimInRect(Vec2F32 dim, RectF32 calc_rect, UI_TextAlign align, F32 paddin
 	return(result);
 }
 
-internal void UI_Animate(UI_Box *root, F32 dt)
+internal void 
+UI_Animate(UI_Box *root, F32 dt)
 {
 	if (UI_KeyMatch(ui_state->hot_key, root->key))
 	{
@@ -1348,18 +1359,18 @@ UI_Draw(UI_Box *root)
 	UI_RectStyle *rect_style = &root->rect_style;
 	UI_TextStyle *text_style = &root->text_style;
 
+	R_Font *font = R_GetFontFromKey(ui_state->font_key, text_style->font_size);
+
 	Vec4F32 corner_radius = rect_style->corner_radius;
-	corner_radius = V4MulF32(corner_radius, (F32)ui_state->font->height / 30.0f);
+	corner_radius = V4MulF32(corner_radius, (F32)font->height);
 
 	if (root->flags & UI_BoxFlag_DrawDropShadow)
 	{
-
 		R_PushRect(V2SubV2(root->calc_rect.min, V2(10, 10)),
-							 V2AddV2(root->calc_rect.max, V2(15, 15)),
-							 .color = V4(0, 0, 0, 0.5f),
-							 .edge_softness = 10.0f,
-							 .corner_radius = corner_radius);
-
+		           V2AddV2(root->calc_rect.max, V2(15, 15)),
+		           .color = V4(0, 0, 0, 0.5f),
+		           .edge_softness = 10.0f,
+		           .corner_radius = corner_radius);
 	}
 
 	if (root->flags & UI_BoxFlag_DrawBackground)
@@ -1378,9 +1389,9 @@ UI_Draw(UI_Box *root)
 		}
 
 		R_PushRect(root->calc_rect.min, root->calc_rect.max,
-							 .color = color,
-							 .corner_radius = corner_radius,
-							 .edge_softness = rect_style->edge_softness);
+		           .color = color,
+		           .corner_radius = corner_radius,
+		           .edge_softness = rect_style->edge_softness);
 	}
 
 	if (root->flags & UI_BoxFlag_DrawBorder)
@@ -1404,14 +1415,13 @@ UI_Draw(UI_Box *root)
 								 .edge_softness = 1.0f);
 		}
 	}
-	
-	R_Font *font = R_GetFontFromKey(ui_state->font_key, text_style->font_size);
+
 	if (root->flags & UI_BoxFlag_DrawText)
 	{
 		if (text_style->icon)
 		{
 			R_Glyph *glyph = &font->icons[(text_style->icon-1)];
-			Vec2F32 glyph_dim = V2((F32)glyph->advance, (F32)ui_state->font->max_height);
+			Vec2F32 glyph_dim = V2((F32)glyph->advance, (F32)font->max_height);
 
 			F32 padding[Axis2_COUNT] =
 			{
@@ -1420,7 +1430,7 @@ UI_Draw(UI_Box *root)
 			};
 
 			R_PushGlyphIndex(UI_AlignDimInRect(glyph_dim, root->calc_rect, text_style->text_align, padding),
-											 ui_state->font, text_style->icon + 0xE800, V4(1.0f, 1.0f, 1.0f, 1.0f));
+											 font, text_style->icon + 0xE800, V4(1.0f, 1.0f, 1.0f, 1.0f));
 		}
 		else
 		{

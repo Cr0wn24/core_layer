@@ -29,9 +29,7 @@
 			<Platform>Win32</Platform>
 		</Platforms>
 		<AdditionalIncludePaths>
-			<AdditionalIncludePath>C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um</AdditionalIncludePath>
-			<AdditionalIncludePath>C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\ucrt</AdditionalIncludePath>
-			<AdditionalIncludePath>C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared</AdditionalIncludePath>
+			<AdditionalIncludePath></AdditionalIncludePath>
 		</AdditionalIncludePaths>
 		<Defines></Defines>
 		<ConfigProperties>

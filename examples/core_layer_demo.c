@@ -263,6 +263,7 @@ EntryPoint(String8List args)
 	UI_State *state = UI_Init(&permanent_arena, 
 	                          R_FontKeyFromString(CORE_RESOURCE("font/Inter-Regular.ttf")), 
 	                          window);
+
 	UI_SelectState(state);
 
 	r_state->font_atlas = font_atlas;
@@ -301,23 +302,24 @@ EntryPoint(String8List args)
 
 		R_Begin(scratch.arena);
 
+#if 0
 		R_PushText(V2(0, 0), R_FontKeyFromString(CORE_RESOURCE("font/Inter-Regular.ttf")), 
 		           30, Str8Lit("Hello world!"), V4(1, 1, 1, 1));
+#endif
 
 		UI_Begin(UI_DefaultTheme(), event_list, dt);
-		
+		//UI_PushFontSize(10);
+
 		UITest();
 
 		UI_End();
 
 #if 0
-		R_PushRect(V2(50, 50), 
-		           V2(50.0f + r_state->font_atlas->dim.width, 
-		              50.0f + r_state->font_atlas->dim.height),
+		R_PushRect(V2(0, 0), 
+		           V2((F32)r_state->font_atlas->dim.width, 
+		              (F32)r_state->font_atlas->dim.height),
 		              .texture = r_state->font_atlas->texture, .text = true);
-#endif
 
-#if 0
 		R_FreeFontAtlasRegion *first_region = font_atlas->first_used_region;
 		while(first_region)
 		{
@@ -339,7 +341,7 @@ EntryPoint(String8List args)
 		}
 #endif
 		R_End();
-		D3D11_End(V4(0.1f, 0.1f, 0.1f, 1.0f));
+		D3D11_End(V4(0.3f, 0.3f, 0.3f, 1.0f));
 
 		F64 end_counter = OS_SecondsSinceAppStart();
 		dt = end_counter - start_counter;
