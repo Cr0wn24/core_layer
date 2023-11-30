@@ -98,7 +98,7 @@ R_FontAtlasRegionAlloc(MemoryArena *arena, R_FontAtlas *atlas, Vec2S32 dim)
 		}
 
 		if (free_region->next)
-		{
+ 		{
 			free_region->next->prev = &free_regions[3];
 		}
 
