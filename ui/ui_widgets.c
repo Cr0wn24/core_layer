@@ -554,13 +554,37 @@ UI_ColorPicker(Vec4F32 *color, String8 string)
 				{
 					container->show_color_wheel = !container->show_color_wheel;
 				}
-
-				UI_NextRelativePos2(color_rect->calc_pos[Axis2_X], color_rect->calc_pos[Axis2_Y] - 400);
-				UI_NextSize2(UI_Em(15), UI_Em(15));
-				UI_NextBackgroundColor(ui_state->theme.window_color);
-				UI_NextBoxFlags(UI_BoxFlag_DrawBorder | UI_BoxFlag_DrawDropShadow | UI_BoxFlag_Clip | UI_BoxFlag_DrawBackground | UI_BoxFlag_FixedX | UI_BoxFlag_FixedY | UI_BoxFlag_AnimateScale);
-				UI_Popup(&container->show_color_wheel)
+				else if(comm.hovering)
 				{
+					UI_PushParent(ui_state->tooltip_root);
+
+					UI_NextSize2(UI_SumOfChildren(), UI_SumOfChildren());
+					UI_Box *box = UI_BoxMake(UI_BoxFlag_DrawBackground | UI_BoxFlag_DrawBorder, Str8Lit(""));
+					UI_Parent(box)
+					{
+						UI_NextTextEdgePadding(Axis2_X, 10);
+						UI_NextFontSize(15);
+						UI_Text(Str8Lit("Show color wheel"));
+					}
+
+					UI_PopParent();
+				}
+
+
+				if (container->show_color_wheel)
+				{
+					UI_BeginPopup();
+
+					UI_NextRelativePos2(color_rect->calc_pos[Axis2_X] + 50, color_rect->calc_pos[Axis2_Y] - 200);
+					UI_NextSize2(UI_Em(10), UI_Em(10));
+					UI_BoxMake(UI_BoxFlag_DrawBackground |
+					           UI_BoxFlag_FixedPos |
+					           UI_BoxFlag_DrawBorder |
+					           UI_BoxFlag_DrawDropShadow, 
+					           Str8Lit(""));
+
+					UI_EndPopup();
+
 				}
 			}
 

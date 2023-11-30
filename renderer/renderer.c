@@ -458,6 +458,9 @@ R_Begin(MemoryArena *arena)
 
 	r_state->render_data.batch_list = PushStruct(r_state->arena, Batch2DList);
 
+	r_state->render_dim.width = 2560;
+	r_state->render_dim.height = 1440;
+
 	R_PushClipRect(R_MakeRectF32(0, 0, 2560, 1440));
 }
 

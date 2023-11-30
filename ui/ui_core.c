@@ -305,7 +305,8 @@ UI_KeyFromString(String8 string)
 
 // hampus: Size kinds
 
-internal UI_Size UI_Null()
+internal UI_Size 
+UI_Null()
 {
 	UI_Size result = {0};
 
@@ -314,7 +315,8 @@ internal UI_Size UI_Null()
 	return(result);
 }
 
-internal UI_Size UI_Pixels(F32 value)
+internal UI_Size 
+UI_Pixels(F32 value)
 {
 	UI_Size result = {0};
 
@@ -325,13 +327,15 @@ internal UI_Size UI_Pixels(F32 value)
 }
 
 
-internal UI_Size UI_Em(F32 value)
+internal UI_Size 
+UI_Em(F32 value)
 {
 	R_Font *font = R_GetFontFromKey(ui_state->font_key, ui_state->text_style_stack.first->font_size);
 	return(UI_Pixels(value * font->max_height));
 }
 
-internal UI_Size UI_TextContent()
+internal UI_Size 
+UI_TextContent()
 {
 	UI_Size result = {0};
 
@@ -340,7 +344,8 @@ internal UI_Size UI_TextContent()
 	return(result);
 }
 
-internal UI_Size UI_Pct(F32 value)
+internal UI_Size 
+UI_Pct(F32 value)
 {
 	UI_Size result = {0};
 
@@ -350,7 +355,8 @@ internal UI_Size UI_Pct(F32 value)
 	return(result);
 }
 
-internal UI_Size UI_Fill()
+internal UI_Size 
+UI_Fill()
 {
 	UI_Size result = {0};
 
@@ -359,7 +365,8 @@ internal UI_Size UI_Fill()
 	return(result);
 }
 
-internal UI_Size UI_SumOfChildren()
+internal UI_Size 
+UI_SumOfChildren()
 {
 	UI_Size result = {0};
 
@@ -370,7 +377,8 @@ internal UI_Size UI_SumOfChildren()
 
 // hampus: Box implementation
 
-internal B32 UI_BoxHasFlag(UI_Box *box, UI_BoxFlag flag)
+internal B32 
+UI_BoxHasFlag(UI_Box *box, UI_BoxFlag flag)
 {
 	return ((box->flags & flag) != 0);
 }
@@ -405,9 +413,9 @@ UI_CommFromBox(UI_Box *box)
 
 	B32 capture_input = false;
 
-	if (ui_state->building_popup)
+	if (ui_state->inside_popup)
 	{
-		if (ui_state->inside_popup)
+		if (ui_state->building_popup)
 		{
 			if (!previous_still_active)
 			{
@@ -555,7 +563,8 @@ UI_BoxAlloc()
 	return(result);
 }
 
-internal void UI_BoxFree(UI_Box *box)
+internal void 
+UI_BoxFree(UI_Box *box)
 {
 	UI_FreeBox *free_box = (UI_FreeBox *)box;
 	free_box->next = ui_state->first_free_box;
@@ -564,13 +573,15 @@ internal void UI_BoxFree(UI_Box *box)
 	ui_state->box_free_list_slots_used--;
 }
 
-internal void UI_PushBoxInTree(UI_Box *box)
+internal void 
+UI_PushBoxInTree(UI_Box *box)
 {
 	box->parent = UI_TopParent();
 	DLL_PushBack(box->parent->first, box->parent->last, box);
 }
 
-internal UI_Box *UI_BoxFromKey(UI_Key key)
+internal UI_Box *
+UI_BoxFromKey(UI_Key key)
 {
 	UI_Box *result = 0;
 
@@ -697,37 +708,14 @@ UI_BoxMake(UI_BoxFlag flags, String8 string)
 
 // hampus: Root parent
 
-internal B32
-UI_BeginPopup(B32 *b)
+internal void
+UI_BeginPopup()
 {
-	if (*b)
-	{
-		R_PushClipRect(ui_state->root->calc_rect);
+	UI_PushParent(ui_state->popup_root);
+	Assert(ui_state->building_popup == false);
+	ui_state->building_popup = true;
 
-		UI_PushParent(ui_state->popup_root);
-
-		ui_state->popup_root->popup_bool = b;
-	}
-	else
-	{
-		if (ui_state->layout_stack.auto_pop)
-		{
-			UI_PopLayout();
-			ui_state->layout_stack.auto_pop = false;
-		}
-		if (ui_state->rect_style_stack.auto_pop)
-		{
-			UI_PopRectStyle();
-			ui_state->rect_style_stack.auto_pop = false;
-		}
-		if (ui_state->text_style_stack.auto_pop)
-		{
-			UI_PopTextStyle();
-			ui_state->text_style_stack.auto_pop = false;
-		}
-	}
-
-	return(*b);
+	R_PushClipRect(ui_state->root->calc_rect);
 }
 
 internal void 
@@ -735,6 +723,8 @@ UI_EndPopup()
 {
 	R_PopClipRect();
 	UI_PopParent();
+	Assert(ui_state->building_popup == true);
+	ui_state->building_popup = false;
 }
 
 internal void 
@@ -793,11 +783,6 @@ UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 			}
 			first_popup_child = first_popup_child->next;
 		}
-	}
-
-	if (left_mouse_pressed && !ui_state->inside_popup && ui_state->popup_root->first)
-	{
-		*ui_state->popup_root->popup_bool = false;
 	}
 
 	for (U32 i = 0; i < ui_state->box_hash_map_count; ++i)
@@ -886,13 +871,13 @@ UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 	UI_RectStyle *rect_style = UI_PushRectStyle();
 
 	rect_style->background_color = theme.primary_color;
-	
+
 	rect_style->hot_color = V4MulF32(rect_style->background_color, 2.0f);
 	rect_style->hot_color.a = 1;
-	
+
 	rect_style->active_color = V4MulF32(rect_style->background_color, 3.0f);
 	rect_style->active_color.a = 1;
-	
+
 	rect_style->border_color = theme.border_color;
 	rect_style->border_thickness = 0.5f;
 
@@ -910,12 +895,18 @@ UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 
 	UI_NextChildLayoutAxis(Axis2_Y);
 	UI_NextSize2(UI_Pct(1), UI_Pct(1));
-	UI_Box *root2 = UI_BoxMake(0, Str8Lit("Root2"));
+	UI_Box *root2 = UI_BoxMake(UI_BoxFlag_FixedPos, 
+	                           Str8Lit("Root2"));
 
 	UI_NextSize2(UI_Pct(1), UI_Pct(1));
 	UI_Box *popup_root = UI_BoxMake(UI_BoxFlag_FixedPos,
 	                                Str8Lit("PopupRoot"));
 	ui_state->popup_root = popup_root;
+
+	UI_NextRelativePos2(ui_state->mouse_pos.x+10, ui_state->mouse_pos.y-20);
+	UI_Box *tooltip_root = UI_BoxMake(UI_BoxFlag_FixedPos,
+	                                  Str8Lit("TooltipRoot"));
+	ui_state->tooltip_root = tooltip_root;
 
 	UI_PushParent(root2);
 }
@@ -949,18 +940,6 @@ UI_SolveIndependentSizes(UI_Box *root)
 			root->target_size[Axis2_X] = (text_dim.x + root->text_style.text_edge_padding[Axis2_X]);
 		} break;
 
-		case UI_SizeKind_Pct:
-		{
-		} break;
-
-		case UI_SizeKind_SumOfChildren:
-		{
-		} break;
-
-		case UI_SizeKind_Fill:
-		{
-		} break;
-
 		InvalidCase;
 	}
 
@@ -980,18 +959,6 @@ UI_SolveIndependentSizes(UI_Box *root)
 		case UI_SizeKind_TextContent:
 		{
 			root->target_size[Axis2_Y] = (text_dim.y + root->text_style.text_edge_padding[Axis2_Y]);
-		} break;
-
-		case UI_SizeKind_Pct:
-		{
-		} break;
-
-		case UI_SizeKind_SumOfChildren:
-		{
-		} break;
-
-		case UI_SizeKind_Fill:
-		{
 		} break;
 
 		InvalidCase;

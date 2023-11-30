@@ -212,6 +212,8 @@ typedef struct UI_Box
 
 	B32 solved_size[Axis2_COUNT];
 
+	RectF32 clip_rect;
+	
 	void *user;
 	UI_CustomDrawProc *CustomDraw;
 
@@ -221,9 +223,7 @@ typedef struct UI_Box
 	Vec2F32 scroll;
 	B32 show_color_wheel;
 	B32 show_expanded_tree;
-	B32 *popup_bool;
 
-	RectF32 clip_rect;
 } UI_Box;
 
 typedef struct UI_FreeBox
@@ -278,6 +278,8 @@ typedef struct UI_State
 	UI_Box *root;
 
 	UI_Box *popup_root;
+
+	UI_Box *tooltip_root;
 
 	UI_LayoutStack layout_stack;
 	UI_RectStyleStack rect_style_stack;

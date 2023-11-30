@@ -15,7 +15,7 @@ for(int _i_ = 0; !_i_; _i_ += 1, UI_EndTree())
 #define UI_TreeF(str, ...) if (UI_BeginTreeF(str, __VA_ARGS__)) \
 for(int _i_ = 0; !_i_; _i_ += 1, UI_EndTree())
 
-#define UI_Popup(b) if (UI_BeginPopup(b)) \
-for(int _i_ = 0; !_i_; _i_ += 1, UI_EndPopup())
+//#define UI_Popup(b) if (UI_BeginPopup(b)) \
+//for(int _i_ = 0; !_i_; _i_ += 1, UI_EndPopup())
 
 #endif
