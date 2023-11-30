@@ -207,7 +207,7 @@ R_LoadGlyph(MemoryArena *arena, R_FontAtlas *atlas, U32 glyph_index, FT_Face fac
 	{
 		glyph = font->glyphs + glyph_index;
 	}
-	
+
 	Assert(glyph->advance == 0);
 	FT_Load_Char(face, glyph_index, FT_LOAD_RENDER | FT_LOAD_TARGET_LCD);
 
@@ -375,9 +375,6 @@ R_PushGlyphIndex(Vec2F32 pos, R_Font *font, U32 index, Vec4F32 color)
 internal R_Font *
 R_GetFontFromKey(R_FontKey font_key, S32 height)
 {
-	Assert(height >= 0);
-	Assert(height < 128);
-
 	U64 slot_index = font_key.key % ArrayCount(r_state->fonts);
 	R_FontSizeCollection *font_collection = 0;
 	if (!r_state->fonts[slot_index])
@@ -388,19 +385,25 @@ R_GetFontFromKey(R_FontKey font_key, S32 height)
 
 	font_collection = r_state->fonts[slot_index];
 
+	Assert(height >= 0);
+	Assert(height < ArrayCount(font_collection->fonts));
+
 	Assert(font_collection->key.key == font_key.key);
 
-	R_Font *font = font_collection->fonts + height;
-
-	if (!font->max_height)
+	if(!font_collection->fonts[height])
 	{
+		font_collection->fonts[height] = PushStruct(r_state->permanent_arena, R_Font);
 		R_LoadFont(r_state->permanent_arena, 
-		           &font_collection->fonts[height], 
+		           font_collection->fonts[height], 
 		           r_state->font_atlas, 
 		           font_key.font, 
 		           CORE_RESOURCE("font/icon/fontello.ttf"), 
 		           height);
 	}
+
+	R_Font *font = font_collection->fonts[height];
+
+	Assert(font);
 
 	return(font);
 }

@@ -37,12 +37,12 @@ typedef S32 B32;
 #define Assert(expr)
 #endif
 
-#define InvalidCase 			default: {Assert(false);} break;
-#define InvalidCodePath 	Assert(false)
+#define InvalidCase 	default: {Assert(false);} break;
+#define InvalidCodePath Assert(false)
 
-#define Flip(x) 						(!(x))
+#define Flip(x) 				(!(x))
 #define CompSizeOf(type) 		switch(true) {case sizeof(type): case sizeof(type): {} break; }
-#define ArrayCount(array) 	(sizeof(array) / sizeof(array[0]))
+#define ArrayCount(array) 		(sizeof(array) / sizeof(array[0]))
 #define Swap(a, b, type) 		{ type temp = a; a = b; b = temp; }
 
 #define Glue(a, b) a##b

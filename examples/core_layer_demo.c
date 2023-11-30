@@ -52,7 +52,7 @@ UITest()
 			UI_Spacer(UI_Em(0.5f));
 
 			local_persist F32 test_value = 5.0f;
-			
+
 			UI_Row()
 			{
 				UI_SliderF32(&test_value, -10, 10, Str8Lit("F32 slider"));
@@ -332,7 +332,7 @@ EntryPoint(String8List args)
 		R_PushRect(V2(50, 500), V2(500, 1000), .color = V4(1, 0, 0, 1), .corner_radius = corner_radius, .edge_softness = 1, .border_thickness = 0.5f);
 
 		UI_Begin(UI_DefaultTheme(), event_list, dt);
-		
+
 		UITest();
 
 		UI_NextRelativePos2(1200, 200);
@@ -353,7 +353,7 @@ EntryPoint(String8List args)
 				UI_Spacer(UI_Fill());
 
 				UI_Box *title = UI_BoxMake(UI_BoxFlag_DrawText, 
-				                               Str8Lit("WindowTitlebar"));
+				                           Str8Lit("WindowTitlebar"));
 
 				UI_EquipBoxWithDisplayString(title, Str8Lit("My window"));
 
@@ -366,13 +366,12 @@ EntryPoint(String8List args)
 					UI_NextSize2(UI_Em(1.0f), UI_Em(1.0f));
 					UI_NextBackgroundColor(V4(0.6f, 0, 0, 1));
 					UI_Box *close_button = UI_BoxMake(UI_BoxFlag_DrawText | 
-					           UI_BoxFlag_DrawBackground |
-					           UI_BoxFlag_DrawBorder |
-					           UI_BoxFlag_HotAnimation |
-					           UI_BoxFlag_ActiveAnimation, 
-					           Str8Lit("WindowCloseButton"));
+					                                  UI_BoxFlag_DrawBackground |
+					                                  UI_BoxFlag_DrawBorder |
+					                                  UI_BoxFlag_HotAnimation |
+					                                  UI_BoxFlag_ActiveAnimation, 
+					                                  Str8Lit("WindowCloseButton"));
 					UI_Comm comm = UI_CommFromBox(close_button);
-
 				}
 			}
 

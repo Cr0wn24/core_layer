@@ -46,7 +46,7 @@ typedef struct R_Font
 
 typedef struct R_FontSizeCollection
 {
-	R_Font fonts[128];
+	R_Font *fonts[512];
 	R_FontKey key;
 } R_FontSizeCollection;
 
