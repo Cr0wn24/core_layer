@@ -141,7 +141,7 @@ internal F32 Radians(F32 degrees)
 
 internal Mat4x4F32 M4(F32 d)
 {
-	Mat4x4F32 result = {0};
+	Mat4x4F32 result = { 0 };
 
 	result.m[0][0] = d;
 	result.m[1][1] = d;

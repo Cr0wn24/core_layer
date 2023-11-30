@@ -33,7 +33,7 @@ UITest()
 	                          Str8Lit("My box2"));
 	UI_Size tree_spacing = UI_Em(0.3f);
 
-	local_persist Vec4F32 color_test = {1.0f, 1.0f, 1.0f, 1.0f};
+	local_persist Vec4F32 color_test = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	UI_Parent(box2)
 	{
@@ -119,10 +119,10 @@ UITest()
 
 			UI_RadioData radio_data[] =
 			{
-				{&b0, Str8Lit("Option 1")},
-				{&b1, Str8Lit("Option 2")},
-				{&b2, Str8Lit("Option 3")},
-				{&b3, Str8Lit("Option 4")},
+				{ &b0, Str8Lit("Option 1") },
+				{ &b1, Str8Lit("Option 2") },
+				{ &b2, Str8Lit("Option 3") },
+				{ &b3, Str8Lit("Option 4") },
 			};
 
 			UI_Radio(radio_data, 4, Str8Lit("Radio"));
@@ -207,7 +207,7 @@ UITest()
 			UI_PopScrollableContainer();
 			UI_Spacer(UI_Em(0.5f));
 
-			local_persist char input_buffer[256] = {0};
+			local_persist char input_buffer[256] = { 0 };
 			UI_NextSize2(UI_Em(10), UI_Em(1.5f));
 			if (UI_TextInput(input_buffer, sizeof(input_buffer), Str8Lit("Your username")).enter)
 			{
@@ -226,7 +226,7 @@ UITest()
 			UI_Check(Str8Lit("Default check size"), &check_test);
 			local_persist F32 slider_value = 0;
 			UI_SliderF32(&slider_value, 0, 10, Str8Lit("Default slider size"));
-			local_persist Vec4F32 color = {1, 1, 1, 1};
+			local_persist Vec4F32 color = { 1, 1, 1, 1 };
 			UI_ColorPicker(&color, Str8Lit("Default color picker size"));
 		}
 		UI_Spacer(UI_Em(0.5f));
@@ -247,13 +247,13 @@ EntryPoint(String8List args)
 
 	R_FontAtlas *tile_atlas = R_FontAtlasMake(&permanent_arena, V2S(1024, 1024));
 	{
-		R_LoadedBitmap loaded_bitmaps[16] = {0};
+		R_LoadedBitmap loaded_bitmaps[16] = { 0 };
 		TempMemoryArena scratch = GetScratch(0, 0);
 
 		for (U32 i = 0; i < 16; ++i)
 		{
 			S32 channels = 0;
-			String8 path = {0};
+			String8 path = { 0 };
 			if (i < 10)
 			{
 				path = PushStr8F(scratch.arena, "../res/test/Tiles/tile_000%d.png", i);
@@ -266,7 +266,7 @@ EntryPoint(String8List args)
 			loaded_bitmaps[i].data = stbi_load((const char *)path.str, &loaded_bitmaps[i].dim.width, &loaded_bitmaps[i].dim.height, &channels, 0);
 			R_FontAtlasRegion region = R_FontAtlasRegionAlloc(&permanent_arena, tile_atlas, loaded_bitmaps[i].dim);
 			R_FillFontAtlasRegionWithBitmap(tile_atlas, region, &loaded_bitmaps[i]);
-			
+
 		}
 		ReleaseScratch(scratch);
 		tile_atlas->texture.handle = r_state->GPULoadTexture(tile_atlas->data, tile_atlas->dim.width, tile_atlas->dim.height);
@@ -279,8 +279,8 @@ EntryPoint(String8List args)
 
 	R_FontAtlas *font_atlas = R_FontAtlasMake(&permanent_arena, V2S(2048, 2048));
 
-	UI_State *state = UI_Init(&permanent_arena, 
-	                          R_FontKeyFromString(CORE_RESOURCE("font/Inter-Regular.ttf")), 
+	UI_State *state = UI_Init(&permanent_arena,
+	                          R_FontKeyFromString(CORE_RESOURCE("font/Inter-Regular.ttf")),
 	                          window);
 
 	UI_SelectState(state);
@@ -320,15 +320,90 @@ EntryPoint(String8List args)
 		}
 
 		R_Begin(scratch.arena);
+		R_PushText(V2(1700, 50), R_FontKeyFromString(CORE_RESOURCE("font/Inter-Regular.ttf")), 20, Str8Lit("Hello, world!"), V4(1.0f, 1.0f, 1.0f, 1.0f));
+		R_PushRect(V2(1200 - 50, 50), V2(1200 + 450, 50 + 65), .color = V4(0.5, 0, 0, 1), .corner_radius = V4(10, 10, 10, 10), .edge_softness = 1);
+		R_PushRect(V2(1200 - 50, 50), V2(1200 + 450, 50 + 65), .color = V4(1, 1, 1, 1), .corner_radius = V4(10, 10, 10, 10), .edge_softness = 1, .border_thickness = 1);
+
+		R_PushRect(V2(0, 0), V2(1024*4, 1024*4), .texture = tile_atlas->texture);
+
+		Vec4F32 corner_radius = V4(30, 50, 20, 10);
+
+		R_PushRect(V2(50, 500), V2(500, 1000), .color = V4(0, 0, 0, 1), .corner_radius = corner_radius, .edge_softness = 1);
+		R_PushRect(V2(50, 500), V2(500, 1000), .color = V4(1, 0, 0, 1), .corner_radius = corner_radius, .edge_softness = 1, .border_thickness = 0.5f);
 
 		UI_Begin(UI_DefaultTheme(), event_list, dt);
+		
+		UITest();
 
-		//UITest();
+		UI_NextRelativePos2(1200, 200);
+		UI_NextSize2(UI_Em(20), UI_Em(20));
+		UI_NextChildLayoutAxis(Axis2_Y);
+		UI_NextBackgroundColor(ui_state->theme.window_color);
+		UI_Box *window_container = UI_BoxMake(UI_BoxFlag_FixedPos | 
+		                                      UI_BoxFlag_DrawBackground |
+		                                      UI_BoxFlag_DrawBorder |
+		                                      UI_BoxFlag_DrawDropShadow, 
+		                                      Str8Lit("WindowContainer"));
+
+		UI_Parent(window_container)
+		{
+			UI_NextSize2(UI_Pct(1), UI_Em(1.0f));
+			UI_Row()
+			{
+				UI_Spacer(UI_Fill());
+
+				UI_Box *title = UI_BoxMake(UI_BoxFlag_DrawText, 
+				                               Str8Lit("WindowTitlebar"));
+
+				UI_EquipBoxWithDisplayString(title, Str8Lit("My window"));
+
+				UI_NextSize(Axis2_X, UI_Fill());
+				UI_Row()
+				{
+					UI_Spacer(UI_Fill());
+
+					UI_NextIcon(R_IconIndex_Cross);
+					UI_NextSize2(UI_Em(1.0f), UI_Em(1.0f));
+					UI_NextBackgroundColor(V4(0.6f, 0, 0, 1));
+					UI_Box *close_button = UI_BoxMake(UI_BoxFlag_DrawText | 
+					           UI_BoxFlag_DrawBackground |
+					           UI_BoxFlag_DrawBorder |
+					           UI_BoxFlag_HotAnimation |
+					           UI_BoxFlag_ActiveAnimation, 
+					           Str8Lit("WindowCloseButton"));
+					UI_Comm comm = UI_CommFromBox(close_button);
+
+				}
+			}
+
+			UI_Spacer(UI_Em(0.5f));
+			UI_Row()
+			{
+				UI_Spacer(UI_Em(0.5f));
+				UI_Column()
+				{
+					UI_NextSize2(UI_Em(5), UI_Em(1));
+					UI_Button(Str8Lit("Click me!"));
+
+					UI_Spacer(UI_Em(0.5f));
+
+					UI_Row()
+					{
+						local_persist F32 test_value;
+						UI_SliderF32(&test_value, -10, 10, Str8Lit("TestSlider"));
+
+						UI_Spacer(UI_Em(0.5f));
+
+						UI_Text(Str8Lit("A slider"));
+					}
+				}
+			}
+		}
 
 		UI_End();
 
-		R_DEBUG_DrawFontAtlas(tile_atlas);
-		
+		//R_DEBUG_DrawFontAtlas(font_atlas);
+
 		R_End();
 		D3D11_End(V4(0.3f, 0.3f, 0.3f, 1.0f));
 

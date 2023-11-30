@@ -886,12 +886,17 @@ UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 	UI_RectStyle *rect_style = UI_PushRectStyle();
 
 	rect_style->background_color = theme.primary_color;
+	
 	rect_style->hot_color = V4MulF32(rect_style->background_color, 2.0f);
+	rect_style->hot_color.a = 1;
+	
 	rect_style->active_color = V4MulF32(rect_style->background_color, 3.0f);
+	rect_style->active_color.a = 1;
+	
 	rect_style->border_color = theme.border_color;
 	rect_style->border_thickness = 0.5f;
 
-	F32 corner_radius = 0.25f;
+	F32 corner_radius = 0.15f;
 
 	rect_style->corner_radius = V4(corner_radius,
 	                               corner_radius,

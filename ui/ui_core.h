@@ -306,7 +306,7 @@ typedef struct UI_State
 	F64 dt;
 } UI_State;
 
-// hampus: Layouting
+// Layouting
 
 #define UI_NextSize2(width, height)     {UI_LayoutStyle *layout = UI_GetAutoPopLayout(); layout->pref_size[Axis2_X] = width; layout->pref_size[Axis2_Y] = height; }
 #define UI_PushSize2(width, height)     {UI_LayoutStyle *layout = UI_PushLayout(); layout->pref_size[Axis2_X] = width; layout->pref_size[Axis2_Y] = height; }
@@ -344,7 +344,7 @@ typedef struct UI_State
 #define UI_PushScale(x)       (UI_PushLayout()->scale = x)
 #define UI_PopScale()         (UI_PopLayout())
 
-// hampus: Text style
+// Text style
 
 #define UI_NextTextEdgePadding(axis, size)  (UI_GetAutoPopTextStyle()->text_edge_padding[axis] = size)
 #define UI_PushTextEdgePadding(axis, size)  (UI_PushTextStyle()->text_edge_padding[axis] = size)
@@ -366,7 +366,7 @@ typedef struct UI_State
 #define UI_PushIcon(x)          (UI_PushTextStyle()->icon = x)
 #define UI_PopIcon()            (UI_PopTextStyle())
 
-// hampus: Rect style
+// Rect style
 
 #define UI_NextBackgroundColor(x)   (UI_GetAutoPopRectStyle()->background_color = x)
 #define UI_PushBackgroundColor(x)   (UI_PushRectStyle()->background_color = x)
@@ -400,7 +400,7 @@ typedef struct UI_State
 #define UI_PushEdgeSoftness(x)      (UI_PushRectStyle()->edge_softness = x)
 #define UI_PopEdgeSoftness()        (UI_PopRectStyle())
 
-// hampus: Helper internals
+// Helper internals
 
 #define UI_IsHot(box)       (UI_KeyMatch(box->key, ui_state->hot_key))
 #define UI_IsActive(box)    (UI_KeyMatch(box->key, ui_state->active_key))

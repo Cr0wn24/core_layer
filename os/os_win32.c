@@ -7,13 +7,13 @@ global OS_State os_state;
 
 internal void *OS_AllocMem(size_t size);
 
-internal void 
+internal void
 CoreShutdown(OS_Window *window)
 {
 	OS_DestroyWindow(window);
 }
 
-internal void 
+internal void
 OS_Init()
 {
 	srand((U32)time(0));
@@ -45,7 +45,7 @@ OS_Init()
 	os_state.initialized = true;
 }
 
-internal LRESULT CALLBACK 
+internal LRESULT CALLBACK
 OS_WindowProc(HWND window, UINT message, WPARAM wparam, LPARAM lparam)
 {
 	LRESULT result = 0;
@@ -104,7 +104,7 @@ OS_CreateWindow(String8 title, S32 x, S32 y, S32 width, S32 height, B32 show_win
 	String8 class_name = Str8Lit("OSWindowClassName");
 	window->class_name = class_name;
 
-	WNDCLASSEXA window_class = {0};
+	WNDCLASSEXA window_class = { 0 };
 
 	window_class.cbSize = sizeof(window_class);
 	window_class.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
@@ -128,10 +128,10 @@ OS_CreateWindow(String8 title, S32 x, S32 y, S32 width, S32 height, B32 show_win
 	// TODO(hampus): Make so that this actually 
 	// uses the width and height parameters
 	window->handle = CreateWindowExA(0, window_class.lpszClassName, (LPCSTR)title.str,
-																	 create_window_flags,
-																	 CW_USEDEFAULT, CW_USEDEFAULT,
-																	 CW_USEDEFAULT, CW_USEDEFAULT,
-																	 0, 0, instance, 0);
+	                                 create_window_flags,
+	                                 CW_USEDEFAULT, CW_USEDEFAULT,
+	                                 CW_USEDEFAULT, CW_USEDEFAULT,
+	                                 0, 0, instance, 0);
 
 	window->device_context = GetDC(window->handle);
 
@@ -155,21 +155,21 @@ OS_DestroyWindow(OS_Window *window)
 internal void
 OS_ToggleFullscreen(OS_Window *window)
 {
-	local_persist WINDOWPLACEMENT g_wpPrev = {sizeof(g_wpPrev)};
+	local_persist WINDOWPLACEMENT g_wpPrev = { sizeof(g_wpPrev) };
 	DWORD WindowStyle = GetWindowLong(window->handle, GWL_STYLE);
 	if (WindowStyle & WS_OVERLAPPEDWINDOW)
 	{
-		MONITORINFO MonitorInfo = {sizeof(MonitorInfo)};
+		MONITORINFO MonitorInfo = { sizeof(MonitorInfo) };
 		if (GetWindowPlacement(window->handle, &g_wpPrev) &&
-				GetMonitorInfo(MonitorFromWindow(window->handle, MONITOR_DEFAULTTOPRIMARY), &MonitorInfo))
+		    GetMonitorInfo(MonitorFromWindow(window->handle, MONITOR_DEFAULTTOPRIMARY), &MonitorInfo))
 		{
 			SetWindowLong(window->handle, GWL_STYLE, WindowStyle & ~WS_OVERLAPPEDWINDOW);
 
 			SetWindowPos(window->handle, HWND_TOP,
-									 MonitorInfo.rcMonitor.left, MonitorInfo.rcMonitor.top,
-									 MonitorInfo.rcMonitor.right - MonitorInfo.rcMonitor.left,
-									 MonitorInfo.rcMonitor.bottom - MonitorInfo.rcMonitor.top,
-									 SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+			             MonitorInfo.rcMonitor.left, MonitorInfo.rcMonitor.top,
+			             MonitorInfo.rcMonitor.right - MonitorInfo.rcMonitor.left,
+			             MonitorInfo.rcMonitor.bottom - MonitorInfo.rcMonitor.top,
+			             SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
 		}
 	}
 	else
@@ -177,8 +177,8 @@ OS_ToggleFullscreen(OS_Window *window)
 		SetWindowLong(window->handle, GWL_STYLE, WindowStyle | WS_OVERLAPPEDWINDOW);
 		SetWindowPlacement(window->handle, &g_wpPrev);
 		SetWindowPos(window->handle, NULL, 0, 0, 0, 0,
-								 SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER |
-								 SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+		             SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER |
+		             SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
 	}
 }
 
@@ -215,7 +215,7 @@ OS_GatherEventsFromWindow(MemoryArena *arena)
 	MSG message;
 	while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE))
 	{
-		OS_Event event = {0};
+		OS_Event event = { 0 };
 
 		B32 interesting_message = true;
 
@@ -397,7 +397,7 @@ internal S32 OS_GetScroll()
 
 internal OS_ReadFileResult OS_ReadEntireFile(String8 path)
 {
-	OS_ReadFileResult result = {0};
+	OS_ReadFileResult result = { 0 };
 
 	HANDLE file = CreateFileA((char *)path.str, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
@@ -439,13 +439,13 @@ internal OS_ReadFileResult OS_ReadEntireFile(String8 path)
 
 internal F64 OS_SecondsSinceAppStart()
 {
-	LARGE_INTEGER counter = {0};
+	LARGE_INTEGER counter = { 0 };
 	QueryPerformanceCounter(&counter);
 	return((F64)counter.QuadPart - (F64)os_state.start_counter.QuadPart) / os_state.freq;
 }
 
 internal void *
-OS_AllocMem(size_t size)
+	OS_AllocMem(size_t size)
 {
 	void *result = 0;
 
@@ -454,8 +454,8 @@ OS_AllocMem(size_t size)
 	return result;
 }
 
-internal void 
-OS_FreeMemory(void *memory)
+internal void
+	OS_FreeMemory(void *memory)
 {
 	if (memory)
 	{
@@ -464,24 +464,24 @@ OS_FreeMemory(void *memory)
 }
 
 internal OS_Library
-OS_LoadLibrary(String8 library_name)
+	OS_LoadLibrary(String8 library_name)
 {
-	OS_Library result = {0};
+	OS_Library result = { 0 };
 
 	result.handle = LoadLibraryA((LPCSTR)library_name.str);
 
 	return(result);
 }
 
-internal void 
-OS_FreeLibrary(OS_Library *library)
+internal void
+	OS_FreeLibrary(OS_Library *library)
 {
 	FreeLibrary(library->handle);
 	library->handle = 0;
 }
 
 internal void *
-OS_LoadFunction(OS_Library library, String8 function_name)
+	OS_LoadFunction(OS_Library library, String8 function_name)
 {
 	void *result = 0;
 	result = GetProcAddress((HMODULE)library.handle, (LPCSTR)function_name.str);
@@ -492,21 +492,21 @@ OS_LoadFunction(OS_Library library, String8 function_name)
 internal B32 SameTime(Time *a, Time *b)
 {
 	return(a->year == b->year &&
-				 a->month == b->month &&
-				 a->day == b->day &&
-				 a->hour == b->hour &&
-				 a->minute == b->minute &&
-				 a->second == b->second);
+		a->month == b->month &&
+		a->day == b->day &&
+		a->hour == b->hour &&
+		a->minute == b->minute &&
+		a->second == b->second);
 }
 
-internal void 
-OS_CopyFile(String8 dst, String8 src)
+internal void
+	OS_CopyFile(String8 dst, String8 src)
 {
 	CopyFileA((LPCSTR)src.str, (LPCSTR)dst.str, FALSE);
 }
 
-internal Time 
-OS_SystemTimeToTime(SYSTEMTIME *time)
+internal Time
+	OS_SystemTimeToTime(SYSTEMTIME *time)
 {
 	Time result;
 
@@ -522,12 +522,12 @@ OS_SystemTimeToTime(SYSTEMTIME *time)
 	return(result);
 }
 
-internal Time 
-OS_GetLastWriteTime(String8 file_name)
+internal Time
+	OS_GetLastWriteTime(String8 file_name)
 {
-	Time result = {0};
+	Time result = { 0 };
 
-	WIN32_FILE_ATTRIBUTE_DATA data = {0};
+	WIN32_FILE_ATTRIBUTE_DATA data = { 0 };
 	if (GetFileAttributesExA((LPCSTR)file_name.str, GetFileExInfoStandard, &data))
 	{
 		FILETIME last_write_time = data.ftLastWriteTime;
@@ -545,14 +545,14 @@ OS_GetLastWriteTime(String8 file_name)
 	return(result);
 }
 
-internal void 
-OS_Sleep(U32 milliseconds)
+internal void
+	OS_Sleep(U32 milliseconds)
 {
 	Sleep(milliseconds);
 }
 
 internal Time
-OS_GetLocalTime()
+	OS_GetLocalTime()
 {
 	Time result;
 	SYSTEMTIME time;
@@ -562,7 +562,7 @@ OS_GetLocalTime()
 }
 
 internal Vec2F32
-OS_GetMousePos(OS_Window *window)
+	OS_GetMousePos(OS_Window *window)
 {
 	POINT point;
 	GetCursorPos(&point);
@@ -574,13 +574,13 @@ OS_GetMousePos(OS_Window *window)
 }
 
 internal void
-OS_SetHoverCursor(OS_Cursor type)
+	OS_SetHoverCursor(OS_Cursor type)
 {
 	SetCursor(os_state.cursors[type]);
 }
 
 internal B32
-OS_TimeGreaterThanTime(Time *a, Time *b)
+	OS_TimeGreaterThanTime(Time *a, Time *b)
 {
 	B32 result = false;
 

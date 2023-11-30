@@ -107,6 +107,7 @@ typedef enum Batch2DInstKind
 
 typedef struct Batch2D
 {
+	// TODO(hampus): Refactor: Make this dynamic
 	U8 data[4096 * sizeof(Rect)];
 	U32 inst_count;
 	R_Texture tex;
@@ -178,12 +179,12 @@ typedef struct R_State
 	GPULoadTextureProc *GPULoadTexture;
 
 	struct R_FontSizeCollection *fonts[128];
-
+		
 	Vec2S32 render_dim;
 } R_State;
 
 #define R_PushRect(min, max, ...) R_PushRect_(min, max, (R_RectParams){.texture = r_state->white_texture, .color = V4(1.0f, 1.0f, 1.0f, 1.0f), __VA_ARGS__})
-#define R_PushRectGradient(min, max, c0, c1, ...) R_PushRect_(min, max, (R_RectParams){.gradient = true, .texture = r_state->white_texture, .colors[0] = c0, .colors[1] = c1, __VA_ARGS__})
+#define R_PushRectGradient(min, max, c0, c1, ...) R_PushRect_(min, max, (R_RectParams){.texture = r_state->white_texture, .gradient = true, .colors[0] = c0, .colors[1] = c1, __VA_ARGS__})
 #define R_PushCircle(min, r, ...) R_PushCircle_(min, r, (R_RectParams){.texture = r_state->white_texture, .color = V4(1.0f, 1.0f, 1.0f, 1.0f), __VA_ARGS__})
 
 #endif

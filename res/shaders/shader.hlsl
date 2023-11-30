@@ -139,7 +139,7 @@ ps_out ps(PS_INPUT input)
 	}
 	else
 	{
-		float gamma = 1.43;
+		float gamma = 2.2;
 		float inv_gamma = 1.0 / gamma;
 
 		tex_sample = pow(abs(tex_sample), inv_gamma);

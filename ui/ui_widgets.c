@@ -350,7 +350,17 @@ UI_CUSTOM_DRAW_FUNCTION(UI_SliderF32CustomDraw)
 
 		Vec2F32 min = root->calc_rect.min;
 		Vec2F32 max = root->calc_rect.max;
-		
+
+		// TODO(hampus): Look more into this!
+		if (UI_BoxHasFlag(root, UI_BoxFlag_DrawBorder))
+		{
+			min.y += 1;
+			min.x += 1;
+
+			max.x -= 1;
+			max.y -= 1;
+		}
+
 		F32 width = max.x - min.x;
 
 		max.x = min.x + (F32)(drag_data->val - drag_data->min) / (F32)(drag_data->max - drag_data->min) * width;
@@ -362,7 +372,9 @@ UI_CUSTOM_DRAW_FUNCTION(UI_SliderF32CustomDraw)
 
 	if (root->flags & UI_BoxFlag_DrawBorder)
 	{
-		if (UI_IsFocused(root) && !UI_KeyIsNull(ui_state->focus_key) && UI_BoxHasFlag(root, UI_BoxFlag_FocusAnimation))
+		if (UI_IsFocused(root) && 
+		    !UI_KeyIsNull(ui_state->focus_key) && 
+		    UI_BoxHasFlag(root, UI_BoxFlag_FocusAnimation))
 		{
 			// TODO(hampus): Fix this. 
 			F32 t = 0;
@@ -390,8 +402,7 @@ UI_SliderF32(F32 *val, F32 min, F32 max, String8 string)
 
 	UI_DefaultSize(UI_Em(6), UI_Em(1.0f));
 
-	UI_Box *slider_back = UI_BoxMake(UI_BoxFlag_DrawBackground |
-	                                 UI_BoxFlag_DrawBorder,
+	UI_Box *slider_back = UI_BoxMake(UI_BoxFlag_DrawBackground,
 	                                 Str8Lit("SliderBack"));
 	UI_Comm comm = {0};
 	UI_Parent(slider_back)
@@ -402,8 +413,8 @@ UI_SliderF32(F32 *val, F32 min, F32 max, String8 string)
 		UI_NextHotColor(V4(0.0f, 0.5f, 0.6f, 1.0f));
 		UI_NextActiveColor(V4(0.0f, 0.6f, 0.7f, 1.0f));
 		UI_Box *dragger = UI_BoxMake(UI_BoxFlag_DrawBackground |
-		                             UI_BoxFlag_DrawBorder |
 		                             UI_BoxFlag_HotAnimation |
+		                             UI_BoxFlag_DrawBorder |
 		                             UI_BoxFlag_ActiveAnimation |
 		                             UI_BoxFlag_Clickable,
 		                             Str8Lit("SliderDragger"));
@@ -465,7 +476,7 @@ UI_SliderS32(S32 *val, S32 min, S32 max, String8 string)
 		comm = UI_CommFromBox(dragger);
 		if (comm.dragging)
 		{
-			F32 val_pct = (comm.drag_delta.x) / slider_back->calc_size[Axis2_X];
+			F32 val_pct = (comm.drag_delta.x) / dragger->calc_size[Axis2_X];
 
 			*val += (S32)(val_pct * (max - min));
 		}
@@ -486,7 +497,7 @@ UI_SliderS32(S32 *val, S32 min, S32 max, String8 string)
 		                                   UI_BoxFlag_FixedY,
 		                                   Str8Lit(""));
 
-		UI_EquipBoxWithDisplayString(value_display, PushStr8F(UI_FrameArena(), "%.02f", *val));
+		UI_EquipBoxWithDisplayString(value_display, PushStr8F(UI_FrameArena(), "%d", *val));
 
 	}
 
@@ -498,9 +509,11 @@ UI_SliderS32(S32 *val, S32 min, S32 max, String8 string)
 internal void
 UI_Divider()
 {
+	UI_NextBackgroundColor(ui_state->theme.text_color);
 	UI_NextSize(UI_TopParent()->child_layout_axis, UI_Pixels(1));
 	UI_NextSize(Flip(UI_TopParent()->child_layout_axis), UI_Fill());
-	UI_NextBackgroundColor(ui_state->theme.text_color);
+	UI_NextCornerRadius4(0);
+	UI_NextTextEdgeSoftness(0);
 	UI_BoxMake(UI_BoxFlag_DrawBackground, Str8Lit(""));
 }
 
