@@ -20,8 +20,6 @@ R_FontAtlasRegionAlloc(MemoryArena *arena, R_FontAtlas *atlas, Vec2S32 dim)
 {
 	Assert(arena);
 	Assert(atlas);
-	Assert(dim.x > 0);
-	Assert(dim.y > 0);
 
 	R_FreeFontAtlasRegion *free_region = atlas->first_free_region;
 

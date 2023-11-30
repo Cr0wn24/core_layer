@@ -939,8 +939,6 @@ UI_SolveIndependentSizes(UI_Box *root)
 		{
 			root->target_size[Axis2_X] = (text_dim.x + root->text_style.text_edge_padding[Axis2_X]);
 		} break;
-
-		InvalidCase;
 	}
 
 	switch (root->semantic_size[Axis2_Y].kind)
@@ -960,8 +958,6 @@ UI_SolveIndependentSizes(UI_Box *root)
 		{
 			root->target_size[Axis2_Y] = (text_dim.y + root->text_style.text_edge_padding[Axis2_Y]);
 		} break;
-
-		InvalidCase;
 	}
 
 	for (UI_Box *child = root->first;
