@@ -1498,6 +1498,8 @@ UI_End()
 	ui_state->frame++;
 }
 
+#ifndef UI_NO_INIT
+
 internal UI_State *
 UI_Init(R_FontKey font_key, OS_Window *window)
 {
@@ -1506,7 +1508,7 @@ UI_Init(R_FontKey font_key, OS_Window *window)
 
 	MemoryArena permanent_arena;
 	ArenaInit(&permanent_arena, OS_AllocMem(ui_permanent_storage_size), ui_permanent_storage_size);
-	
+
 	MemoryArena frame_arena;
 	ArenaInit(&frame_arena, OS_AllocMem(ui_frame_storage_size), ui_frame_storage_size);
 
@@ -1537,7 +1539,7 @@ UI_Init(R_FontKey font_key, OS_Window *window)
 
 	return(result);
 }
-
+#endif
 internal UI_Box *
 UI_GetBox(String8 string)
 {

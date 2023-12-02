@@ -17,6 +17,8 @@ global R_State *r_state;
 R_Handle D3D11_LoadTexture(void *data, S32 width, S32 height);
 internal void D3D11_Init(OS_Window *window);
 
+#ifndef R_NO_INIT
+
 internal R_State *
 R_Init(OS_Window *window)
 {
@@ -38,9 +40,11 @@ R_Init(OS_Window *window)
 #endif
 
 	D3D11_Init(window);
-	
+
 	return(result);
 }
+
+#endif
 
 internal R_Texture
 R_LoadTexture(String8 path)

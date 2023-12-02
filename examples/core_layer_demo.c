@@ -236,6 +236,7 @@ UITest()
 internal S32
 EntryPoint(String8List args)
 {
+
 	MemoryArena permanent_arena;
 	ArenaInit(&permanent_arena, OS_AllocMem(MEGABYTES(128)), MEGABYTES(128));
 
