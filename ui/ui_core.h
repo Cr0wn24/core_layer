@@ -302,7 +302,7 @@ typedef struct UI_State
 
 	OS_EventList *os_event_list;
 
-	B32 inside_popup;
+	B32 popup_active;
 	B32 building_popup;
 
 	F64 dt;

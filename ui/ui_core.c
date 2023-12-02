@@ -413,7 +413,7 @@ UI_CommFromBox(UI_Box *box)
 
 	B32 capture_input = false;
 
-	if (ui_state->inside_popup)
+	if (ui_state->popup_active)
 	{
 		if (ui_state->building_popup)
 		{
@@ -718,10 +718,10 @@ internal void
 UI_BeginPopup()
 {
 	UI_PushParent(ui_state->popup_root);
-	Assert(ui_state->building_popup == false);
-	ui_state->building_popup = true;
 
 	R_PushClipRect(ui_state->root->calc_rect);
+
+	ui_state->building_popup = true;
 }
 
 internal void 
@@ -729,8 +729,23 @@ UI_EndPopup()
 {
 	R_PopClipRect();
 	UI_PopParent();
-	Assert(ui_state->building_popup == true);
+
 	ui_state->building_popup = false;
+}
+
+internal void
+UI_BeginTooltip()
+{
+	UI_PushParent(ui_state->tooltip_root);
+
+	R_PushClipRect(ui_state->root->calc_rect);
+}
+
+internal void 
+UI_EndTooltip()
+{
+	R_PopClipRect();
+	UI_PopParent();
 }
 
 internal void 
@@ -775,10 +790,10 @@ UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 		event_node = event_node->next;
 	}
 
-	ui_state->inside_popup = false;
-
 	if (ui_state->popup_root)
 	{
+		ui_state->popup_active = ui_state->popup_root->first != 0;
+#if 0
 		UI_Box *first_popup_child = ui_state->popup_root->first;
 		while (first_popup_child)
 		{
@@ -789,8 +804,10 @@ UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 			}
 			first_popup_child = first_popup_child->next;
 		}
+#endif
 	}
 
+	B32 found_active = false;
 	for (U32 i = 0; i < ui_state->box_hash_map_count; ++i)
 	{
 		UI_Box *box = ui_state->box_hash_map[i];
@@ -805,10 +822,11 @@ UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 					{
 						ui_state->active_key.key = 0;
 					}
+					found_active = true;
 				}
 				if (UI_KeyMatch(ui_state->focus_key, box->key))
 				{
-					if (left_mouse_pressed)
+					if (left_mouse_released)
 					{
 						ui_state->focus_key.key = 0;
 					}
@@ -844,6 +862,13 @@ UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 			box = next;
 		}
 	}
+
+	if (found_active && !UI_KeyIsNull(ui_state->active_key))
+	{
+		ui_state->active_key.key = 0;
+		ui_state->focus_key.key = 0;
+	}
+
 
 	if (!UI_KeyIsNull(ui_state->hot_key))
 	{
