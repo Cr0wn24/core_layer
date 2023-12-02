@@ -245,6 +245,8 @@ EntryPoint(String8List args)
 
 	D3D11_Init(window);
 
+	ArenaInit(&r_state->permanent_arena, OS_AllocMem(MEGABYTES(128)), MEGABYTES(128));
+
 	R_FontAtlas *tile_atlas = R_FontAtlasMake(&permanent_arena, V2S(1024, 1024));
 	{
 		R_LoadedBitmap loaded_bitmaps[16] = { 0 };
@@ -286,7 +288,6 @@ EntryPoint(String8List args)
 	UI_SelectState(state);
 
 	r_state->font_atlas = font_atlas;
-	r_state->permanent_arena = &permanent_arena;
 
 	F64 dt = 0;
 	F64 start_counter = OS_SecondsSinceAppStart();

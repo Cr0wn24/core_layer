@@ -379,7 +379,7 @@ R_GetFontFromKey(R_FontKey font_key, S32 height)
 	R_FontSizeCollection *font_collection = 0;
 	if (!r_state->fonts[slot_index])
 	{
-		r_state->fonts[slot_index] = PushStruct(r_state->permanent_arena, R_FontSizeCollection);
+		r_state->fonts[slot_index] = PushStruct(&r_state->permanent_arena, R_FontSizeCollection);
 		r_state->fonts[slot_index]->key = font_key;
 	}
 
@@ -392,8 +392,8 @@ R_GetFontFromKey(R_FontKey font_key, S32 height)
 
 	if(!font_collection->fonts[height])
 	{
-		font_collection->fonts[height] = PushStruct(r_state->permanent_arena, R_Font);
-		R_LoadFont(r_state->permanent_arena, 
+		font_collection->fonts[height] = PushStruct(&r_state->permanent_arena, R_Font);
+		R_LoadFont(&r_state->permanent_arena, 
 		           font_collection->fonts[height], 
 		           r_state->font_atlas, 
 		           font_key.font, 

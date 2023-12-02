@@ -167,7 +167,9 @@ typedef struct R_LoadedBitmap
 typedef struct R_State
 {
 	MemoryArena *arena;
-	MemoryArena *permanent_arena;
+
+	MemoryArena permanent_arena;
+
 	RenderData render_data;
 
 	R_Texture white_texture;
