@@ -439,7 +439,6 @@ UI_CommFromBox(UI_Box *box)
 
 	if (capture_input)
 	{
-		result.scroll = -OS_GetScroll();
 		result.hovering = true;
 		ui_state->hot_key = box->key;
 		for (OS_EventNode *node = event_list->first;
@@ -471,6 +470,13 @@ UI_CommFromBox(UI_Box *box)
 
 						DLL_Remove(event_list->first, event_list->last, node);
 					}
+				} break;
+
+				case OS_EventType_Scroll:
+				{
+					// TODO(hampus): UI_BoxFlag_ViewScroll should only consume this?
+					result.scroll = -event.scroll;
+					DLL_Remove(event_list->first, event_list->last, node);
 				} break;
 			}
 		}

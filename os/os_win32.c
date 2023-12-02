@@ -64,13 +64,7 @@ OS_WindowProc(HWND window, UINT message, WPARAM wparam, LPARAM lparam)
 		case WM_SETCURSOR:
 		{
 		} break;
-
-		case WM_CHAR:
-		{
-			char key = (char)wparam;
-			os_state.last_char = key;
-		} break;
-
+		
 		case WM_SIZE:
 		{
 			S32 width, height;
@@ -206,11 +200,7 @@ OS_EatEvent(OS_EventList *event_list, OS_EventNode *node)
 internal OS_EventList *
 OS_GatherEventsFromWindow(MemoryArena *arena)
 {
-	os_state.last_char = 0;
-
 	OS_EventList *event_list = PushStruct(arena, OS_EventList);
-
-	os_state.scroll = 0;
 
 	MSG message;
 	while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE))
@@ -229,6 +219,12 @@ OS_GatherEventsFromWindow(MemoryArena *arena)
 			case WM_SIZE:
 			{
 				event.type = OS_EventType_Resize;
+			} break;
+
+			case WM_CHAR:
+			{
+				event.type = OS_EventType_Character;
+				event.character = (char)message.wParam; 
 			} break;
 
 			case WM_LBUTTONUP:
@@ -269,7 +265,8 @@ OS_GatherEventsFromWindow(MemoryArena *arena)
 
 			case WM_MOUSEWHEEL:
 			{
-				os_state.scroll = GET_WHEEL_DELTA_WPARAM(message.wParam) / WHEEL_DELTA;
+				event.type = OS_EventType_Scroll;
+				event.scroll = GET_WHEEL_DELTA_WPARAM(message.wParam) / WHEEL_DELTA;
 			} break;
 
 			case WM_KEYUP:
@@ -385,16 +382,6 @@ internal void OS_SwapBuffers(OS_Window *window)
 	SwapBuffers(window->device_context);
 }
 
-internal char OS_GetLastChar()
-{
-	return os_state.last_char;
-}
-
-internal S32 OS_GetScroll()
-{
-	return os_state.scroll;
-}
-
 internal OS_ReadFileResult OS_ReadEntireFile(String8 path)
 {
 	OS_ReadFileResult result = { 0 };
@@ -500,7 +487,7 @@ internal B32 SameTime(Time *a, Time *b)
 }
 
 internal void
-	OS_CopyFile(String8 dst, String8 src)
+OS_CopyFile(String8 dst, String8 src)
 {
 	CopyFileA((LPCSTR)src.str, (LPCSTR)dst.str, FALSE);
 }
