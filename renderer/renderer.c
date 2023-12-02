@@ -224,7 +224,7 @@ R_LoadGlyph(MemoryArena *arena, R_FontAtlas *atlas, U32 glyph_index, FT_Face fac
 	glyph_bitmap.dim.width = width;
 	glyph_bitmap.dim.height = height;
 
-	U8 *new_teture_data = PushArray(arena, glyph_bitmap.dim.width * glyph_bitmap.dim.height * 4, U8);
+	U8 *new_teture_data = PushArrayNoZero(arena, glyph_bitmap.dim.width * glyph_bitmap.dim.height * 4, U8);
 	U8 *src = glyph_bitmap.data;
 	U8 *dst = new_teture_data;
 

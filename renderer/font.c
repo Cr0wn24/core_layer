@@ -3,12 +3,12 @@ R_FontAtlasMake(MemoryArena *arena, Vec2S32 dim)
 {
 	R_FontAtlas *atlas = PushStruct(arena, R_FontAtlas);
 	atlas->dim = dim;
-	atlas->data = PushArray(arena, dim.width * dim.height * 4, U8);
+	atlas->data = PushArrayNoZero(arena, dim.width * dim.height * 4, U8);
 	atlas->texture.dim = dim;
 	atlas->texture.src_p0 = V2(0, 0);
 	atlas->texture.src_p1 = V2(1, 1);
 	atlas->texture.handle = r_state->GPULoadTexture(atlas->data, atlas->dim.width, atlas->dim.height);
-	R_FreeFontAtlasRegion *first = PushStruct(arena, R_FreeFontAtlasRegion);
+	R_FreeFontAtlasRegion *first = PushStructNoZero(arena, R_FreeFontAtlasRegion);
 	first->region.rect = R_MakeRectS32(0, 0, dim.x, dim.y);
 	DLL_PushBack(atlas->first_free_region, atlas->last_free_region, first);
 
@@ -58,7 +58,7 @@ R_FontAtlasRegionAlloc(MemoryArena *arena, R_FontAtlas *atlas, Vec2S32 dim)
 
 	while (can_halve_size)
 	{
-		R_FreeFontAtlasRegion *free_regions = PushArray(arena, 4, R_FreeFontAtlasRegion);
+		R_FreeFontAtlasRegion *free_regions = PushArrayNoZero(arena, 4, R_FreeFontAtlasRegion);
 
 		free_regions[0].region.rect = R_MakeRectS32(result.rect.x0, 
 		                                            result.rect.y0, 

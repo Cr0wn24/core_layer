@@ -59,8 +59,8 @@ typedef S32 B32;
 #define GIGABYTES(n) (1024LL*MEGABYTES(n))
 #define TERABYTES(n) (1024LL*GIGABYTES(n))
 
-#define CheckNull(x) (x == 0)
-#define SetNull(x) (x = 0)
+#define CheckNull(x) ((x) == 0)
+#define SetNull(x) ((x) = 0)
 
 #define DLL_PushBack_NP(f,l,n,next,prev) 	((f)==0?\
 ((f)=(l)=(n),(n)->next=(n)->prev=0):\
