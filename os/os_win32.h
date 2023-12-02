@@ -17,6 +17,8 @@ typedef enum OS_EventType
 	OS_EventType_Resize,
 	OS_EventType_KeyPress,
 	OS_EventType_KeyRelease,
+	OS_EventType_Character,
+	OS_EventType_Scroll,
 
 	OS_EventType_COUNT,
 } OS_EventType;
@@ -90,12 +92,8 @@ typedef enum OS_Cursor
 
 typedef struct OS_State
 {
-	char last_char;
-
 	LARGE_INTEGER start_counter;
 	F64 freq;
-
-	S32 scroll;
 
 	HCURSOR cursors[OS_Cursor_COUNT];
 
@@ -112,8 +110,16 @@ typedef struct OS_Window
 typedef struct OS_Event
 {
 	OS_EventType type;
+	
+	// OS_EventType_Scroll
+	S32 scroll;
 
+	// OS_EventType_KeyPress
+	// OS_EventType_KeyRelease
 	OS_Key key;
+
+	// OS_EventType_Character
+	char character;
 } OS_Event;
 
 typedef struct OS_EventNode

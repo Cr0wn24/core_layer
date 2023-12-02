@@ -646,7 +646,22 @@ UI_TextInput(char *buffer, size_t buffer_size, String8 string)
 
 		if (focused)
 		{
-			char ch = OS_GetLastChar();
+			char ch = 0;
+			for (OS_EventNode *node = ui_state->os_event_list->first;
+				node != 0;
+				node = node->next)
+			{
+				OS_Event event = node->event;
+				switch (event.type)
+				{
+					case OS_EventType_Character:
+					{
+						ch = event.character;
+						
+						DLL_Remove(ui_state->os_event_list->first, ui_state->os_event_list->last, node);
+					} break;
+				}
+			}
 
 			if (ch == 8)
 			{
