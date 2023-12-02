@@ -243,9 +243,15 @@ EntryPoint(String8List args)
 
 	OS_Window *window = OS_CreateWindow(Str8Lit("Test"), 0, 0, 800, 800, true);
 
-	D3D11_Init(window);
+	R_State *renderer = R_Init(window);
+	R_SelectState(renderer);
 
-	ArenaInit(&r_state->permanent_arena, OS_AllocMem(MEGABYTES(128)), MEGABYTES(128));
+	R_FontAtlas *font_atlas = R_FontAtlasMake(&permanent_arena, V2S(2048, 2048));
+	r_state->font_atlas = font_atlas;
+
+	UI_State *state = UI_Init(R_FontKeyFromString(CORE_RESOURCE("font/Inter-Regular.ttf")),
+	                          window);
+	UI_SelectState(state);
 
 	R_FontAtlas *tile_atlas = R_FontAtlasMake(&permanent_arena, V2S(1024, 1024));
 	{
@@ -278,16 +284,6 @@ EntryPoint(String8List args)
 			stbi_image_free(loaded_bitmaps[i].data);
 		}
 	}
-
-	R_FontAtlas *font_atlas = R_FontAtlasMake(&permanent_arena, V2S(2048, 2048));
-
-	UI_State *state = UI_Init(&permanent_arena,
-	                          R_FontKeyFromString(CORE_RESOURCE("font/Inter-Regular.ttf")),
-	                          window);
-
-	UI_SelectState(state);
-
-	r_state->font_atlas = font_atlas;
 
 	F64 dt = 0;
 	F64 start_counter = OS_SecondsSinceAppStart();

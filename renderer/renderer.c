@@ -14,15 +14,32 @@
 
 global R_State *r_state;
 
-internal void
-R_Init()
+R_Handle D3D11_LoadTexture(void *data, S32 width, S32 height);
+internal void D3D11_Init(OS_Window *window);
+
+internal R_State *
+R_Init(OS_Window *window)
 {
+	size_t renderer_permanent_storage_size = MEGABYTES(128);
+
+	MemoryArena permanent_arena;
+	ArenaInit(&permanent_arena, OS_AllocMem(renderer_permanent_storage_size), renderer_permanent_storage_size);
+
+	R_State *result = PushStructNoZero(&permanent_arena, R_State);
+
+	result->permanent_arena = permanent_arena;
+
+	result->GPULoadTexture = D3D11_LoadTexture;
 #if 0
 	U32 white = 0xffffffff;
 	r_state->white_texture.handle = D3D11_LoadTexture(&white, 1, 1);
 	r_state->white_texture.dim.height = 1;
 	r_state->white_texture.dim.width = 1;
 #endif
+
+	D3D11_Init(window);
+	
+	return(result);
 }
 
 internal R_Texture
