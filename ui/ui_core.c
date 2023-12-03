@@ -209,14 +209,13 @@ UI_PushStringF(String8 string)
 	if (triple_pound_pos >= 0)
 	{
 		String8 new_string = {0};
-		new_string.size = string.size - (triple_pound_pos + 2);
+		new_string.size = string.size - (triple_pound_pos);
 		new_string.str = string.str + triple_pound_pos;
 		UI_PushString(new_string);
 	}
 	else
 	{
 		UI_PushString(string);
-
 	}
 }
 
@@ -853,7 +852,7 @@ UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 
 				if (UI_KeyMatch(ui_state->focus_key, box->key))
 				{
-					if (left_mouse_released)
+					if (left_mouse_pressed)
 					{
 						ui_state->focus_key.key = 0;
 					}

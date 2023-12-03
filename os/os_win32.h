@@ -87,6 +87,7 @@ typedef enum OS_Cursor
 	OS_Cursor_ResizeX,
 	OS_Cursor_ResizeXY,
 	OS_Cursor_Pan,
+	OS_Cursor_Beam,
 
 	OS_Cursor_COUNT,
 } OS_Cursor;

@@ -272,8 +272,6 @@ UI_BeginTree(String8 string)
 			UI_NextSize2(UI_Pixels(1), UI_Fill());
 			UI_NextBackgroundColor(V4(0.9f, 0.9f, 0.9f, 1.0f));
 			UI_BoxMake(UI_BoxFlag_DrawBackground |
-			           UI_BoxFlag_AnimateHeight |
-			           UI_BoxFlag_AnimateStart |
 			           UI_BoxFlag_SaveState,
 			           Str8Lit("Indent guide"));
 		}
@@ -283,7 +281,6 @@ UI_BeginTree(String8 string)
 	UI_Spacer(indentation);
 
 	UI_NextSize2(UI_SumOfChildren(), UI_SumOfChildren());
-	UI_NextBoxFlags(UI_BoxFlag_AnimateHeight | UI_BoxFlag_AnimateWidth);
 	UI_BeginNamedColumn(Str8Lit("TreeColumn"));
 
 	if (!(should_show))
@@ -621,6 +618,8 @@ UI_ColorPicker(Vec4F32 *color, String8 string)
 internal UI_Comm
 UI_TextInput(char *buffer, size_t buffer_size, String8 string)
 {
+	RectF32 parent_rect = r_state->clip_rect_stack.first->rect;
+
 	UI_PushString(string);
 	UI_DefaultSize(UI_SumOfChildren(), UI_Em(1));
 	UI_Box *container = UI_BoxMake(0, Str8Lit(""));
@@ -628,6 +627,7 @@ UI_TextInput(char *buffer, size_t buffer_size, String8 string)
 	UI_Parent(container)
 	{
 		UI_NextSize2(UI_Fill(), UI_Pct(1));
+		UI_NextHoverCursor(OS_Cursor_Beam);
 		UI_Box *input_box = UI_BoxMake(UI_BoxFlag_DrawBackground |
 		                               UI_BoxFlag_DrawText |
 		                               UI_BoxFlag_DrawBorder |
@@ -637,7 +637,7 @@ UI_TextInput(char *buffer, size_t buffer_size, String8 string)
 		                               UI_BoxFlag_Clickable, Str8Lit("InputBox"));
 		input_box_comm = UI_CommFromBox(input_box);
 
-		R_PushClipRect(input_box->calc_rect);
+		R_PushClipRect(R_IntersectRectF32(parent_rect, input_box->calc_rect));
 
 		U64 string_length = CStringLength(buffer);
 
@@ -1058,7 +1058,7 @@ internal void
 UI_PushScrollableContainer(String8 string)
 {
 	UI_PushString(string);
-	UI_Box *parent = UI_BoxMake(UI_BoxFlag_Clip | UI_BoxFlag_DrawBorder, 
+	UI_Box *parent = UI_BoxMake(UI_BoxFlag_Clip, 
 	                            Str8Lit("ScrollableContainerParent"));
 
 	UI_Comm comm = UI_CommFromBox(parent);

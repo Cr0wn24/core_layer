@@ -44,6 +44,9 @@ OS_Init()
 	
 	os_state.cursors[OS_Cursor_Pan] = LoadCursorA(0, IDC_SIZEALL);
 	Assert(os_state.cursors[OS_Cursor_Pan]);
+	
+	os_state.cursors[OS_Cursor_Beam] = LoadCursorA(0, IDC_IBEAM);
+	Assert(os_state.cursors[OS_Cursor_Beam]);
 
 	os_state.initialized = true;
 }
