@@ -1475,13 +1475,14 @@ UI_Draw(UI_Box *root)
 			}
 		}
 	}
-	
+
 	if (ui_state->show_debug_lines)
 	{
 		R_PushRect(root->calc_rect.min, root->calc_rect.max,
 		           .border_thickness = 1.0f,
 		           .color = V4(1.0f, 0.0f, 1.0f, 1.0f));
 	}
+
 	R_PopClipRect();
 
 	for (UI_Box *child = root->first;
@@ -1490,6 +1491,7 @@ UI_Draw(UI_Box *root)
 	{
 		UI_Draw(child);
 	}
+
 }
 
 internal void 

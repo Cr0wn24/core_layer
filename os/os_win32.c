@@ -41,6 +41,9 @@ OS_Init()
 
 	os_state.cursors[OS_Cursor_ResizeXY] = LoadCursorA(0, IDC_SIZENWSE);
 	Assert(os_state.cursors[OS_Cursor_ResizeXY]);
+	
+	os_state.cursors[OS_Cursor_Pan] = LoadCursorA(0, IDC_SIZEALL);
+	Assert(os_state.cursors[OS_Cursor_Pan]);
 
 	os_state.initialized = true;
 }
@@ -432,7 +435,7 @@ internal F64 OS_SecondsSinceAppStart()
 }
 
 internal void *
-	OS_AllocMem(size_t size)
+OS_AllocMem(size_t size)
 {
 	void *result = 0;
 
@@ -442,7 +445,7 @@ internal void *
 }
 
 internal void
-	OS_FreeMemory(void *memory)
+OS_FreeMemory(void *memory)
 {
 	if (memory)
 	{
@@ -451,7 +454,7 @@ internal void
 }
 
 internal OS_Library
-	OS_LoadLibrary(String8 library_name)
+OS_LoadLibrary(String8 library_name)
 {
 	OS_Library result = { 0 };
 
@@ -461,14 +464,14 @@ internal OS_Library
 }
 
 internal void
-	OS_FreeLibrary(OS_Library *library)
+OS_FreeLibrary(OS_Library *library)
 {
 	FreeLibrary(library->handle);
 	library->handle = 0;
 }
 
 internal void *
-	OS_LoadFunction(OS_Library library, String8 function_name)
+OS_LoadFunction(OS_Library library, String8 function_name)
 {
 	void *result = 0;
 	result = GetProcAddress((HMODULE)library.handle, (LPCSTR)function_name.str);
@@ -493,7 +496,7 @@ OS_CopyFile(String8 dst, String8 src)
 }
 
 internal Time
-	OS_SystemTimeToTime(SYSTEMTIME *time)
+OS_SystemTimeToTime(SYSTEMTIME *time)
 {
 	Time result;
 
@@ -510,7 +513,7 @@ internal Time
 }
 
 internal Time
-	OS_GetLastWriteTime(String8 file_name)
+OS_GetLastWriteTime(String8 file_name)
 {
 	Time result = { 0 };
 
@@ -533,13 +536,13 @@ internal Time
 }
 
 internal void
-	OS_Sleep(U32 milliseconds)
+OS_Sleep(U32 milliseconds)
 {
 	Sleep(milliseconds);
 }
 
 internal Time
-	OS_GetLocalTime()
+OS_GetLocalTime()
 {
 	Time result;
 	SYSTEMTIME time;
@@ -549,7 +552,7 @@ internal Time
 }
 
 internal Vec2F32
-	OS_GetMousePos(OS_Window *window)
+OS_GetMousePos(OS_Window *window)
 {
 	POINT point;
 	GetCursorPos(&point);
@@ -561,13 +564,13 @@ internal Vec2F32
 }
 
 internal void
-	OS_SetHoverCursor(OS_Cursor type)
+OS_SetHoverCursor(OS_Cursor type)
 {
 	SetCursor(os_state.cursors[type]);
 }
 
 internal B32
-	OS_TimeGreaterThanTime(Time *a, Time *b)
+OS_TimeGreaterThanTime(Time *a, Time *b)
 {
 	B32 result = false;
 
