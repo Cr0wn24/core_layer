@@ -807,7 +807,7 @@ UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 #endif
 	}
 
-	B32 found_active = false;
+	B32 found_active_box = false;
 	for (U32 i = 0; i < ui_state->box_hash_map_count; ++i)
 	{
 		UI_Box *box = ui_state->box_hash_map[i];
@@ -821,9 +821,10 @@ UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 					if (left_mouse_released)
 					{
 						ui_state->active_key.key = 0;
+						found_active_box = true;
 					}
-					found_active = true;
 				}
+
 				if (UI_KeyMatch(ui_state->focus_key, box->key))
 				{
 					if (left_mouse_released)
@@ -837,7 +838,6 @@ UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 				if (box->last_frame_touched_index < (ui_state->frame - 1) ||
 				    UI_KeyIsNull(box->key))
 				{
-
 					if (box == ui_state->box_hash_map[i])
 					{
 						ui_state->box_hash_map[i] = box->hash_next;
@@ -863,12 +863,15 @@ UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 		}
 	}
 
-	if (found_active && !UI_KeyIsNull(ui_state->active_key))
+	// NOTE(hampus): If we do a comm.pressed, the box will be active
+	// but may have time to be freed before the mouse is released again.
+	// In that case, the active key will not be found and the active key will
+	// persist. In that case, we just check if the active key still exists in the state,
+	// but the box is freed and we released the left mouse button.
+	if (!found_active_box && !UI_KeyIsNull(ui_state->active_key) && left_mouse_released)
 	{
 		ui_state->active_key.key = 0;
-		ui_state->focus_key.key = 0;
 	}
-
 
 	if (!UI_KeyIsNull(ui_state->hot_key))
 	{
@@ -1567,6 +1570,7 @@ UI_Init(R_FontKey font_key, OS_Window *window)
 	return(result);
 }
 #endif
+
 internal UI_Box *
 UI_GetBox(String8 string)
 {
