@@ -1,7 +1,7 @@
 #ifndef UI_WIDGETS_H
 #define UI_WIDGETS_H
 
-#define UI_ScrollableContainer(s) UI_PushScrollableContainer(s); UI_DeferLoop((void)0, UI_PopScrollableContainer()) 
+#define UI_ScrollableContainer(s, r) UI_PushScrollableContainer(s, r); UI_DeferLoop((void)0, UI_PopScrollableContainer()) 
 
 #define UI_Row() UI_DeferLoop(UI_BeginRow(), UI_EndRow())
 #define UI_Column() UI_DeferLoop(UI_BeginColumn(), UI_EndColumn())

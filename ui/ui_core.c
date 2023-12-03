@@ -440,7 +440,12 @@ UI_CommFromBox(UI_Box *box)
 	if (capture_input)
 	{
 		result.hovering = true;
-		ui_state->hot_key = box->key;
+		
+		if (UI_KeyIsNull(ui_state->hot_key))
+		{
+			ui_state->hot_key = box->key;
+		}
+
 		for (OS_EventNode *node = event_list->first;
 			node != 0;
 			node = node->next)
@@ -452,12 +457,26 @@ UI_CommFromBox(UI_Box *box)
 				{
 					if (event.key == OS_Key_MouseLeft)
 					{
-						result.pressed = true;
+						if (UI_BoxHasFlag(box, UI_BoxFlag_Clickable))
+						{
+							result.pressed = true;
 
-						ui_state->active_key = box->key;
-						ui_state->focus_key = box->key;
+							ui_state->active_key = box->key;
+							ui_state->focus_key = box->key;
 
-						DLL_Remove(event_list->first, event_list->last, node);
+							DLL_Remove(event_list->first, event_list->last, node);
+						}
+					}
+					else if (event.key == OS_Key_MouseRight)
+					{
+						if (UI_BoxHasFlag(box, UI_BoxFlag_Clickable))
+						{
+							result.right_clicked = true;
+
+							ui_state->focus_key = box->key;
+
+							DLL_Remove(event_list->first, event_list->last, node);
+						}
 					}
 				} break;
 
@@ -638,6 +657,10 @@ UI_BoxMake(UI_BoxFlag flags, String8 string)
 		}
 
 		result->frame_created_index = ui_state->frame;
+	}
+	else
+	{
+		Assert(result->frame_created_index != ui_state->frame);
 	}
 
 	UI_Box *parent = UI_TopParent();
@@ -1061,9 +1084,6 @@ UI_SolveUpwardsDependentSizes(UI_Box *root)
 			}
 			else
 			{
-				Assert(root->parent->semantic_size[axis].kind == UI_SizeKind_Pixels ||
-				       root->parent->semantic_size[axis].kind == UI_SizeKind_TextContent ||
-				       root->parent->semantic_size[axis].kind == UI_SizeKind_Pct);
 				parent_size = root->parent->target_size[axis];
 			}
 

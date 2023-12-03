@@ -45,7 +45,8 @@ internal void CStringCopy(char *dest, char *src, U32 src_size, U32 dest_size)
 	}
 }
 
-internal String8 Str8(U8 *str, U64 size)
+internal String8 
+Str8(U8 *str, U64 size)
 {
 	String8 string;
 	string.str = str;
@@ -53,7 +54,8 @@ internal String8 Str8(U8 *str, U64 size)
 	return(string);
 }
 
-internal String8 PushStr8FV(MemoryArena *arena, char *fmt, va_list args)
+internal String8 
+PushStr8FV(MemoryArena *arena, char *fmt, va_list args)
 {
 	String8 result = {0};
 	U64 needed_bytes = vsnprintf(0, 0, fmt, args) + 1;

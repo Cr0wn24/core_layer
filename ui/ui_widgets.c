@@ -805,7 +805,7 @@ UI_PopScrollableContainer()
 }
 
 internal UI_Box *
-UI_PushScrollableContainer(String8 string)
+UI_PushScrollableContainer(String8 string, B32 reverse_y)
 {
 	UI_PushString(string);
 
@@ -838,7 +838,7 @@ UI_PushScrollableContainer(String8 string)
 	F32 overflow_x = 0;
 	F32 overflow_y = 0;
 
-	F32 reverse_scroll_y = true;
+	B32 reverse_scroll_y = reverse_y;
 
 	F32 scroll_y = 0;
 
@@ -849,7 +849,10 @@ UI_PushScrollableContainer(String8 string)
 		UI_NextSize2(UI_Pixels(container_width - scrollbar_size), UI_Pixels(container_height - scrollbar_size));
 		UI_NextChildLayoutAxis(Axis2_Y);
 		UI_NextBackgroundColor(ui_state->theme.window_color);
-		UI_NextChildLayoutCorner(UI_Corner_BottomLeft);
+		if (reverse_scroll_y)
+		{
+			UI_NextChildLayoutCorner(UI_Corner_BottomLeft);
+		}
 		view_box = UI_BoxMake(UI_BoxFlag_DrawBackground |
 		                      UI_BoxFlag_DrawBorder, 
 		                      Str8Lit("ContentBox"));
@@ -1020,7 +1023,10 @@ UI_PushScrollableContainer(String8 string)
 		UI_NextBoxFlags(UI_BoxFlag_AnimateY);
 	}
 	UI_NextChildLayoutAxis(Axis2_Y);
-	UI_NextChildLayoutCorner(UI_Corner_BottomLeft);
+	if (reverse_scroll_y)
+	{
+		UI_NextChildLayoutCorner(UI_Corner_BottomLeft);
+	}
 	content_box = UI_BoxMake(0,
 	                         Str8Lit("ScrollCalcBox"));
 
