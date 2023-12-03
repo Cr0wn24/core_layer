@@ -867,7 +867,7 @@ UI_Begin(UI_Theme theme, OS_EventList *os_event_list, F64 dt)
 	// but may have time to be freed before the mouse is released again.
 	// In that case, the active key will not be found and the active key will
 	// persist. In that case, we just check if the active key still exists in the state,
-	// but the box is freed and we released the left mouse button.
+	// but the box is freed and we released the left mouse button. 
 	if (!found_active_box && !UI_KeyIsNull(ui_state->active_key) && left_mouse_released)
 	{
 		ui_state->active_key.key = 0;
