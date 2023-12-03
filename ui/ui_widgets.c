@@ -210,9 +210,9 @@ UI_BeginTree(String8 string)
 	UI_PushParent(container);
 
 	UI_NextSize2(UI_SumOfChildren(), UI_Em(1.0f));
-	UI_NextBackgroundColor(V4(0, 0, 0, 0));
-	UI_NextHotColor(V4(0, 0, 0, 0));
-	UI_NextActiveColor(V4(0, 0, 0, 0));
+	UI_NextBackgroundColor(V4(0.05f, 0.05f, 0.05f, 0.8f));
+	UI_NextHotColor(V4(0.2f, 0.2f, 0.2f, 0.8f));
+	UI_NextActiveColor(V4(0.3f, 0.3f, 0.3f, 0.8f));
 	UI_NextHoverCursor(OS_Cursor_Hand);
 	UI_NextBoxFlags(UI_BoxFlag_HotAnimation |
 	                UI_BoxFlag_Clickable |
@@ -250,12 +250,13 @@ UI_BeginTree(String8 string)
 	UI_NextSize2(UI_Em(1.0f), UI_Em(1.0f));
 	UI_Box *collapser = UI_BoxMake(UI_BoxFlag_DrawText,
 	                               Str8Lit("TreeCollapser"));
+	
 
 	UI_Spacer(UI_Em(0.5f));
 
 	UI_Text(string);
 	UI_EndRow();
-
+	
 	UI_NextSize2(UI_SumOfChildren(), UI_SumOfChildren());
 	UI_Box *box = UI_BeginNamedRow(Str8Lit("TreeRow"));
 
@@ -790,6 +791,7 @@ UI_Radio(UI_RadioData *data, U32 data_count, String8 string)
 	UI_PopString();
 }
 
+#if 0
 internal void
 UI_PopScrollableContainer()
 {
@@ -1041,4 +1043,38 @@ UI_PushScrollableContainer(String8 string, B32 reverse_y)
 	content_box->scroll.y = container->scroll.y;
 
 	return(content_box);
+}
+#endif
+
+internal void
+UI_PopScrollableContainer()
+{
+	UI_PopParent();
+	UI_PopParent();
+	UI_PopString();
+}
+
+internal void
+UI_PushScrollableContainer(String8 string)
+{
+	UI_PushString(string);
+	UI_Box *parent = UI_BoxMake(UI_BoxFlag_Clip | UI_BoxFlag_DrawBorder, 
+	                            Str8Lit("ScrollableContainerParent"));
+
+	UI_Comm comm = UI_CommFromBox(parent);
+
+	UI_PushParent(parent);
+
+	UI_NextChildLayoutAxis(Axis2_Y);
+	UI_NextSize2(UI_SumOfChildren(), UI_SumOfChildren());
+	UI_Box *content_box = UI_BoxMake(UI_BoxFlag_ViewScroll, Str8Lit("ScrollableContainerContent"));
+
+	if (comm.scroll)
+	{
+		content_box->target_view_offset[Axis2_Y] += comm.scroll*100;
+	}
+
+	content_box->target_view_offset[Axis2_Y] = Clamp(0, content_box->target_view_offset[Axis2_Y], content_box->calc_size[Axis2_Y] - parent->calc_size[Axis2_Y]);
+
+	UI_PushParent(content_box);
 }

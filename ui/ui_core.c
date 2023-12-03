@@ -443,7 +443,10 @@ UI_CommFromBox(UI_Box *box)
 		
 		if (UI_KeyIsNull(ui_state->hot_key))
 		{
-			ui_state->hot_key = box->key;
+			if (UI_BoxHasFlag(box, UI_BoxFlag_HotAnimation))
+			{
+				ui_state->hot_key = box->key;
+			}
 		}
 
 		for (OS_EventNode *node = event_list->first;
@@ -1290,6 +1293,15 @@ UI_CalculateFinalRect(UI_Box *root)
 		{
 			root->calc_size[axis] = root->target_size[axis];
 		}
+	}
+
+	root->view_offset[Axis2_Y] = root->view_offset[Axis2_Y] + (root->target_view_offset[Axis2_Y] - root->view_offset[Axis2_Y]) * animation_delta;
+	root->view_offset[Axis2_X] = root->view_offset[Axis2_X] + (root->target_view_offset[Axis2_X] - root->view_offset[Axis2_X]) * animation_delta;
+
+	if (UI_BoxHasFlag(root, UI_BoxFlag_ViewScroll))
+	{
+		root->calc_pos[Axis2_Y] -= root->view_offset[Axis2_Y];
+		root->calc_pos[Axis2_X] -= root->view_offset[Axis2_X];
 	}
 
 	if (UI_BoxHasFlag(root, UI_BoxFlag_AnimateScale))

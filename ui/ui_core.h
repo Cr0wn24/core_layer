@@ -194,6 +194,9 @@ typedef struct UI_Box
 	F32 target_size[Axis2_COUNT];
 	F32 target_scale;
 
+	F32 view_offset[Axis2_COUNT];
+	F32 target_view_offset[Axis2_COUNT];
+
 	F32 start_size[Axis2_COUNT];
 
 	F32 calc_rel_pos[Axis2_COUNT];
