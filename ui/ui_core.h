@@ -25,20 +25,20 @@ typedef enum UI_BoxFlag
 	UI_BoxFlag_FocusAnimation = (1 << 9),
 	UI_BoxFlag_FixedX = (1 << 10),
 	UI_BoxFlag_FixedY = (1 << 11),
-
+    
 	UI_BoxFlag_AnimateX = (1 << 12),
 	UI_BoxFlag_AnimateY = (1 << 13),
 	UI_BoxFlag_AnimateWidth = (1 << 14),
 	UI_BoxFlag_AnimateHeight = (1 << 15),
 	UI_BoxFlag_AnimateScale = (1 << 16),
 	UI_BoxFlag_AnimateStart = (1 << 17),
-
+    
 	UI_BoxFlag_SaveState = (1 << 18),
-
+    
 	UI_BoxFlag_CenterPos = (1 << 19),
-
+    
 	UI_BoxFlag_FixedPos = UI_BoxFlag_FixedX | UI_BoxFlag_FixedY,
-
+    
 	UI_BoxFlag_AnimateSize = UI_BoxFlag_AnimateWidth | UI_BoxFlag_AnimateHeight,
 	UI_BoxFlag_AnimatePos = UI_BoxFlag_AnimateX | UI_BoxFlag_AnimateY
 } UI_BoxFlag;
@@ -49,7 +49,7 @@ typedef enum UI_Corner
 	UI_Corner_TopRight,
 	UI_Corner_BottomLeft,
 	UI_Corner_BottomRight,
-
+    
 	UI_Corner_COUNT,
 } UI_Corner;
 
@@ -57,7 +57,7 @@ typedef enum Axis2
 {
 	Axis2_X,
 	Axis2_Y,
-
+    
 	Axis2_COUNT,
 } Axis2;
 
@@ -66,7 +66,7 @@ typedef enum UI_TextAlign
 	UI_TextAlign_Center,
 	UI_TextAlign_Left,
 	UI_TextAlign_Right,
-
+    
 	UI_TextAlign_COUNT,
 } UI_TextAlign;
 
@@ -104,13 +104,11 @@ typedef struct UI_Key
 typedef struct UI_RectStyle
 {
 	Vec4F32 background_color;
-	Vec4F32 hot_color;
-	Vec4F32 active_color;
 	Vec4F32 border_color;
 	F32 border_thickness;
 	Vec4F32 corner_radius;
 	F32 edge_softness;
-
+    
 	struct UI_RectStyle *stack_next;
 } UI_RectStyle;
 
@@ -121,7 +119,7 @@ typedef struct UI_TextStyle
 	UI_TextAlign text_align;
 	F32 text_edge_padding[Axis2_COUNT];
 	R_IconIndex icon;
-
+    
 	struct UI_TextStyle *stack_next;
 } UI_TextStyle;
 
@@ -134,28 +132,28 @@ typedef struct UI_LayoutStyle
 	UI_BoxFlag flags;
 	OS_Cursor hover_cursor;
 	F32 scale;
-
+    
 	struct UI_LayoutStyle *stack_next;
 } UI_LayoutStyle;
 
 typedef struct UI_TextStyleStack
 {
 	UI_TextStyle *first;
-
+    
 	B32 auto_pop;
 } UI_TextStyleStack;
 
 typedef struct UI_RectStyleStack
 {
 	UI_RectStyle *first;
-
+    
 	B32 auto_pop;
 } UI_RectStyleStack;
 
 typedef struct UI_LayoutStack
 {
 	UI_LayoutStyle *first;
-
+    
 	B32 auto_pop;
 } UI_LayoutStack;
 
@@ -169,14 +167,14 @@ typedef struct UI_Box
 	struct UI_Box *next;
 	struct UI_Box *prev;
 	struct UI_Box *parent;
-
+    
 	// NOTE(hampus): Hash links
 	struct UI_Box *hash_next;
 	struct UI_Box *hash_prev;
-
+    
 	// NOTE(hampus): Key+generation info
 	UI_Key key;
-
+    
 	// NOTE(hampus): Per-frame info provided by builders
 	UI_BoxFlag flags;
 	String8 display_string;
@@ -185,48 +183,48 @@ typedef struct UI_Box
 	UI_Corner child_layout_corner;
 	U32 clip_rect_index;
 	OS_Cursor hover_cursor;
-
+    
 	UI_RectStyle rect_style;
 	UI_TextStyle text_style;
-
+    
 	// NOTE(hampus): Computed every frame
 	F32 target_pos[Axis2_COUNT];
 	F32 target_size[Axis2_COUNT];
 	F32 target_scale;
-
+    
 	F32 view_offset[Axis2_COUNT];
 	F32 target_view_offset[Axis2_COUNT];
-
+    
 	F32 start_size[Axis2_COUNT];
-
+    
 	F32 calc_rel_pos[Axis2_COUNT];
 	F32 calc_pos[Axis2_COUNT];
 	F32 calc_size[Axis2_COUNT];
 	F32 calc_scale;
-
+    
 	RectF32 calc_rect;
-
+    
 	U32 last_frame_touched_index;
 	U32 frame_created_index;
-
+    
 	// NOTE(hampus): Persistent data
 	F32 hot_t;
 	F32 active_t;
-
+    
 	B32 solved_size[Axis2_COUNT];
-
+    
 	RectF32 clip_rect;
-	
+    
 	void *user;
 	UI_CustomDrawProc *CustomDraw;
-
+    
 	// NOTE(hampus): Builder code data, core don't touch.
 	// This is data the user doesn't have to care about, 
 	// but that the builder needs.
 	Vec2F32 scroll;
 	B32 show_color_wheel;
 	B32 show_expanded_tree;
-
+    
 } UI_Box;
 
 typedef struct UI_FreeBox
@@ -240,7 +238,7 @@ typedef struct UI_Theme
 	Vec4F32 border_color;
 	Vec4F32 window_color;
 	Vec4F32 text_color;
-
+    
 	Vec4F32 error_color;
 	Vec4F32 warning_color;
 } UI_Theme;
@@ -260,54 +258,54 @@ typedef struct UI_State
 {
 	MemoryArena permanent_arena;
 	MemoryArena frame_arena;
-
+    
 	size_t prev_frame_arena_used;
-
+    
 	R_FontKey font_key;
 	OS_Window *window;
-
+    
 	UI_FreeBox *first_free_box;
 	U32 box_free_list_slots_used;
 	U32 box_free_list_size;
-
+    
 	UI_Box *box_storage;
 	U64 box_storage_count;
-
+    
 	UI_Box **box_hash_map;
 	U64 box_hash_map_count;
-
+    
 	UI_ParentStack parent_stack;
-
+    
 	UI_Box *root;
-
+    
 	UI_Box *popup_root;
-
+    
 	UI_Box *tooltip_root;
-
+    
 	UI_LayoutStack layout_stack;
 	UI_RectStyleStack rect_style_stack;
 	UI_TextStyleStack text_style_stack;
 	String8Stack string_stack;
-
+    
 	UI_Key hot_key;
 	UI_Key active_key;
 	UI_Key focus_key;
-
+    
 	UI_Theme theme;
-
+    
 	B32 show_debug_lines;
-
+    
 	Vec2F32 mouse_pos;
 	Vec2F32 old_mouse_pos;
-
+    
 	U32 frame;
 	F32 animation_speed;
-
+    
 	OS_EventList *os_event_list;
-
+    
 	B32 popup_active;
 	B32 building_popup;
-
+    
 	F64 dt;
 } UI_State;
 
@@ -376,14 +374,6 @@ typedef struct UI_State
 #define UI_NextBackgroundColor(x)   (UI_GetAutoPopRectStyle()->background_color = x)
 #define UI_PushBackgroundColor(x)   (UI_PushRectStyle()->background_color = x)
 #define UI_PopBackgroundColor()     (UI_PopRectStyle())
-
-#define UI_NextHotColor(x)          (UI_GetAutoPopRectStyle()->hot_color = x)
-#define UI_PushHotColor(x)          (UI_PushRectStyle()->hot_color = x)
-#define UI_PopHotColor()            (UI_PopRectStyle())
-
-#define UI_NextActiveColor(x)       (UI_GetAutoPopRectStyle()->active_color = x)
-#define UI_PushActiveColor(x)       (UI_PushRectStyle()->active_color = x)
-#define UI_PopActiveColor()         (UI_PopRectStyle())
 
 #define UI_NextBorderColor(x)       (UI_GetAutoPopRectStyle()->border_color = x)
 #define UI_PushBorderColor(x)       (UI_PushRectStyle()->border_color = x)

@@ -17,28 +17,28 @@ internal void
 OS_Init()
 {
 	srand((U32)time(0));
-
+    
 	ArenaInit(scratch_arena_ + 0, OS_AllocMem(GIGABYTES(1)), GIGABYTES(1));
 	ArenaInit(scratch_arena_ + 1, OS_AllocMem(GIGABYTES(1)), GIGABYTES(1));
-
+    
 	QueryPerformanceCounter(&os_state.start_counter);
-
+    
 	LARGE_INTEGER freq_counter;
 	QueryPerformanceFrequency(&freq_counter);
 	os_state.freq = (F64)freq_counter.QuadPart;
-
+    
 	os_state.cursors[OS_Cursor_Arrow] = LoadCursorA(0, IDC_ARROW);
 	Assert(os_state.cursors[OS_Cursor_Arrow]);
-
+    
 	os_state.cursors[OS_Cursor_Hand] = LoadCursorA(0, IDC_HAND);
 	Assert(os_state.cursors[OS_Cursor_Hand]);
-
+    
 	os_state.cursors[OS_Cursor_ResizeY] = LoadCursorA(0, IDC_SIZENS);
 	Assert(os_state.cursors[OS_Cursor_ResizeY]);
-
+    
 	os_state.cursors[OS_Cursor_ResizeX] = LoadCursorA(0, IDC_SIZEWE);
 	Assert(os_state.cursors[OS_Cursor_ResizeX]);
-
+    
 	os_state.cursors[OS_Cursor_ResizeXY] = LoadCursorA(0, IDC_SIZENWSE);
 	Assert(os_state.cursors[OS_Cursor_ResizeXY]);
 	
@@ -47,46 +47,203 @@ OS_Init()
 	
 	os_state.cursors[OS_Cursor_Beam] = LoadCursorA(0, IDC_IBEAM);
 	Assert(os_state.cursors[OS_Cursor_Beam]);
-
+    
 	os_state.initialized = true;
 }
+
 
 internal LRESULT CALLBACK
 OS_WindowProc(HWND window, UINT message, WPARAM wparam, LPARAM lparam)
 {
 	LRESULT result = 0;
+    OS_Event event = {0};
+    OS_ProcWindow *window_info = (OS_ProcWindow *)GetWindowLongPtrA(window, GWLP_USERDATA);
+    
+    if (!window_info) 
+    {
+        // We are still in the startup
+        return(DefWindowProcA(window, message, wparam, lparam));
+    }
+    
+    OS_EventList *event_list = window_info->window->event_list;
+    
+    MemoryArena *arena = window_info->arena;
+    
+    B32 interesting_message = true;
+    
 	switch (message)
 	{
 		case WM_CLOSE:
 		{
-			PostQuitMessage(0);
+            event.type = OS_EventType_Quit;
 		} break;
-
+        
 		case WM_DESTROY:
 		{
-			PostQuitMessage(0);
+            event.type = OS_EventType_Quit;
 		} break;
-
+        
 		case WM_SETCURSOR:
 		{
 		} break;
 		
-		case WM_SIZE:
-		{
-			S32 width, height;
-			RECT rect;
-			GetClientRect(window, &rect);
-			width = rect.right - rect.left;
-			height = rect.bottom - rect.top;
-			// glViewport(0, 0, width, height);
-		} break;
-
+        case WM_LBUTTONDBLCLK:
+        {
+            event.type = OS_EventType_DoubleClick;
+            event.key = OS_Key_MouseLeft;
+        } break;
+        
+        case WM_QUIT:
+        {
+            event.type = OS_EventType_Quit;
+        } break;
+        
+        case WM_SIZE:
+        {
+            event.type = OS_EventType_Resize;
+        } break;
+        
+        case WM_CHAR:
+        {
+            event.type = OS_EventType_Character;
+            event.character = (char)wparam; 
+        } break;
+        
+        case WM_LBUTTONUP:
+        {
+            event.type = OS_EventType_KeyRelease;
+            event.key = OS_Key_MouseLeft;
+        } break;
+        
+        case WM_LBUTTONDOWN:
+        {
+            event.type = OS_EventType_KeyPress;
+            event.key = OS_Key_MouseLeft;
+        } break;
+        
+        case WM_RBUTTONUP:
+        {
+            event.type = OS_EventType_KeyRelease;
+            event.key = OS_Key_MouseRight;
+        } break;
+        
+        case WM_RBUTTONDOWN:
+        {
+            event.type = OS_EventType_KeyPress;
+            event.key = OS_Key_MouseRight;
+        } break;
+        
+        case WM_MBUTTONUP:
+        {
+            event.type = OS_EventType_KeyRelease;
+            event.key = OS_Key_MouseMiddle;
+        } break;
+        
+        case WM_MBUTTONDOWN:
+        {
+            event.type = OS_EventType_KeyPress;
+            event.key = OS_Key_MouseMiddle;
+        } break;
+        
+        case WM_MOUSEWHEEL:
+        {
+            event.type = OS_EventType_Scroll;
+            event.scroll = GET_WHEEL_DELTA_WPARAM(wparam) / WHEEL_DELTA;
+        } break;
+        
+        case WM_KEYUP:
+        case WM_SYSKEYUP:
+        case WM_SYSKEYDOWN:
+        case WM_KEYDOWN:
+        {
+            U32 vk_code = (U32)wparam;
+            B32 was_down = ((lparam & (1 << 30)) != 0);
+            B32 is_down = ((lparam & (1 << 31)) == 0);
+            B32 alt_key_was_down = ((lparam & (1 << 29)));
+            
+            if (was_down != is_down)
+            {
+                if (is_down)
+                {
+                    event.type = OS_EventType_KeyPress;
+                }
+                else
+                {
+                    event.type = OS_EventType_KeyRelease;
+                }
+                
+#define ProcessKeyMessage(vk, platform_key) case vk: { event.key = platform_key; } break;
+                switch (vk_code)
+                {
+                    ProcessKeyMessage('A', OS_Key_A);
+                    ProcessKeyMessage('B', OS_Key_B);
+                    ProcessKeyMessage('C', OS_Key_C);
+                    ProcessKeyMessage('D', OS_Key_D);
+                    ProcessKeyMessage('E', OS_Key_E);
+                    ProcessKeyMessage('F', OS_Key_F);
+                    ProcessKeyMessage('G', OS_Key_G);
+                    ProcessKeyMessage('H', OS_Key_H);
+                    ProcessKeyMessage('I', OS_Key_I);
+                    ProcessKeyMessage('J', OS_Key_J);
+                    ProcessKeyMessage('K', OS_Key_K);
+                    ProcessKeyMessage('L', OS_Key_L);
+                    ProcessKeyMessage('M', OS_Key_M);
+                    ProcessKeyMessage('N', OS_Key_N);
+                    ProcessKeyMessage('O', OS_Key_O);
+                    ProcessKeyMessage('P', OS_Key_P);
+                    ProcessKeyMessage('Q', OS_Key_Q);
+                    ProcessKeyMessage('R', OS_Key_R);
+                    ProcessKeyMessage('S', OS_Key_S);
+                    ProcessKeyMessage('T', OS_Key_T);
+                    ProcessKeyMessage('U', OS_Key_U);
+                    ProcessKeyMessage('V', OS_Key_V);
+                    ProcessKeyMessage('W', OS_Key_W);
+                    ProcessKeyMessage('X', OS_Key_X);
+                    ProcessKeyMessage('Y', OS_Key_Y);
+                    ProcessKeyMessage('Z', OS_Key_Z);
+                    
+                    ProcessKeyMessage(VK_F1, OS_Key_F1);
+                    ProcessKeyMessage(VK_F2, OS_Key_F2);
+                    ProcessKeyMessage(VK_F3, OS_Key_F3);
+                    ProcessKeyMessage(VK_F4, OS_Key_F4);
+                    ProcessKeyMessage(VK_F5, OS_Key_F5);
+                    ProcessKeyMessage(VK_F6, OS_Key_F6);
+                    ProcessKeyMessage(VK_F7, OS_Key_F7);
+                    ProcessKeyMessage(VK_F8, OS_Key_F8);
+                    ProcessKeyMessage(VK_F9, OS_Key_F9);
+                    ProcessKeyMessage(VK_F10, OS_Key_F10);
+                    ProcessKeyMessage(VK_F11, OS_Key_F11);
+                    ProcessKeyMessage(VK_F12, OS_Key_F12);
+                    
+                    ProcessKeyMessage(VK_INSERT, OS_Key_Insert);
+                    ProcessKeyMessage(VK_RETURN, OS_Key_Return);
+                    ProcessKeyMessage(VK_ESCAPE, OS_Key_Escape);
+                    
+                    ProcessKeyMessage(VK_PRIOR, OS_Key_PageUp);
+                    ProcessKeyMessage(VK_NEXT, OS_Key_PageDown);
+                }
+            }
+            
+            if (vk_code == VK_F4 && alt_key_was_down)
+            {
+                event.type = OS_EventType_Quit;
+            }
+        } break;
+        
 		default:
 		{
+            interesting_message = false;
 			result = DefWindowProcA(window, message, wparam, lparam);
 		} break;
 	}
-
+    
+    if (interesting_message)
+    {
+        OS_EventNode *node = PushStruct(arena, OS_EventNode);
+        node->event = event;
+        DLL_PushFront(event_list->first, event_list->last, node);
+    }
+    
 	return result;
 }
 
@@ -94,20 +251,20 @@ internal OS_Window *
 OS_CreateWindow(String8 title, S32 x, S32 y, S32 width, S32 height, B32 show_window)
 {
 	timeBeginPeriod(0);
-
+    
 	OS_Window *window = VirtualAlloc(0, sizeof(*window), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-
+    
 	Assert(window && "Failed to allocate the window");
-
+    
 	HINSTANCE instance = GetModuleHandleA(0);
-
+    
 	String8 class_name = Str8Lit("OSWindowClassName");
 	window->class_name = class_name;
-
+    
 	WNDCLASSEXA window_class = { 0 };
-
+    
 	window_class.cbSize = sizeof(window_class);
-	window_class.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+	window_class.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
 	window_class.lpfnWndProc = OS_WindowProc;
 	window_class.hInstance = instance;
 	window_class.lpszClassName = (LPCSTR)class_name.str;
@@ -116,15 +273,15 @@ OS_CreateWindow(String8 title, S32 x, S32 y, S32 width, S32 height, B32 show_win
 	{
 		Assert(false);
 	}
-
+    
 	SetCursor(LoadCursorA(0, IDC_ARROW));
-
+    
 	DWORD create_window_flags = WS_OVERLAPPEDWINDOW;
 	if (show_window)
 	{
 		create_window_flags |= WS_VISIBLE;
 	}
-
+    
 	// TODO(hampus): Make so that this actually 
 	// uses the width and height parameters
 	window->handle = CreateWindowExA(0, window_class.lpszClassName, (LPCSTR)title.str,
@@ -132,9 +289,9 @@ OS_CreateWindow(String8 title, S32 x, S32 y, S32 width, S32 height, B32 show_win
 	                                 CW_USEDEFAULT, CW_USEDEFAULT,
 	                                 CW_USEDEFAULT, CW_USEDEFAULT,
 	                                 0, 0, instance, 0);
-
+    
 	window->device_context = GetDC(window->handle);
-
+    
 	return window;
 }
 
@@ -164,7 +321,7 @@ OS_ToggleFullscreen(OS_Window *window)
 		    GetMonitorInfo(MonitorFromWindow(window->handle, MONITOR_DEFAULTTOPRIMARY), &MonitorInfo))
 		{
 			SetWindowLong(window->handle, GWL_STYLE, WindowStyle & ~WS_OVERLAPPEDWINDOW);
-
+            
 			SetWindowPos(window->handle, HWND_TOP,
 			             MonitorInfo.rcMonitor.left, MonitorInfo.rcMonitor.top,
 			             MonitorInfo.rcMonitor.right - MonitorInfo.rcMonitor.left,
@@ -195,7 +352,7 @@ OS_EatEvent(OS_EventList *event_list, OS_EventNode *node)
 		{
 			node->prev->next = node->next;
 		}
-
+        
 		if (node->next)
 		{
 			node->next->prev = node->prev;
@@ -204,175 +361,30 @@ OS_EatEvent(OS_EventList *event_list, OS_EventNode *node)
 }
 
 internal OS_EventList *
-OS_GatherEventsFromWindow(MemoryArena *arena)
+OS_GatherEventsFromWindow(OS_Window *window, MemoryArena *arena)
 {
-	OS_EventList *event_list = PushStruct(arena, OS_EventList);
-
-	MSG message;
-	while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE))
-	{
-		OS_Event event = { 0 };
-
-		B32 interesting_message = true;
-
-		switch (message.message)
-		{
-			case WM_QUIT:
-			{
-				event.type = OS_EventType_Quit;
-			} break;
-
-			case WM_SIZE:
-			{
-				event.type = OS_EventType_Resize;
-			} break;
-
-			case WM_CHAR:
-			{
-				event.type = OS_EventType_Character;
-				event.character = (char)message.wParam; 
-			} break;
-
-			case WM_LBUTTONUP:
-			{
-				event.type = OS_EventType_KeyRelease;
-				event.key = OS_Key_MouseLeft;
-			} break;
-
-			case WM_LBUTTONDOWN:
-			{
-				event.type = OS_EventType_KeyPress;
-				event.key = OS_Key_MouseLeft;
-			} break;
-
-			case WM_RBUTTONUP:
-			{
-				event.type = OS_EventType_KeyRelease;
-				event.key = OS_Key_MouseRight;
-			} break;
-
-			case WM_RBUTTONDOWN:
-			{
-				event.type = OS_EventType_KeyPress;
-				event.key = OS_Key_MouseRight;
-			} break;
-
-			case WM_MBUTTONUP:
-			{
-				event.type = OS_EventType_KeyRelease;
-				event.key = OS_Key_MouseMiddle;
-			} break;
-
-			case WM_MBUTTONDOWN:
-			{
-				event.type = OS_EventType_KeyPress;
-				event.key = OS_Key_MouseMiddle;
-			} break;
-
-			case WM_MOUSEWHEEL:
-			{
-				event.type = OS_EventType_Scroll;
-				event.scroll = GET_WHEEL_DELTA_WPARAM(message.wParam) / WHEEL_DELTA;
-			} break;
-
-			case WM_KEYUP:
-			case WM_SYSKEYUP:
-			case WM_SYSKEYDOWN:
-			case WM_KEYDOWN:
-			{
-				U32 vk_code = (U32)message.wParam;
-				B32 was_down = ((message.lParam & (1 << 30)) != 0);
-				B32 is_down = ((message.lParam & (1 << 31)) == 0);
-				B32 alt_key_was_down = ((message.lParam & (1 << 29)));
-
-				if (was_down != is_down)
-				{
-					if (is_down)
-					{
-						event.type = OS_EventType_KeyPress;
-					}
-					else
-					{
-						event.type = OS_EventType_KeyRelease;
-					}
-
-#define ProcessKeyMessage(vk, platform_key) case vk: { event.key = platform_key; } break;
-					switch (vk_code)
-					{
-						ProcessKeyMessage('A', OS_Key_A);
-						ProcessKeyMessage('B', OS_Key_B);
-						ProcessKeyMessage('C', OS_Key_C);
-						ProcessKeyMessage('D', OS_Key_D);
-						ProcessKeyMessage('E', OS_Key_E);
-						ProcessKeyMessage('F', OS_Key_F);
-						ProcessKeyMessage('G', OS_Key_G);
-						ProcessKeyMessage('H', OS_Key_H);
-						ProcessKeyMessage('I', OS_Key_I);
-						ProcessKeyMessage('J', OS_Key_J);
-						ProcessKeyMessage('K', OS_Key_K);
-						ProcessKeyMessage('L', OS_Key_L);
-						ProcessKeyMessage('M', OS_Key_M);
-						ProcessKeyMessage('N', OS_Key_N);
-						ProcessKeyMessage('O', OS_Key_O);
-						ProcessKeyMessage('P', OS_Key_P);
-						ProcessKeyMessage('Q', OS_Key_Q);
-						ProcessKeyMessage('R', OS_Key_R);
-						ProcessKeyMessage('S', OS_Key_S);
-						ProcessKeyMessage('T', OS_Key_T);
-						ProcessKeyMessage('U', OS_Key_U);
-						ProcessKeyMessage('V', OS_Key_V);
-						ProcessKeyMessage('W', OS_Key_W);
-						ProcessKeyMessage('X', OS_Key_X);
-						ProcessKeyMessage('Y', OS_Key_Y);
-						ProcessKeyMessage('Z', OS_Key_Z);
-
-						ProcessKeyMessage(VK_F1, OS_Key_F1);
-						ProcessKeyMessage(VK_F2, OS_Key_F2);
-						ProcessKeyMessage(VK_F3, OS_Key_F3);
-						ProcessKeyMessage(VK_F4, OS_Key_F4);
-						ProcessKeyMessage(VK_F5, OS_Key_F5);
-						ProcessKeyMessage(VK_F6, OS_Key_F6);
-						ProcessKeyMessage(VK_F7, OS_Key_F7);
-						ProcessKeyMessage(VK_F8, OS_Key_F8);
-						ProcessKeyMessage(VK_F9, OS_Key_F9);
-						ProcessKeyMessage(VK_F10, OS_Key_F10);
-						ProcessKeyMessage(VK_F11, OS_Key_F11);
-						ProcessKeyMessage(VK_F12, OS_Key_F12);
-
-						ProcessKeyMessage(VK_INSERT, OS_Key_Insert);
-						ProcessKeyMessage(VK_RETURN, OS_Key_Return);
-						ProcessKeyMessage(VK_ESCAPE, OS_Key_Escape);
-
-						ProcessKeyMessage(VK_PRIOR, OS_Key_PageUp);
-						ProcessKeyMessage(VK_NEXT, OS_Key_PageDown);
-					}
-				}
-
-				if (vk_code == VK_F4 && alt_key_was_down)
-				{
-					event.type = OS_EventType_Quit;
-				}
-				TranslateMessage(&message);
-
-			} break;
-
-			default:
-			{
-				interesting_message = false;
-				TranslateMessage(&message);
-				DispatchMessageA(&message);
-			} break;
-		}
-
-		if (interesting_message)
-		{
-			OS_EventNode *node = PushStruct(arena, OS_EventNode);
-			node->event = event;
-			DLL_PushFront(event_list->first, event_list->last, node);
-		}
-	}
-
-	return event_list;
+    window->event_list = PushStruct(arena, OS_EventList);
+    
+    OS_ProcWindow user_data;
+    user_data.window = window;
+    user_data.arena = arena;
+    
+    // NOTE(hampus): Each time we call SetWindowLongPtrA(), we must also
+    // call SetWindowPos() for the changes to take an effect.
+    SetWindowLongPtrA(window->handle, GWLP_USERDATA, (LONG_PTR)&user_data); 
+    SetWindowPos(window->handle, 0, 
+                 0, 0, 
+                 0, 0,
+                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+    
+    MSG message;
+    while (PeekMessageA(&message, 0, 0, 0, PM_REMOVE))
+    {
+        TranslateMessage(&message);
+        DispatchMessageA(&message);
+    }
+    
+    return(window->event_list);
 }
 
 internal void OS_QueryWindowSize(OS_Window *window, S32 *width, S32 *height)
@@ -391,30 +403,30 @@ internal void OS_SwapBuffers(OS_Window *window)
 internal OS_ReadFileResult OS_ReadEntireFile(String8 path)
 {
 	OS_ReadFileResult result = { 0 };
-
+    
 	HANDLE file = CreateFileA((char *)path.str, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-
+    
 	if (file == INVALID_HANDLE_VALUE)
 	{
 		// TODO(hampus):  Logging
 		return result;
 	}
-
+    
 	LARGE_INTEGER file_size;
 	if (!GetFileSizeEx(file, &file_size))
 	{
 		// TODO(hampus):  Logging
 		return result;
 	}
-
+    
 	Assert(file_size.QuadPart <= 0xffffffff);
-
+    
 	U32 file_size32 = (U32)file_size.QuadPart;
-
+    
 	result.content = VirtualAlloc(0, file_size32, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 	result.contents_size = file_size32;
 	Assert(result.content);
-
+    
 	DWORD bytes_read;
 	if (!ReadFile(file, result.content, file_size32, &bytes_read, 0))
 	{
@@ -422,11 +434,11 @@ internal OS_ReadFileResult OS_ReadEntireFile(String8 path)
 		VirtualFree(result.content, 0, MEM_RELEASE);
 		return result;
 	}
-
+    
 	Assert(bytes_read == file_size32);
-
+    
 	CloseHandle(file);
-
+    
 	return result;
 }
 
@@ -441,9 +453,9 @@ internal void *
 OS_AllocMem(size_t size)
 {
 	void *result = 0;
-
+    
 	result = VirtualAlloc(0, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-
+    
 	return result;
 }
 
@@ -460,9 +472,9 @@ internal OS_Library
 OS_LoadLibrary(String8 library_name)
 {
 	OS_Library result = { 0 };
-
+    
 	result.handle = LoadLibraryA((LPCSTR)library_name.str);
-
+    
 	return(result);
 }
 
@@ -485,11 +497,11 @@ OS_LoadFunction(OS_Library library, String8 function_name)
 internal B32 SameTime(Time *a, Time *b)
 {
 	return(a->year == b->year &&
-		a->month == b->month &&
-		a->day == b->day &&
-		a->hour == b->hour &&
-		a->minute == b->minute &&
-		a->second == b->second);
+           a->month == b->month &&
+           a->day == b->day &&
+           a->hour == b->hour &&
+           a->minute == b->minute &&
+           a->second == b->second);
 }
 
 internal void
@@ -502,15 +514,15 @@ internal Time
 OS_SystemTimeToTime(SYSTEMTIME *time)
 {
 	Time result;
-
+    
 	result.year = time->wYear;
 	result.month = time->wMonth;
 	result.day = time->wDay;
-
+    
 	result.hour = time->wHour;
 	result.minute = time->wMinute;
 	result.second = time->wSecond;
-
+    
 	result.millisecond = time->wMilliseconds;
 	return(result);
 }
@@ -519,7 +531,7 @@ internal Time
 OS_GetLastWriteTime(String8 file_name)
 {
 	Time result = { 0 };
-
+    
 	WIN32_FILE_ATTRIBUTE_DATA data = { 0 };
 	if (GetFileAttributesExA((LPCSTR)file_name.str, GetFileExInfoStandard, &data))
 	{
@@ -534,7 +546,7 @@ OS_GetLastWriteTime(String8 file_name)
 			Assert(false);
 		}
 	}
-
+    
 	return(result);
 }
 
@@ -576,7 +588,7 @@ internal B32
 OS_TimeGreaterThanTime(Time *a, Time *b)
 {
 	B32 result = false;
-
+    
 	if (a->year > b->year)
 	{
 		result = true;
@@ -605,6 +617,6 @@ OS_TimeGreaterThanTime(Time *a, Time *b)
 	{
 		result = true;
 	}
-
+    
 	return(result);
 }

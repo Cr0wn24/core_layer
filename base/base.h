@@ -80,7 +80,7 @@ typedef S32 B32;
 #define DLL_Remove(f,l,n) DLL_Remove_NPZ(f,l,n,next,prev,CheckNull,SetNull)
 
 #define SLL_PushFront_NP(f, n, next) ((n)->next = (f), \
-									  (f) = (n));
+(f) = (n));
 
 #define SLL_PushFront(f, n) SLL_PushFront_NP(f, n, next)
 
@@ -109,7 +109,7 @@ typedef S32 B32;
 typedef enum Month
 {
 	Month_None,
-
+    
 	Month_January,
 	Month_February,
 	Month_March,

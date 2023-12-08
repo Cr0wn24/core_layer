@@ -23,17 +23,17 @@ UITest()
 	UI_NextRelativePos2(300, 300);
 	UI_NextBackgroundColor(ui_state->theme.window_color);
 	UI_Box *box2 = UI_BoxMake(UI_BoxFlag_DrawBackground |
-	                          UI_BoxFlag_DrawBorder |
-	                          UI_BoxFlag_DrawDropShadow |
-	                          UI_BoxFlag_FixedX |
-	                          UI_BoxFlag_FixedY |
-	                          UI_BoxFlag_AnimateWidth |
-	                          UI_BoxFlag_AnimateHeight |
-	                          UI_BoxFlag_Clip,
-	                          Str8Lit("My box2"));
+							  UI_BoxFlag_DrawBorder |
+							  UI_BoxFlag_DrawDropShadow |
+							  UI_BoxFlag_FixedX |
+							  UI_BoxFlag_FixedY |
+							  UI_BoxFlag_AnimateWidth |
+							  UI_BoxFlag_AnimateHeight |
+							  UI_BoxFlag_Clip,
+							  Str8Lit("My box2"));
 	UI_Size tree_spacing = UI_Em(0.3f);
 
-	local_persist Vec4F32 color_test = { 1.0f, 1.0f, 1.0f, 1.0f };
+	local_persist Vec4F32 color_test = {1.0f, 1.0f, 1.0f, 1.0f};
 
 	UI_Parent(box2)
 	{
@@ -207,7 +207,7 @@ UITest()
 			UI_PopScrollableContainer();
 			UI_Spacer(UI_Em(0.5f));
 
-			local_persist char input_buffer[256] = { 0 };
+			local_persist char input_buffer[256] = {0};
 			UI_NextSize2(UI_Em(10), UI_Em(1.5f));
 			if (UI_TextInput(input_buffer, sizeof(input_buffer), Str8Lit("Your username")).enter)
 			{
@@ -226,7 +226,7 @@ UITest()
 			UI_Check(Str8Lit("Default check size"), &check_test);
 			local_persist F32 slider_value = 0;
 			UI_SliderF32(&slider_value, 0, 10, Str8Lit("Default slider size"));
-			local_persist Vec4F32 color = { 1, 1, 1, 1 };
+			local_persist Vec4F32 color = {1, 1, 1, 1};
 			UI_ColorPicker(&color, Str8Lit("Default color picker size"));
 		}
 		UI_Spacer(UI_Em(0.5f));
@@ -251,18 +251,18 @@ EntryPoint(String8List args)
 	r_state->font_atlas = font_atlas;
 
 	UI_State *state = UI_Init(R_FontKeyFromString(CORE_RESOURCE("font/Inter-Regular.ttf")),
-	                          window);
+							  window);
 	UI_SelectState(state);
 
 	R_FontAtlas *tile_atlas = R_FontAtlasMake(&permanent_arena, V2S(1024, 1024));
 	{
-		R_LoadedBitmap loaded_bitmaps[16] = { 0 };
+		R_LoadedBitmap loaded_bitmaps[16] = {0};
 		TempMemoryArena scratch = GetScratch(0, 0);
 
 		for (U32 i = 0; i < 16; ++i)
 		{
 			S32 channels = 0;
-			String8 path = { 0 };
+			String8 path = {0};
 			if (i < 10)
 			{
 				path = PushStr8F(scratch.arena, "../res/test/Tiles/tile_000%d.png", i);
@@ -297,8 +297,8 @@ EntryPoint(String8List args)
 		OS_EventList *event_list = OS_GatherEventsFromWindow(scratch.arena);
 
 		for (OS_EventNode *node = event_list->first;
-			node != 0;
-			node = node->next)
+			 node != 0;
+			 node = node->next)
 		{
 			switch (node->event.type)
 			{
@@ -322,7 +322,7 @@ EntryPoint(String8List args)
 		R_PushRect(V2(1200 - 50, 50), V2(1200 + 450, 50 + 65), .color = V4(0.5, 0, 0, 1), .corner_radius = V4(10, 10, 10, 10), .edge_softness = 1);
 		R_PushRect(V2(1200 - 50, 50), V2(1200 + 450, 50 + 65), .color = V4(1, 1, 1, 1), .corner_radius = V4(10, 10, 10, 10), .edge_softness = 1, .border_thickness = 1);
 
-		R_PushRect(V2(0, 0), V2(1024*4, 1024*4), .texture = tile_atlas->texture);
+		R_PushRect(V2(0, 0), V2(1024 * 4, 1024 * 4), .texture = tile_atlas->texture);
 
 		Vec4F32 corner_radius = V4(30, 50, 20, 10);
 
@@ -337,11 +337,11 @@ EntryPoint(String8List args)
 		UI_NextSize2(UI_Em(20), UI_Em(20));
 		UI_NextChildLayoutAxis(Axis2_Y);
 		UI_NextBackgroundColor(ui_state->theme.window_color);
-		UI_Box *window_container = UI_BoxMake(UI_BoxFlag_FixedPos | 
-		                                      UI_BoxFlag_DrawBackground |
-		                                      UI_BoxFlag_DrawBorder |
-		                                      UI_BoxFlag_DrawDropShadow, 
-		                                      Str8Lit("WindowContainer"));
+		UI_Box *window_container = UI_BoxMake(UI_BoxFlag_FixedPos |
+											  UI_BoxFlag_DrawBackground |
+											  UI_BoxFlag_DrawBorder |
+											  UI_BoxFlag_DrawDropShadow,
+											  Str8Lit("WindowContainer"));
 
 		UI_Parent(window_container)
 		{
@@ -350,8 +350,8 @@ EntryPoint(String8List args)
 			{
 				UI_Spacer(UI_Fill());
 
-				UI_Box *title = UI_BoxMake(UI_BoxFlag_DrawText, 
-				                           Str8Lit("WindowTitlebar"));
+				UI_Box *title = UI_BoxMake(UI_BoxFlag_DrawText,
+										   Str8Lit("WindowTitlebar"));
 
 				UI_EquipBoxWithDisplayString(title, Str8Lit("My window"));
 
@@ -363,12 +363,12 @@ EntryPoint(String8List args)
 					UI_NextIcon(R_IconIndex_Cross);
 					UI_NextSize2(UI_Em(1.0f), UI_Em(1.0f));
 					UI_NextBackgroundColor(V4(0.6f, 0, 0, 1));
-					UI_Box *close_button = UI_BoxMake(UI_BoxFlag_DrawText | 
-					                                  UI_BoxFlag_DrawBackground |
-					                                  UI_BoxFlag_DrawBorder |
-					                                  UI_BoxFlag_HotAnimation |
-					                                  UI_BoxFlag_ActiveAnimation, 
-					                                  Str8Lit("WindowCloseButton"));
+					UI_Box *close_button = UI_BoxMake(UI_BoxFlag_DrawText |
+													  UI_BoxFlag_DrawBackground |
+													  UI_BoxFlag_DrawBorder |
+													  UI_BoxFlag_HotAnimation |
+													  UI_BoxFlag_ActiveAnimation,
+													  Str8Lit("WindowCloseButton"));
 					UI_Comm comm = UI_CommFromBox(close_button);
 				}
 			}

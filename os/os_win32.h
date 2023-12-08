@@ -17,9 +17,10 @@ typedef enum OS_EventType
 	OS_EventType_Resize,
 	OS_EventType_KeyPress,
 	OS_EventType_KeyRelease,
+	OS_EventType_DoubleClick,
 	OS_EventType_Character,
 	OS_EventType_Scroll,
-
+    
 	OS_EventType_COUNT,
 } OS_EventType;
 
@@ -51,7 +52,7 @@ typedef enum OS_Key
 	OS_Key_X,
 	OS_Key_Y,
 	OS_Key_Z,
-
+    
 	OS_Key_F1,
 	OS_Key_F2,
 	OS_Key_F3,
@@ -64,18 +65,18 @@ typedef enum OS_Key
 	OS_Key_F10,
 	OS_Key_F11,
 	OS_Key_F12,
-
+    
 	OS_Key_MouseLeft,
 	OS_Key_MouseMiddle,
 	OS_Key_MouseRight,
-
+    
 	OS_Key_Return,
 	OS_Key_Insert,
 	OS_Key_Escape,
-
+    
 	OS_Key_PageUp,
 	OS_Key_PageDown,
-
+    
 	OS_Key_COUNT,
 } OS_Key;
 
@@ -88,7 +89,7 @@ typedef enum OS_Cursor
 	OS_Cursor_ResizeXY,
 	OS_Cursor_Pan,
 	OS_Cursor_Beam,
-
+    
 	OS_Cursor_COUNT,
 } OS_Cursor;
 
@@ -96,30 +97,23 @@ typedef struct OS_State
 {
 	LARGE_INTEGER start_counter;
 	F64 freq;
-
+    
 	HCURSOR cursors[OS_Cursor_COUNT];
-
+    
 	B32 initialized;
 } OS_State;
-
-typedef struct OS_Window
-{
-	void *handle;
-	void *device_context;
-	String8 class_name;
-} OS_Window;
 
 typedef struct OS_Event
 {
 	OS_EventType type;
-	
+    
 	// OS_EventType_Scroll
 	S32 scroll;
-
+    
 	// OS_EventType_KeyPress
 	// OS_EventType_KeyRelease
 	OS_Key key;
-
+    
 	// OS_EventType_Character
 	char character;
 } OS_Event;
@@ -136,6 +130,20 @@ typedef struct OS_EventList
 	OS_EventNode *first;
 	OS_EventNode *last;
 } OS_EventList;
+
+typedef struct OS_Window
+{
+	void *handle;
+	void *device_context;
+	String8 class_name;
+    OS_EventList *event_list;
+} OS_Window;
+
+typedef struct OS_ProcWindow
+{
+    MemoryArena *arena;
+    OS_Window *window;
+} OS_ProcWindow;
 
 typedef struct OS_ReadFileResult
 {

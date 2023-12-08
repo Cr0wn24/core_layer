@@ -12,11 +12,11 @@
 #define PushStruct(arena, type) 		    (type *)PushSizeZero_(arena, sizeof(type))
 #define PushArray(arena, count, type)      (type *)PushSizeZero_(arena, count * sizeof(type))
 
-#define PushSizeNoZero(arena, size) 			        PushSize_(arena, size)
+#define PushSizeNoZero(arena, size) 			PushSize_(arena, size)
 #define PushStructNoZero(arena, type) 		    (type *)PushSize_(arena, sizeof(type))
-#define PushArrayNoZero(arena, count, type)      (type *)PushSize_(arena, count * sizeof(type))
+#define PushArrayNoZero(arena, count, type)   	(type *)PushSize_(arena, count * sizeof(type))
 
-#define PushStructCopy(arena, src) 								PushSizeCopy_(arena, (U8 *)src, sizeof(*src));
+#define PushStructCopy(arena, src) 				PushSizeCopy_(arena, (U8 *)src, sizeof(*src));
 
 typedef struct MemoryArena
 {

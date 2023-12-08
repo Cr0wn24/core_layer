@@ -77,7 +77,7 @@ typedef struct R_RectParams
 	{
 		Vec4F32 color;
 
-		struct 
+		struct
 		{
 			Vec4F32 colors[2];
 		};
@@ -181,7 +181,7 @@ typedef struct R_State
 	GPULoadTextureProc *GPULoadTexture;
 
 	struct R_FontSizeCollection *fonts[128];
-		
+
 	Vec2S32 render_dim;
 } R_State;
 

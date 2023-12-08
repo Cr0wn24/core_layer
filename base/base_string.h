@@ -11,7 +11,7 @@ typedef struct String8Node
 {
 	struct String8Node *next;
 	struct String8Node *prev;
-
+    
 	String8 string;
 } String8Node;
 
@@ -24,7 +24,7 @@ typedef struct String8List
 typedef struct String8StackNode
 {
 	struct String8StackNode *next;
-
+    
 	String8 string;
 } String8StackNode;
 
@@ -35,7 +35,7 @@ typedef struct String8Stack
 
 #define Str8Lit(s) Str8((U8 *)s, sizeof(s) - 1)
 #define Str8Lit2(s) {(U8 *)s, sizeof(s) - 1}
-#define Str8C(s) Str8((U8 *)s, CStringLength(s))
+#define Str8C(s) Str8((U8 *)s, CStringLength((char *)s))
 
 
 #endif
